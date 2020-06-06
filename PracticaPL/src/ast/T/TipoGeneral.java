@@ -1,0 +1,5 @@
+package ast.T;
+
+public enum TipoGeneral {
+	INSTRUCCION,EXPRESION,CASE,TIPOS, EXPRESION_BINARIA,EXPRESION_UNARIA
+}
