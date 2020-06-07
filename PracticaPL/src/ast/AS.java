@@ -12,7 +12,6 @@ public class AS {
 	  public E or(E opnd1, E opnd2) {return new Or(opnd1,opnd2);}
 	  public E and(E opnd1, E opnd2) {return new And(opnd1,opnd2);}
 	  public E equal(E opnd1, E opnd2) {return new Equal(opnd1,opnd2);}
-	  public E not(E opnd1) {return new Not(opnd1);}
 	  public E greaterThan(E opnd1, E opnd2) {return new GreaterThan(opnd1,opnd2);}
 	  public E lessThan(E opnd1, E opnd2) {return new LessThan(opnd1,opnd2);}
 	  public E greaterEqual(E opnd1, E opnd2) {return new GreaterEqual(opnd1,opnd2);}
@@ -26,12 +25,17 @@ public class AS {
 	  public E elev(E opnd1, E opnd2) {return new Elev(opnd1, opnd2);}
 	  public E squareBracket(E opnd1, E opnd2) {return new SquareBracket(opnd1,opnd2);}
 	  public E dot(E opnd1, E opnd2) {return new Dot(opnd1, opnd2);}
+	  
 	  public E basicTrue() {return new BasicTrue();}
 	  public E basicFalse() {return new BasicFalse();}
 	  public E iden(String iden) {return new Iden(iden);}
-	  public E menos(E opnd1) {return new Menos(opnd1);}
-	  public E llamadaFuncion(String iden, List<E> args) {return new LlamadaFuncion(iden, args);}
+	
 	  
+	 public E llamadaFuncion(String iden, List<E> args) {return new LlamadaFuncion(iden, args);}
+	  public E pointer(E opnd1) {return new Asterisk(opnd1);}
+	  public E not(E opnd1) {return new Not(opnd1);}
+	  public E menos(E opnd1) {return new Menos(opnd1);}
+
 	  //Metodos para la creacion de clases de instrucciones
 	  public I instIf(E condicion, List<I> cuerpo_if, List<I> cuerpo_else) {return new InstIf(condicion, cuerpo_if, cuerpo_else);}
 	  public I instWhile(E condicion, List<I> cuerpo) {return new InstWhile(condicion, cuerpo);};

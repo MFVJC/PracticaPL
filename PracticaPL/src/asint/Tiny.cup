@@ -118,7 +118,11 @@ E6  ::= E7:op1
 E7  ::= E7:op1 CA E0:op2 CC
 {:RESULT=as.squareBracket(op1, op2);:};
 E7  ::= E7:op1 PUNTO E9:op2
+
+//ESTO ALOMEJOR HAY QUE CAMBIARLO PARA QUE PASARLE UN OBJETO IDEN
 {:RESULT = as.dot(op1, op2);:};
+
+
 E7  ::= E8:op1
 {:RESULT=op1;:};
 	
@@ -127,6 +131,7 @@ E8  ::= MENOS E9:op1
 {:RESULT=as.menos(op1);:};
 E8  ::= E9:op1
 {:RESULT=op1;:};
+
 
 	//Terminales y llamada a funcion como expresion
 E9  ::= IDEN:id PA LIST_ARG:args PC
@@ -142,7 +147,7 @@ E9  ::= TRUE
 E9  ::= FALSE
 {:RESULT=as.basicFalse();:};
 
-		//No terminales auxiliares para la llamada a funcion como expresion
+//No terminales auxiliares para la llamada a funcion como expresion
 LIST_ARG ::= CON_ARG:op1
 {:RESULT=op1;:};
 LIST_ARG ::= 
