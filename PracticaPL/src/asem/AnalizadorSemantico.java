@@ -117,6 +117,23 @@ public class AnalizadorSemantico {
 			case EXPRESION:
 			E expresion = (E) sentencia;
 				
+			switch(expresion.tipoExpresion()) {
+			case FUNCION:
+				break;
+			case IDEN:
+				break;
+			case NOT:
+				Not expNot = (Not) expresion;
+				vincula(expNot.opnd1());
+				break;
+			case ASTERISK:
+				Asterisk asterisk = (Asterisk) expresion;
+				vincula(asterisk.opnd1());
+			break;
+			default:
+				break;
+			
+			}
 			break;
 			
 			case TIPOS:
@@ -138,6 +155,10 @@ public class AnalizadorSemantico {
 				default:
 					break;
 				}
+			break;
+		case EXPRESION_UNARIA:
+			break;
+		default:
 			break;
 		}
 	}
