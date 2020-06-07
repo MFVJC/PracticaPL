@@ -10,10 +10,10 @@ import errors.GestionErroresTiny;
 import javafx.util.Pair;
 
 public class AnalizadorSemantico {
-	private SentenciaAbstracta sentenciaRaiz;
+	private List<I> programa;
 	private TablaSimbolos tabla = new TablaSimbolos();
-	public AnalizadorSemantico(SentenciaAbstracta sentenciaRaiz) {
-		this.sentenciaRaiz = sentenciaRaiz;
+	public AnalizadorSemantico(List<I> programa) {
+		this.programa = programa;
 	}
 	
 	
