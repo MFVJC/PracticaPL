@@ -21,7 +21,7 @@ public class InstDeclaracion extends I {
 	    this.valor = valor;
 	}
    
-   public TipoI tipo() {return TipoI.DECL;}
+   public TipoI tipoInstruccion() {return TipoI.DECL;}
    
    public String toString() {
 	   String aux = "{{_Decl__}";

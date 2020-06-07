@@ -156,7 +156,7 @@ ARG		 ::=
 
 
 //Gramatica de instrucciones
-	//Todas las instrucciones posibles
+//Todas las instrucciones posibles
 INST ::= INST_IF:op1
 {:RESULT = op1;:};
 INST ::= INST_WHILE:op1
@@ -174,21 +174,21 @@ INST ::= INST_DECL_FUN:op1
 INST ::= INST_CALL_PROC:op1
 {:RESULT = op1;:};
 
-	//Instruccion If
+//Instruccion If
 INST_IF ::= IF PA E0:condicion PC THEN LA S:cuerpo LC
 {:RESULT = as.instIf(condicion, cuerpo, null);:};
 INST_IF ::= IF PA E0:condicion PC THEN LA S:cuerpo_if LC ELSE LA S:cuerpo_else LC
 {:RESULT = as.instIf(condicion, cuerpo_if, cuerpo_else);:};
 
-	//Instruccion while
+//Instruccion while
 INST_WHILE ::= WHILE PA E0:condicion PC DO LA S:cuerpo LC
 {:RESULT = as.instWhile(condicion, cuerpo);:};
 
-	//Instruccion switch
+//Instruccion switch
 INST_SWITCH ::= SWITCH PA IDEN:condicion PC LA LIST_CASE:list_cases LC
 {:RESULT = as.instSwitch(as.iden(condicion), list_cases);:};
 		
-		//No terminales auxiliares para la instruccion switch: implementamos la lista de cases y default
+//No terminales auxiliares para la instruccion switch: implementamos la lista de cases y default
 SINGLE_DEFAULT ::= DEFAULT LA S:cuerpo LC
 {:RESULT = new Pair<E, List<I>>(null, cuerpo);:};
 SINGLE_CASE ::= CASE E0:selector THEN LA S:cuerpo LC
@@ -200,11 +200,11 @@ LIST_CASE ::= SINGLE_DEFAULT:defa
 LIST_CASE ::= 
 {:List<Pair<E, List<I>>> cases = new ArrayList<Pair<E, List<I>>>(); RESULT = cases;:};
 
-	//Instruccion asignacion
+//Instruccion asignacion
 INST_ASIG ::= E0:id IGUAL E0:valor PCOMA
 {:RESULT = as.instAsignacion(id, valor);:};
 
-	//Instruccion declaracion
+//Instruccion declaracion
 INST_DECL ::= TIPO:tipo IDEN:id INIT_LIST_DIM:tam PCOMA
 {:RESULT = as.instDeclaracion(false, tipo, as.iden(id), tam, null);:};
 INST_DECL ::= TIPO:tipo IDEN:id INIT_LIST_DIM:tam IGUAL INIT_LIST_VAL:valor PCOMA
@@ -212,13 +212,14 @@ INST_DECL ::= TIPO:tipo IDEN:id INIT_LIST_DIM:tam IGUAL INIT_LIST_VAL:valor PCOM
 INST_DECL ::= CONST TIPO:tipo IDEN:id INIT_LIST_DIM:tam IGUAL INIT_LIST_VAL:valor PCOMA
 {:RESULT = as.instDeclaracion(true, tipo, as.iden(id), tam, valor);:};
 
-		//No terminales auxiliares para la instruccion declaracion
-			//Lista de dimensiones
+//No terminales auxiliares para la instruccion declaracion
+//Lista de dimensiones
 INIT_LIST_DIM ::= CA ENT:tam CC INIT_LIST_DIM:list
 {:list.add(0, as.num(tam)); RESULT = list;:};
 INIT_LIST_DIM ::=  
 {:List<E> list = new ArrayList<E>(); RESULT = list;:};
-			//Lista de valores iniciales
+
+//Lista de valores iniciales
 INIT_LIST_VAL ::= LIST_VAL:list
 {:RESULT = list;:};
 INIT_LIST_VAL   ::= LA LIST_VAL:list LC
@@ -227,7 +228,8 @@ LIST_VAL  ::= E0:val COMA LIST_VAL:list
 {:list.add(0, val); RESULT = list;:};
 LIST_VAL  ::= E0:val
 {:List<E> list = new ArrayList<E>(); list.add(0, val); RESULT = list;:};
-			//Lista de tipos
+
+//Lista de tipos
 TIPO ::= INT:tipo
 {:RESULT = "int";:};
 TIPO ::= BOOLEAN:tipo
@@ -235,25 +237,25 @@ TIPO ::= BOOLEAN:tipo
 TIPO ::= IDEN:tipo
 {:RESULT = tipo;:};
 
-	//Instruccion struct
+//Instruccion struct
 INST_STRUCT ::= STRUCT LA LIST_DECL:lista LC IDEN:nombre PCOMA
 {:RESULT = as.instStruct(as.iden(nombre), lista);:};
 		
-		//No terminales auxiliares para la declaracion de struct: implementamos la lista de declaraciones
+//No terminales auxiliares para la declaracion de struct: implementamos la lista de declaraciones
 LIST_DECL ::= INST_DECL:decl LIST_DECL:lista
 {:lista.add(0, decl); RESULT = lista;:};
 LIST_DECL ::= 
 {:RESULT = new ArrayList<I>();:};
 
 
-	//Instruccion declaracion de funcion
+//Instruccion declaracion de funcion
 INST_DECL_FUN ::= TIPO:tipo IDEN:id PA LIST_TIPO_ARG:args PC LA S:cuerpo RETURN E0:ret PCOMA LC
 {:RESULT = as.instDeclFun(tipo, as.iden(id), args, cuerpo, ret);:};
 INST_DECL_FUN ::= PROC IDEN:id PA LIST_TIPO_ARG:args PC LA S:cuerpo LC
 {:RESULT = as.instDeclFun(null, as.iden(id), args, cuerpo, null);:};
 
-		//No terminales auxiliares para la instruccion de declaracion de funcion 
-		//Implementamos una lista de argumentos con sus respectivos tipos
+//No terminales auxiliares para la instruccion de declaracion de funcion 
+//Implementamos una lista de argumentos con sus respectivos tipos
 LIST_TIPO_ARG ::= CON_TIPO_ARG:args
 {:RESULT=args;:};
 LIST_TIPO_ARG ::= 

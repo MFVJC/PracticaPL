@@ -15,7 +15,7 @@ public class InstIf extends I {
 		this.cuerpo_else = cuerpo_else;
 	}
    
-   public TipoI tipo() {return TipoI.IF;}
+   public TipoI tipoInstruccion() {return TipoI.IF;}
    public String toString() {
 	   String aux = "{{__If___}{{_Cond__}" + condicion + "}{{_Cuer__}";
 	   

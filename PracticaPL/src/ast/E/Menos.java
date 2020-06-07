@@ -8,6 +8,6 @@ public class Menos extends E {
    public Menos(E opnd1) {
      this.opnd1 = opnd1;  
    }     
-   public TipoE tipo() {return TipoE.MENOS;}
+   public TipoE tipoExpresion() {return TipoE.MENOS;}
    public String toString() {return "{{_Menos_}" + opnd1 + "}";}
 }

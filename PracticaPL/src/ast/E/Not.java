@@ -8,6 +8,6 @@ public class Not extends E {
    public Not(E opnd1) {
      this.opnd1 = opnd1;  
    }     
-   public TipoE tipo() {return TipoE.NOT;}
+   public TipoE tipoExpresion() {return TipoE.NOT;}
    public String toString() {return "{{__Not__}" + opnd1 + "}";}
 }

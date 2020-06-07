@@ -8,7 +8,7 @@ public class Iden extends E {
 	public Iden(String opnd1) {
      this.opnd1 = opnd1;  
    }     
-   public TipoE tipo() {return TipoE.IDEN;}
+   public TipoE tipoExpresion() {return TipoE.IDEN;}
    public String toString() {
 	   return "{" + opnd1 + "}";
    }

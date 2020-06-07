@@ -9,6 +9,6 @@ public class Num extends E {
    this.v = v;   
   }
   public String num() {return v;}
-  public TipoE tipo() {return TipoE.NUM;}   
+  public TipoE tipoExpresion() {return TipoE.NUM;}   
   public String toString() {return "{" + v + "}";}  
 }

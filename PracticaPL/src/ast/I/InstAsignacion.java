@@ -12,7 +12,7 @@ public class InstAsignacion extends I {
 		this.valor = valor;
 	}
    
-   public TipoI tipo() {return TipoI.ASIG;}
+   public TipoI tipoInstruccion() {return TipoI.ASIG;}
    
    public String toString() {
 	   String aux = "{{_Asig__}" + iden.toString() + valor.toString() + "}";

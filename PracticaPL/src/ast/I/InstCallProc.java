@@ -13,7 +13,7 @@ public class InstCallProc extends I {
 	       nombre_funcion = iden;
 	       argumentos = args;
 	}     
-	public TipoI tipo() {return TipoI.CALLPROC;}
+	public TipoI tipoInstruccion() {return TipoI.CALLPROC;}
 	public String toString() {
 		String aux = "{{_Call__}{" + nombre_funcion + "}{{_Args__}";
 		for(E argumento : argumentos) aux += argumento.toString();		

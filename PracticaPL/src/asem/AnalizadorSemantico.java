@@ -20,7 +20,7 @@ public class AnalizadorSemantico {
 		
 			case INSTRUCCION:
 				I instruccion = (I) sentencia;
-				switch(instruccion.tipo()) {
+				switch(instruccion.tipoInstruccion()) {
 				case ASIG:
 					InstAsignacion asignacion = (InstAsignacion) sentencia;
 					vincula(asignacion.getIden());

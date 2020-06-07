@@ -14,7 +14,7 @@ public class InstWhile extends I {
 			this.cuerpo = cuerpo;
 	}
 	 
-	public TipoI tipo() {return TipoI.WHILE;}
+	public TipoI tipoInstruccion() {return TipoI.WHILE;}
 	public String toString() {
 		   String aux = "{{_While_}{{_Cond__}" + condicion + "}{{_Cuer__}";
 		   

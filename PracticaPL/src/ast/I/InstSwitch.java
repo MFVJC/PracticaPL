@@ -15,7 +15,7 @@ public class InstSwitch extends I {
 		this.cases = cases;
 	}
    
-   public TipoI tipo() {return TipoI.IF;}
+   public TipoI tipoInstruccion() {return TipoI.IF;}
    public String toString() {
 	   String aux = "{{_Swit_}{{" + "_Cond__}" + condicion + "}";
 	   

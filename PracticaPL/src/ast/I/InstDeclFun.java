@@ -21,7 +21,7 @@ public class InstDeclFun extends I {
 		this.ret = ret;
 	}
  
- public TipoI tipo() {return TipoI.DECLFUN;}
+ public TipoI tipoInstruccion() {return TipoI.DECLFUN;}
  public String toString() {
 	   String aux;
 	   if(tipo != null) aux = "{{_DeclF_}{" + tipo + "}" + iden + "{{_Args__}";

@@ -14,7 +14,7 @@ public class InstStruct extends I {
 	    this.declaraciones = declaraciones;
 	}
    
-   public TipoI tipo() {return TipoI.ASIG;}
+   public TipoI tipoInstruccion() {return TipoI.ASIG;}
    
    public String toString() {
 	   String aux = "{{_Stru__}";
