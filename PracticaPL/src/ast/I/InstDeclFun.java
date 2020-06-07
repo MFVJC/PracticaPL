@@ -42,4 +42,27 @@ public class InstDeclFun extends I {
 	   
 	   return aux;
  }
+	public String getTipo() {
+		return tipo;
+	}
+	
+	public void setTipo(String tipo) {
+		this.tipo = tipo;
+	}
+	
+	public E getIden() {
+		return iden;
+	}
+	
+	public List<Pair<String, E>> getArgs() {
+		return args;
+	}
+	
+	public List<I> getCuerpo() {
+		return cuerpo;
+	}
+	
+	public E getRet() {
+		return ret;
+	}
 }

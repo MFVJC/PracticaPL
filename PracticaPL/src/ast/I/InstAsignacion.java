@@ -6,7 +6,8 @@ public class InstAsignacion extends I {
 	private E iden;
 	private E valor;
 	
-   public InstAsignacion(E iden, E valor) {
+
+	public InstAsignacion(E iden, E valor) {
 	    this.iden = iden;
 		this.valor = valor;
 	}
@@ -18,4 +19,11 @@ public class InstAsignacion extends I {
 	   
 	   return aux;
    }
+   public E getIden() {
+		return iden;
+	}
+
+	public E getValor() {
+		return valor;
+	}
 }

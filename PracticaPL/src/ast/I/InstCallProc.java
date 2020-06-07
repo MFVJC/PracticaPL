@@ -20,4 +20,10 @@ public class InstCallProc extends I {
 		aux += "}}";
 		return aux;
 	}
+	public String getNombre_funcion() {
+		return nombre_funcion;
+	}
+	public List<E> getArgumentos() {
+		return argumentos;
+	}
 }

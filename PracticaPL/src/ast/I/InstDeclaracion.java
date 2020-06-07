@@ -46,5 +46,24 @@ public class InstDeclaracion extends I {
 	   aux += "}";
 	   return aux;
    }
+	public boolean isConstant() {
+		return constant;
+	}
+	
+	public String getTipo() {
+		return tipo;
+	}
+	
+	public E getIden() {
+		return iden;
+	}
+	
+	public List<E> getTam() {
+		return tam;
+	}
+	
+	public List<E> getValor() {
+		return valor;
+	}
 
 }
