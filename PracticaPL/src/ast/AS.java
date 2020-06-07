@@ -2,6 +2,7 @@ package ast;
 
 import java.util.List;
 import ast.I.*;
+import ast.T.*;
 import javafx.util.Pair;
 import ast.E.*;
 
@@ -45,4 +46,10 @@ public class AS {
 	  public I instStruct(E iden, List<I> declaraciones) {return new InstStruct(iden, declaraciones);};
 	  public I instDeclFun(String tipo, E iden, List<Pair<String, E>> args, List<I> cuerpo, E ret) {return new InstDeclFun(tipo, iden, args, cuerpo, ret);};
 	  public I instCallProc(String iden, List<E> args) {return new InstCallProc(iden, args);}
+
+	  public Tipo tipoInt() {return new TipoInt();}
+	  public Tipo tipoBoolean() {return new TipoBoolean();}
+	  public Tipo tipoPuntero(Tipo claseApuntada) {return new TipoPuntero(claseApuntada);}
+	  public Tipo tipoStruct(String nombreStruct) {return new TipoStruct(nombreStruct);}
+
 }
