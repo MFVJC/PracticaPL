@@ -162,5 +162,95 @@ public class AnalizadorSemantico {
 			break;
 		}
 	}
-	
+	public boolean compruebaTipos(SentenciaAbstracta sentencia) {
+		if(sentencia.tipoSentencia() == TipoGeneral.INSTRUCCION) { //se comprueban instrucciones en esta función
+			I instruccion = (I) sentencia;
+			switch(instruccion.tipoInstruccion()) {
+			case ASIG:
+				InstAsignacion instruccionAsignacion = (InstAsignacion) instruccion;
+				//hay que comprobar que la variable a la que intentas acceder no es constante
+				Tipo tipoAsignar = tiposExpresion(instruccionAsignacion.getValor());
+				
+				
+				
+				
+				break;
+			case CALLPROC:
+				break;
+			case DECL:
+				break;
+			case DECLFUN:
+				break;
+			case IF:
+				break;
+			case STRUCT:
+				break;
+			case SWITCH:
+				break;
+			case WHILE:
+				break;
+			default:
+				break;
+			
+			}
+			
+		}
+		
+		
+		return false;
+	}
+public Tipo tiposExpresion(SentenciaAbstracta sentencia) {
+	switch(sentencia.tipoSentencia()) {
+	case EXPRESION_BINARIA:
+		EBin ebin = (EBin) sentencia;
+		switch(ebin.tipoExpresion()) {
+		case AND:
+			break;
+		case DIV:
+			break;
+		case DOT:
+			break;
+		case ELEV:
+			break;
+		case EQUAL:
+			break;
+		case GREATEREQUAL:
+			break;
+		case GREATERTHAN:
+			break;
+		case LESSEQUAL:
+			break;
+		case LESSTHAN:
+			break;
+		case MUL:
+			break;
+		case NOTEQUAL:
+			break;
+		case OR:
+			break;
+		case RESTA:
+			break;
+		case SQUAREBRACKET:
+			break;
+		case SUMA:
+			break;
+		default:
+			break;
+		
+		}
+		break;
+	case EXPRESION:
+		break;
+	case EXPRESION_UNARIA:
+		break;
+	case INSTRUCCION:
+		break;
+	case TIPOS:
+		break;
+	default:
+		break;
+	}
+	return null;
+
+  }
 }
