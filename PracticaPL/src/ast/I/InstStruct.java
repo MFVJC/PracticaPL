@@ -5,7 +5,6 @@ import java.util.List;
 import ast.E.E;
 
 public class InstStruct extends I {
-
 	private E iden;
 	private List<I> declaraciones;
 
@@ -26,4 +25,13 @@ public class InstStruct extends I {
 	   
 	   return aux;
    }
+
+	public E getIden() {
+		return iden;
+	}
+	
+	public List<I> getDeclaraciones() {
+		return declaraciones;
+	}
+	   
 }

@@ -23,4 +23,13 @@ public class InstWhile extends I {
 		   
 		   return aux;
 	 }
+
+	public E getCondicion() {
+		return condicion;
+	}
+
+	public List<I> getCuerpo() {
+		return cuerpo;
+	}
+	
 }

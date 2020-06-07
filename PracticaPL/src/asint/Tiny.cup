@@ -37,13 +37,16 @@ terminal IGUAL, COMA, PCOMA, PUNTO, MAS, MENOS, POR, DIV, MOD, AND, OR, NOT,
 
 terminal String IDEN, ENT;
 
-	//No terminales
-non terminal String TIPO;
+
+//No terminales
+non terminal Tipo TIPO; //modificado para que contenga la información del tipo
 
 non terminal E E0, E1, E2, E3, E4, E5, E6, E7, E8, E9;
 
 non terminal List<E> LIST_ARG, CON_ARG, ARG, LIST_VAL, INIT_LIST_VAL, INIT_LIST_DIM;
 
+//Su clase Param corresponde con un par de String (identificador) con su tipo
+//esto probablemente haya que cambiarlo
 non terminal List<Pair<String, E>> LIST_TIPO_ARG, CON_TIPO_ARG, TIPO_ARG;
 
 non terminal I INST, INST_IF,INST_WHILE, INST_SWITCH, INST_ASIG, INST_DECL, INST_STRUCT, INST_DECL_FUN, INST_CALL_PROC;
@@ -52,6 +55,7 @@ non terminal List<I> S, LIST_DECL;
 
 non terminal Pair<E, List<I>> SINGLE_DEFAULT, SINGLE_CASE;
 
+//usada para el switch( Su tipo Case es una lista de pares donde aparece el identificador y sus instrucciones)
 non terminal List<Pair<E, List<I>>> LIST_CASE;
 
 //Gramatica de expresiones ordenada respecto a la precedencia de los distintos operadores

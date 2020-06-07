@@ -1,9 +1,13 @@
 package asem;
 
+import java.util.List;
+
 import ast.SentenciaAbstracta;
-import ast.E.E;
+import ast.E.*;
 import ast.I.*;
+import ast.T.*;
 import errors.GestionErroresTiny;
+import javafx.util.Pair;
 
 public class AnalizadorSemantico {
 	private SentenciaAbstracta sentenciaRaiz;
@@ -53,12 +57,47 @@ public class AnalizadorSemantico {
 					//tabla.insertaSimbolo(((Iden)declaracionFuncion.getIden())-, sentencia);
 					break;
 				case IF:
+					InstIf instIf = (InstIf) sentencia;
+					vincula(instIf.getCondicion());
+					tabla.nuevaTablaSimbolos();
+					instIf.getCuerpo_if().forEach(x->vincula(x));
+					tabla.eliminaTablaSimbolos();
+					List<I> cuerpoElse = instIf.getCuerpo_else();
+					if(cuerpoElse != null) {
+						tabla.nuevaTablaSimbolos();
+						instIf.getCuerpo_else().forEach(x->vincula(x));
+						tabla.eliminaTablaSimbolos();
+					}
 					break;
 				case STRUCT:
+					InstStruct instStruct = (InstStruct) sentencia;
+					//faltaría meter la referencia a la sentencia abstracta
+					tabla.insertaSimbolo(((Iden) instStruct.getIden()).getNombre(), instStruct);
+					tabla.nuevaTablaSimbolos();
+					instStruct.getDeclaraciones().forEach(x->vincula(x));
+					tabla.eliminaTablaSimbolos();
 					break;
 				case SWITCH:
+					InstSwitch instSwitch = (InstSwitch) sentencia;
+					//aquí con la condicion cogemos la referencia de la tabla de símbolos
+					SentenciaAbstracta referenciaVariableSwitch = tabla.getSentenciaDeclaracion(((Iden)instSwitch.getCondicion()).getNombre());
+					if(referenciaVariableSwitch == null) {
+						GestionErroresTiny.errorSemantico("La variable " + ((Iden)instSwitch.getCondicion()).getNombre() + " no ha sido declarada");
+					}
+					List<Pair<E, List<I>>> casos = instSwitch.getCases();
+					for(Pair<E, List<I>> caso : casos) {
+						tabla.nuevaTablaSimbolos();
+						caso.getValue().forEach(x->vincula(x));
+						tabla.eliminaTablaSimbolos();
+					}
+					//Si no hacemos los cases vamos a perder la información de la SentenciaAbstracta correspondiente al case.
 					break;
 				case WHILE:
+					InstWhile instWhile = (InstWhile) sentencia;
+					vincula(instWhile.getCondicion()); // así veo el tipo
+					tabla.nuevaTablaSimbolos();
+					instWhile.getCuerpo().forEach(x-> vincula(x));
+					tabla.eliminaTablaSimbolos();
 					break;
 				default:
 					break;
@@ -68,7 +107,12 @@ public class AnalizadorSemantico {
 			break;
 			
 			case EXPRESION_BINARIA:
-				
+				EBin expresionBinaria = (EBin) sentencia;
+					//en el caso de que sea un punto solo tengo que vincular el primer operando
+					vincula(expresionBinaria.opnd1());
+					if(expresionBinaria.tipoExpresion() != TipoE.DOT) {
+						vincula(expresionBinaria.opnd2());
+					}
 			break;
 			case EXPRESION:
 			E expresion = (E) sentencia;
@@ -76,7 +120,24 @@ public class AnalizadorSemantico {
 			break;
 			
 			case TIPOS:
-				
+				Tipo tipo = (Tipo) sentencia;
+				switch(tipo.tipoEnumerado()) {
+				case PUNTERO:
+					vincula(((TipoPuntero)tipo).getClaseApuntada());
+					break;
+				case STRUCTS:
+					TipoStruct tipoStruct = (TipoStruct) tipo;
+					SentenciaAbstracta referenciaSentencia = tabla.getSentenciaDeclaracion(tipoStruct.getNombreStruct());
+					if(referenciaSentencia == null) {
+						GestionErroresTiny.errorSemantico("Struct " + tipoStruct.getNombreStruct() + " no declarado.");
+					}else {
+						//guardo la referencia a la sentencia en la que se declaró dentro del nodo
+					}
+					
+					break;
+				default:
+					break;
+				}
 			break;
 		}
 	}

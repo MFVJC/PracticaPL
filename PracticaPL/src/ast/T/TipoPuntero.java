@@ -10,4 +10,7 @@ public class TipoPuntero extends Tipo{
 	public EnumeradoTipos tipoEnumerado() {
 		return EnumeradoTipos.PUNTERO;
 	}
+	public Tipo getClaseApuntada() {
+		return claseApuntada;
+	}
 }

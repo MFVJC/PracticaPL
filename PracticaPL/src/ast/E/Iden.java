@@ -3,13 +3,16 @@ package ast.E;
 import ast.E.TipoE;
 
 public class Iden extends E {
-	private String opnd1;
+	private String nombre;
    
 	public Iden(String opnd1) {
-     this.opnd1 = opnd1;  
+     this.nombre = opnd1;  
    }     
    public TipoE tipoExpresion() {return TipoE.IDEN;}
    public String toString() {
-	   return "{" + opnd1 + "}";
+	   return "{" + nombre + "}";
+   }
+   public String getNombre() {
+	   return nombre;
    }
 }

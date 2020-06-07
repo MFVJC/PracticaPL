@@ -35,4 +35,11 @@ public class InstSwitch extends I {
 	   
 	   return aux;
    }
+public E getCondicion() {
+	return condicion;
+}
+public List<Pair<E, List<I>>> getCases() {
+	return cases;
+}
+   
 }

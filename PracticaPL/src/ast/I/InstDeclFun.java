@@ -6,26 +6,26 @@ import ast.E.E;
 import javafx.util.Pair;
 
 public class InstDeclFun extends I {
-	  
+	 
 	private String tipo; //Si tipo es null es un procedimiento, en caso contrario es una funcion
-	private E iden;
+	private E nombreFuncion;
 	private List<Pair<String, E>> args;
 	private List<I> cuerpo;
-	private E ret;
+	private E valorReturn;
 
  public InstDeclFun(String tipo, E iden, List<Pair<String, E>> args, List<I> cuerpo, E ret) {
 		this.tipo = tipo;
-		this.iden = iden;
+		this.nombreFuncion = iden;
 		this.args = args;
 		this.cuerpo = cuerpo;
-		this.ret = ret;
+		this.valorReturn = ret;
 	}
  
  public TipoI tipoInstruccion() {return TipoI.DECLFUN;}
  public String toString() {
 	   String aux;
-	   if(tipo != null) aux = "{{_DeclF_}{" + tipo + "}" + iden + "{{_Args__}";
-	   else aux = "{{_DeclP_}" + iden + "{{_Args__}";
+	   if(tipo != null) aux = "{{_DeclF_}{" + tipo + "}" + nombreFuncion + "{{_Args__}";
+	   else aux = "{{_DeclP_}" + nombreFuncion + "{{_Args__}";
 	   
 	   int i = 0;
 	   for(Pair<String, E> arg : args) {
@@ -37,7 +37,7 @@ public class InstDeclFun extends I {
 	  
 	   aux += "}{{_Cuer__}";
 	   for(I ins : cuerpo) aux += ins.toString();
-	   if(ret != null) aux += "{{__Ret__}" + ret + "}";
+	   if(valorReturn != null) aux += "{{__Ret__}" + valorReturn + "}";
 	   aux += "}}";
 	   
 	   return aux;
@@ -51,7 +51,7 @@ public class InstDeclFun extends I {
 	}
 	
 	public E getIden() {
-		return iden;
+		return nombreFuncion;
 	}
 	
 	public List<Pair<String, E>> getArgs() {
@@ -63,6 +63,6 @@ public class InstDeclFun extends I {
 	}
 	
 	public E getRet() {
-		return ret;
+		return valorReturn;
 	}
 }

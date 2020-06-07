@@ -8,6 +8,7 @@ import ast.E.*;
 
 public class InstDeclaracion extends I {
 	private boolean constant;
+	//este tipo debería ser de la clase Tipo
 	private String tipo;
 	private E iden;
 	private List<E> tam;
