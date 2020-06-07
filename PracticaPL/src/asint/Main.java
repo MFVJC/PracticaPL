@@ -77,7 +77,7 @@ public class Main {
 		 
 		 System.out.println(printTree("_PROGR_", splitFromParent(tree), nivel, last_child));
 		//devuelve la raíz del árbol 
-		 //S programa = (S) asint.parse().value;
+		 //List<I> programa = (I) asint.parse().value;
 	   }
 	
 }
