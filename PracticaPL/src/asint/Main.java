@@ -74,6 +74,7 @@ public class Main {
 		 tree = tree.substring(1, tree.length()-1);
 		 String nivel = "";
 		 boolean last_child = true;
+		 //NO
 		 //PRUEBA!
 		 //JEJE
 		 System.out.println(printTree("_PROGR_", splitFromParent(tree), nivel, last_child));
