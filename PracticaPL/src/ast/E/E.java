@@ -1,7 +1,7 @@
 package ast.E;
 
 import ast.SentenciaAbstracta;
-import ast.T.TipoGeneral;
+import ast.T.EnumeradoTipoGeneral;
 
 public abstract class E extends SentenciaAbstracta{
    public abstract TipoE tipoExpresion(); 
@@ -10,7 +10,7 @@ public abstract class E extends SentenciaAbstracta{
    public E opnd2() {throw new UnsupportedOperationException("opnd2");} 
    public String num() {throw new UnsupportedOperationException("num");}
    
-   public TipoGeneral tipoSentencia(){
-	   return TipoGeneral.EXPRESION;
+   public EnumeradoTipoGeneral tipoSentencia(){
+	   return EnumeradoTipoGeneral.EXPRESION;
    }
 }

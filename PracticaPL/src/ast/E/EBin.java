@@ -1,6 +1,6 @@
 package ast.E;
 
-import ast.T.TipoGeneral;
+import ast.T.EnumeradoTipoGeneral;
 
 public abstract class EBin extends E {
    private E opnd1;
@@ -11,7 +11,7 @@ public abstract class EBin extends E {
    }
    public E opnd1() {return opnd1;}
    public E opnd2() {return opnd2;} 
-   public TipoGeneral tipoSentencia() {
-	   return TipoGeneral.EXPRESION_BINARIA;
+   public EnumeradoTipoGeneral tipoSentencia() {
+	   return EnumeradoTipoGeneral.EXPRESION_BINARIA;
    }
 }

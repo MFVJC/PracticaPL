@@ -10,7 +10,7 @@ public class TipoStruct extends Tipo{
 	}
 	@Override
 	public EnumeradoTipos tipoEnumerado() {
-		return EnumeradoTipos.STRUCTS;
+		return EnumeradoTipos.STRUCT;
 	}
 
 }

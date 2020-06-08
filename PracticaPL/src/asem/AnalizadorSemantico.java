@@ -16,10 +16,11 @@ public class AnalizadorSemantico {
 		this.programa = programa;
 	}
 	
-	
+	public void analizaSemantica() {
+		
+	}
 	
 	public void vincula(SentenciaAbstracta sentencia) {
-		//INSTRUCCION,EXPRESION,CASE,TIPOS, EXPRESION_BINARIA,EXPRESION_UNARIA
 		switch(sentencia.tipoSentencia()) {
 		
 			case INSTRUCCION:
@@ -142,7 +143,7 @@ public class AnalizadorSemantico {
 				case PUNTERO:
 					vincula(((TipoPuntero)tipo).getClaseApuntada());
 					break;
-				case STRUCTS:
+				case STRUCT:
 					TipoStruct tipoStruct = (TipoStruct) tipo;
 					SentenciaAbstracta referenciaSentencia = tabla.getSentenciaDeclaracion(tipoStruct.getNombreStruct());
 					if(referenciaSentencia == null) {
@@ -163,7 +164,7 @@ public class AnalizadorSemantico {
 		}
 	}
 	public boolean compruebaTipos(SentenciaAbstracta sentencia) {
-		if(sentencia.tipoSentencia() == TipoGeneral.INSTRUCCION) { //se comprueban instrucciones en esta función
+		if(sentencia.tipoSentencia() == EnumeradoTipoGeneral.INSTRUCCION) { //se comprueban instrucciones en esta función
 			I instruccion = (I) sentencia;
 			switch(instruccion.tipoInstruccion()) {
 			case ASIG:

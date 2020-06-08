@@ -1,8 +1,8 @@
 package ast;
 
-import ast.T.TipoGeneral;
+import ast.T.EnumeradoTipoGeneral;
 
 public abstract class SentenciaAbstracta {
-	public abstract TipoGeneral tipoSentencia();
+	public abstract EnumeradoTipoGeneral tipoSentencia();
 	
 }
