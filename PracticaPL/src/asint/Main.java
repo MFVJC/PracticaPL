@@ -75,6 +75,7 @@ public class Main {
 		 String nivel = "";
 		 boolean last_child = true;
 		 //PRUEBA!
+		 //JEJE
 		 System.out.println(printTree("_PROGR_", splitFromParent(tree), nivel, last_child));
 		//devuelve la raíz del árbol 
 		 //List<I> programa = (I) asint.parse().value;
