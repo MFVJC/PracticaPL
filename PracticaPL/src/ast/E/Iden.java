@@ -17,4 +17,10 @@ public class Iden extends E {
    public String getNombre() {
 	   return nombre;
    }
+   public void setTipo(Tipo tipo) {
+	   tipoVariable = tipo;
+   }
+   public Tipo getTipo() {
+	   return tipoVariable;
+   }
 }

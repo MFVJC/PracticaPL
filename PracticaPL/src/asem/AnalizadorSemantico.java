@@ -149,6 +149,7 @@ public class AnalizadorSemantico {
 					if(referenciaSentencia == null) {
 						GestionErroresTiny.errorSemantico("Struct " + tipoStruct.getNombreStruct() + " no declarado.");
 					}else {
+						tipoStruct.setReferencia(referenciaSentencia);
 						//guardo la referencia a la sentencia en la que se declaró dentro del nodo
 					}
 					
@@ -163,6 +164,8 @@ public class AnalizadorSemantico {
 			break;
 		}
 	}
+	
+	//hay que añadir tipo como atributo de InstDeclaracion InstDeclFun y demás para guardar la referencia del tipo
 	public boolean compruebaTipos(SentenciaAbstracta sentencia) {
 		if(sentencia.tipoSentencia() == EnumeradoTipoGeneral.INSTRUCCION) { //se comprueban instrucciones en esta función
 			I instruccion = (I) sentencia;
@@ -204,36 +207,126 @@ public Tipo tiposExpresion(SentenciaAbstracta sentencia) {
 	switch(sentencia.tipoSentencia()) {
 	case EXPRESION_BINARIA:
 		EBin ebin = (EBin) sentencia;
+		E operando1= ebin.opnd1();
+		E operando2 = ebin.opnd2();
+		Tipo tipoOperando1 = tiposExpresion(operando1);
+		Tipo tipoOperando2 = tiposExpresion(operando2);
 		switch(ebin.tipoExpresion()) {
 		case AND:
+			if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.BOOLEAN && tipoOperando2.tipoEnumerado()==EnumeradoTipos.BOOLEAN) {
+				//los dos operandos son booleanos entonces devolvemos un booleano
+				return new TipoBoolean();
+			}
+			GestionErroresTiny.errorSemantico("Error de tipos. Uno de los operandos del AND no es booleano");
 			break;
 		case DIV:
+			if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
+				return new TipoInt();
+			}
+			GestionErroresTiny.errorSemantico("Error de tipos. Uno de los operandos de la división no es entero");
+
 			break;
 		case DOT:
+			//tenemos que comprobar que operando1 es un struct
+			//
+			if(tipoOperando1.tipoEnumerado() == EnumeradoTipos.STRUCT) {
+				//falta comprobar que el punto corresponde con un campo del struct
+				Iden atributo = (Iden) ebin.opnd2();
+				//podemos coger la referencia al struct del TipoStruct
+				 //nos hace falta meter las referencias para esto
+				TipoStruct tipoStruct = (TipoStruct) tipoOperando1;
+				InstStruct sentenciaStruct = (InstStruct) tipoStruct.getReferencia();
+				for(I instruccion : sentenciaStruct.getDeclaraciones()) {
+					if(instruccion instanceof InstDeclaracion) {
+						Iden atributoStruct = (Iden)((InstDeclaracion) instruccion).getIden();
+						if(atributoStruct.getNombre() == atributo.getNombre()) {
+							//Entonces si que existe la variable
+							return atributoStruct.getTipo();
+						}
+					}
+				}
+			}
+				GestionErroresTiny.errorSemantico("Error de tipos. Tipo de operandos inválido para el .");
+			
+			
 			break;
 		case ELEV:
+			if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
+				return new TipoInt();
+			}
+			GestionErroresTiny.errorSemantico("Error de tipos. Tipo de operandos inválido para el operador **");
+
 			break;
 		case EQUAL:
+			//podemos tener booleanos o enteros
+			if((tipoOperando1.tipoEnumerado() == EnumeradoTipos.BOOLEAN || tipoOperando1.tipoEnumerado() == EnumeradoTipos.INT) && tipoOperando1.tipoEnumerado() == tipoOperando2.tipoEnumerado() ) {
+				return new TipoBoolean();
+			}
+			GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de igualdad no coinciden o no son válidos");
 			break;
 		case GREATEREQUAL:
+			if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
+				return new TipoBoolean();
+			}
+			GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de mayor-igual no son enteros");
 			break;
 		case GREATERTHAN:
+			if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
+				return new TipoBoolean();
+			}
+			GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de mayor no son enteros");
+
 			break;
 		case LESSEQUAL:
+			if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
+				return new TipoBoolean();
+			}
+			GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de menor-igual no son enteros");
 			break;
 		case LESSTHAN:
+			if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
+				return new TipoBoolean();
+			}
+			GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de menor no son enteros");
 			break;
 		case MUL:
+			if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
+				return new TipoInt();
+			}
+			GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la multiplicación no son enteros");
 			break;
 		case NOTEQUAL:
+			if((tipoOperando1.tipoEnumerado() == EnumeradoTipos.BOOLEAN || tipoOperando1.tipoEnumerado() == EnumeradoTipos.INT) && tipoOperando1.tipoEnumerado() == tipoOperando2.tipoEnumerado() ) {
+				return new TipoBoolean();
+			}
+			GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de desigualdad no coinciden o no son válidos");
 			break;
 		case OR:
+			if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.BOOLEAN && tipoOperando2.tipoEnumerado()==EnumeradoTipos.BOOLEAN) {
+				//los dos operandos son booleanos entonces devolvemos un booleano
+				return new TipoBoolean();
+			}
+			GestionErroresTiny.errorSemantico("Error de tipos. Uno de los operandos del OR no es booleano");
 			break;
 		case RESTA:
+			if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
+				return new TipoInt();
+			}
+			GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la resta no son enteros");
+
 			break;
 		case SQUAREBRACKET:
+			
+			
+			
+			
+			
 			break;
 		case SUMA:
+			if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
+				return new TipoInt();
+			}
+			GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la suma no son enteros");
 			break;
 		default:
 			break;
