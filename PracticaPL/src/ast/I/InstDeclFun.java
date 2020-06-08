@@ -3,18 +3,22 @@ package ast.I;
 import java.util.List;
 
 import ast.E.E;
+import ast.T.Tipo;
 import javafx.util.Pair;
 
 public class InstDeclFun extends I {
-	 
-	private String tipo; //Si tipo es null es un procedimiento, en caso contrario es una funcion
+	//hay que cambiar el AS.java y el .cup para añadir este tipo
+	//tipo del return
+	private Tipo tipo;
+	private String tipoF; //Si tipo es null es un procedimiento, en caso contrario es una funcion
+	
 	private E nombreFuncion;
 	private List<Pair<String, E>> args;
 	private List<I> cuerpo;
 	private E valorReturn;
 
- public InstDeclFun(String tipo, E iden, List<Pair<String, E>> args, List<I> cuerpo, E ret) {
-		this.tipo = tipo;
+ public InstDeclFun(String tipoF, E iden, List<Pair<String, E>> args, List<I> cuerpo, E ret) {
+		this.tipoF = tipoF;
 		this.nombreFuncion = iden;
 		this.args = args;
 		this.cuerpo = cuerpo;
@@ -42,12 +46,12 @@ public class InstDeclFun extends I {
 	   
 	   return aux;
  }
-	public String getTipo() {
-		return tipo;
+	public String getTipoF() {
+		return tipoF;
 	}
 	
-	public void setTipo(String tipo) {
-		this.tipo = tipo;
+	public void setTipoF(String tipoF) {
+		this.tipoF = tipoF;
 	}
 	
 	public E getIden() {
@@ -64,5 +68,8 @@ public class InstDeclFun extends I {
 	
 	public E getRet() {
 		return valorReturn;
+	}
+	public Tipo getTipo() {
+		return tipo;
 	}
 }

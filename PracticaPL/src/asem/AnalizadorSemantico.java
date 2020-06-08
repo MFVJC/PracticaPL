@@ -1,5 +1,6 @@
 package asem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ast.SentenciaAbstracta;
@@ -45,15 +46,19 @@ public class AnalizadorSemantico {
 					//no se realmente que es esa clase. Supongo que para declarar cualquier variable incluso vectores (yo creo que sería mejor separar)
 					InstDeclaracion declaracion = (InstDeclaracion) sentencia;
 					
-
 					break;
 				case DECLFUN:
 					InstDeclFun declaracionFuncion = (InstDeclFun) sentencia;
-					String tipo = declaracionFuncion.getTipo(); // null si procedimiento
+					Tipo tipo = declaracionFuncion.getTipo(); //no vale si es proc
+					String tipoF = declaracionFuncion.getTipoF();// null si procedimiento
+					vincula(declaracionFuncion.getTipo());
+					tabla.insertaSimbolo(((Iden)declaracionFuncion.getIden()).getNombre(), sentencia);
+					//los argumentos de la funcion tienen que ser de tipo E
+					
+					//FALTAAAAAAAAAAAAAAA
 					
 					//Lo hace con el tipo de lo que se devuelve
 					//vincula(declaracionFuncion.getRet().tipo());
-					
 					//esto tampoco podemos hacerlo porque nuestros identificadores en realidad no valen para nada
 					//tabla.insertaSimbolo(((Iden)declaracionFuncion.getIden())-, sentencia);
 					break;
@@ -120,8 +125,32 @@ public class AnalizadorSemantico {
 				
 			switch(expresion.tipoExpresion()) {
 			case FUNCION:
+				LlamadaFuncion llamada = (LlamadaFuncion) expresion;
+				SentenciaAbstracta referenciaFuncion = tabla.getSentenciaDeclaracion(llamada.getNombre_funcion());
+				if(referenciaFuncion == null) {
+					GestionErroresTiny.errorSemantico("Llamada a función " + llamada.getNombre_funcion() + " no existente.");
+				}else {
+					//guardamos para luego poder comprobar los tipos
+					llamada.setReferencia(referenciaFuncion);
+					llamada.setTipoReturn(((InstDeclFun)referenciaFuncion).getTipo());
+					llamada.getArgumentos().forEach(x->vincula(x));
+				}
 				break;
 			case IDEN:
+				Iden identificador = (Iden) expresion;
+				SentenciaAbstracta refIdentificador = tabla.getSentenciaDeclaracion(identificador.getNombre());
+				if(refIdentificador == null) {
+					GestionErroresTiny.errorSemantico("El identificador " + identificador.getNombre() + " no ha sido declarado.");
+				}else {
+					//aquí hace algo con los parámetros
+					//nosotros deberíamos tener una sentencia de declaración
+					if(refIdentificador instanceof InstDeclaracion) {
+						//guardo el tipo de la variable en el identificador para la comprobación de tipos posterior
+						identificador.setTipo(((InstDeclaracion)refIdentificador).getTipo());
+					}else {
+						GestionErroresTiny.errorSemantico("ERROR INESPERADO EN EL PROGRAMA.");
+					}
+				}
 				break;
 			case NOT:
 				Not expNot = (Not) expresion;
@@ -334,18 +363,54 @@ public Tipo tiposExpresion(SentenciaAbstracta sentencia) {
 		}
 		break;
 	case EXPRESION:
+		E expresion = (E) sentencia;
+		switch(expresion.tipoExpresion()) {
+		case ASTERISK:
+			//lo de la derecha tiene que ser un vector
+			Asterisk asteriscoExp = (Asterisk) expresion;
+			//necesitamos vector
+			//if(tiposExpresion(asteriscoExp.opnd1()).tipoEnumerado() == EnumeradoTipos.)
+			break;
+		case BASICFALSE:
+			return new TipoBoolean();
+		case BASICTRUE:
+			return new TipoBoolean();
+		case NUM:
+			return new TipoInt();
+		case FUNCION:
+			LlamadaFuncion llamada = (LlamadaFuncion) expresion;
+			List<Iden> variable = (List<Iden>)(List<?>) llamada.getArgumentos();
+			List<Tipo> tiposLlamada = new ArrayList<>();
+			variable.forEach(x-> tiposLlamada.add(x.getTipo()));
+			InstDeclFun declaracionFuncion = (InstDeclFun) llamada.getReferencia();
+			
+			// List<Pair<String, E>> argumentos = declaracionFuncion.getArgs();
+			
+			//Aquí deberíamos pasar también el tipo del parámetro.
+			break;
+		case IDEN:
+			Iden identificador = (Iden) expresion;
+			return identificador.getTipo();
+		case MENOS:
+			//esta clase creo que sobra
+			break;
+		case NOT:
+			Not not  = (Not) expresion;
+			if(tiposExpresion(not.opnd1()).tipoEnumerado() == EnumeradoTipos.BOOLEAN) {
+				return new TipoBoolean();
+			}
+			GestionErroresTiny.errorSemantico("El operando de un NOT debe ser booleano");
+			break;
+		default:
+			break;
+		
+		}
 		//aquí hay que añadir las expresiones que representan a los tipos, identificadores y llamadas a funciones
-		break;
-	case EXPRESION_UNARIA:
-		break;
-	case INSTRUCCION:
-		break;
-	case TIPOS:
 		break;
 	default:
 		break;
 	}
-	return null;
+	return new TipoError();
 
   }
 }
