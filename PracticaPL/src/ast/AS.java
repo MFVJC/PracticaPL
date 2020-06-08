@@ -32,7 +32,7 @@ public class AS {
 	  public E iden(String iden) {return new Iden(iden);}
 	
 	  
-	 public E llamadaFuncion(String iden, List<E> args) {return new LlamadaFuncion(iden, args);}
+	  public E llamadaFuncion(String iden, List<E> args) {return new LlamadaFuncion(iden, args);}
 	  public E pointer(E opnd1) {return new Asterisk(opnd1);}
 	  public E not(E opnd1) {return new Not(opnd1);}
 	  public E menos(E opnd1) {return new Menos(opnd1);}
@@ -41,7 +41,8 @@ public class AS {
 	  public I instIf(E condicion, List<I> cuerpo_if, List<I> cuerpo_else) {return new InstIf(condicion, cuerpo_if, cuerpo_else);}
 	  public I instWhile(E condicion, List<I> cuerpo) {return new InstWhile(condicion, cuerpo);};
 	  public I instSwitch(E condicion, List<Pair<E, List<I>>> cases) {return new InstSwitch(condicion, cases);};
-	  public I instDeclaracion(boolean constant, String tipo, E iden, List<E> tam, List<E> valor) {return new InstDeclaracion(constant, tipo, iden, tam, valor);};
+	  // a cambiar
+	  public I instDeclaracion(boolean constant, Tipo tipo, E iden, List<E> tam, List<E> valor) {return new InstDeclaracion(constant, tipo, iden, tam, valor);};
 	  public I instAsignacion(E iden, E valor) {return new InstAsignacion(iden, valor);};
 	  public I instStruct(E iden, List<I> declaraciones) {return new InstStruct(iden, declaraciones);};
 	  public I instDeclFun(String tipo, E iden, List<Pair<String, E>> args, List<I> cuerpo, E ret) {return new InstDeclFun(tipo, iden, args, cuerpo, ret);};

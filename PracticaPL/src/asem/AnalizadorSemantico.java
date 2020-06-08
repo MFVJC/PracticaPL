@@ -241,6 +241,7 @@ public Tipo tiposExpresion(SentenciaAbstracta sentencia) {
 		}
 		break;
 	case EXPRESION:
+		//aquí hay que añadir las expresiones que representan a los tipos, identificadores y llamadas a funciones
 		break;
 	case EXPRESION_UNARIA:
 		break;

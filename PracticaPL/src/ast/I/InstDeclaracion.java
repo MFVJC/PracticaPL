@@ -4,19 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ast.E.E;
+import ast.T.Tipo;
 import ast.E.*;
 
 public class InstDeclaracion extends I {
 	private boolean constant;
 	//este tipo debería ser de la clase Tipo
-	private String tipo;
+	private Tipo tipoVariable;
 	private E iden;
 	private List<E> tam;
 	private List<E> valor;
 	
-   public InstDeclaracion(boolean constant, String tipo, E iden, List<E> tam, List<E> valor) {
+   public InstDeclaracion(boolean constant, Tipo tipo, E iden, List<E> tam, List<E> valor) {
 	    this.constant = constant;
-		this.tipo = tipo;
+		this.tipoVariable = tipo;
 	    this.iden = iden;
 	    this.tam = tam;
 	    this.valor = valor;
@@ -27,7 +28,7 @@ public class InstDeclaracion extends I {
    public String toString() {
 	   String aux = "{{_Decl__}";
 	   if(constant) aux += "{Const}";
-	   aux += "{" + tipo + "}" + iden.toString();
+	   aux += "{" + tipoVariable.toString() + "}" + iden.toString();
 	   
 	   if(tam.isEmpty()) { //Es una variable simple
 		   if(valor != null) { //Esta inicializada
@@ -51,8 +52,8 @@ public class InstDeclaracion extends I {
 		return constant;
 	}
 	
-	public String getTipo() {
-		return tipo;
+	public Tipo getTipo() {
+		return tipoVariable;
 	}
 	
 	public E getIden() {

@@ -258,6 +258,7 @@ LIST_DECL ::=
 
 
 //Instruccion declaracion de funcion
+//para diferenciar entre proc y fun necesitamos cambiar el tipo.
 INST_DECL_FUN ::= TIPO:tipo IDEN:id PA LIST_TIPO_ARG:args PC LA S:cuerpo RETURN E0:ret PCOMA LC
 {:RESULT = as.instDeclFun(tipo, as.iden(id), args, cuerpo, ret);:};
 INST_DECL_FUN ::= PROC IDEN:id PA LIST_TIPO_ARG:args PC LA S:cuerpo LC

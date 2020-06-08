@@ -1,9 +1,11 @@
 package ast.E;
 
 import ast.E.TipoE;
+import ast.T.Tipo;
 
 public class Iden extends E {
 	private String nombre;
+	private Tipo tipoVariable;
    
 	public Iden(String opnd1) {
      this.nombre = opnd1;  
