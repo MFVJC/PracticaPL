@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="PracticaPL/src"/>
+	<classpathentry kind="lib" path="D:/Documents/Juan Carlos/Estudios/Universidad/4º Carrera/Procesadores de Lenguaje/Practicas/WorkspacePL/practica3PL/PracticaPL/src/asint/cup.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
