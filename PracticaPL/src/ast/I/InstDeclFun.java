@@ -17,8 +17,9 @@ public class InstDeclFun extends I {
 	private List<I> cuerpo;
 	private E valorReturn;
 
- public InstDeclFun(String tipoF, E iden, List<Pair<String, E>> args, List<I> cuerpo, E ret) {
-		this.tipoF = tipoF;
+ public InstDeclFun(Tipo tipoReturn, String tipoF, E iden, List<Pair<String, E>> args, List<I> cuerpo, E ret) {
+		this.tipo = tipoReturn;
+	 	this.tipoF = tipoF;
 		this.nombreFuncion = iden;
 		this.args = args;
 		this.cuerpo = cuerpo;

@@ -45,7 +45,15 @@ public class AnalizadorSemantico {
 				case DECL:
 					//no se realmente que es esa clase. Supongo que para declarar cualquier variable incluso vectores (yo creo que sería mejor separar)
 					InstDeclaracion declaracion = (InstDeclaracion) sentencia;
-					
+					Iden identificadorV = (Iden)declaracion.getIden();
+					identificadorV.setConstante(declaracion.isConstant());
+					identificadorV.setReferencia(declaracion);
+					vincula(declaracion.getTipo());
+					tabla.insertaSimbolo(identificadorV.getNombre(), declaracion);
+					E valorInicial = declaracion.getValor().get(0); //esto va haber que cambiarlo cuando se refactorice
+					if(valorInicial != null) {
+						vincula(valorInicial);
+					}
 					break;
 				case DECLFUN:
 					InstDeclFun declaracionFuncion = (InstDeclFun) sentencia;
@@ -142,8 +150,6 @@ public class AnalizadorSemantico {
 				if(refIdentificador == null) {
 					GestionErroresTiny.errorSemantico("El identificador " + identificador.getNombre() + " no ha sido declarado.");
 				}else {
-					//aquí hace algo con los parámetros
-					//nosotros deberíamos tener una sentencia de declaración
 					if(refIdentificador instanceof InstDeclaracion) {
 						//guardo el tipo de la variable en el identificador para la comprobación de tipos posterior
 						identificador.setTipo(((InstDeclaracion)refIdentificador).getTipo());
@@ -202,11 +208,27 @@ public class AnalizadorSemantico {
 			case ASIG:
 				InstAsignacion instruccionAsignacion = (InstAsignacion) instruccion;
 				//hay que comprobar que la variable a la que intentas acceder no es constante
+				Iden identificador = (Iden)instruccionAsignacion.getIden();
+				if(identificador.esConstante()) {
+					GestionErroresTiny.errorSemantico("Error de tipos. El identificador " + identificador.getNombre() + " corresponde con una constante por lo que no es modificable.");
+				}else {
 				Tipo tipoAsignar = tiposExpresion(instruccionAsignacion.getValor());
-				
-				
-				
-				
+					if(tipoAsignar.tipoEnumerado() == EnumeradoTipos.STRUCT) {
+						GestionErroresTiny.errorSemantico("Error de tipos. Operación no soportada: no se pueden asignar structs o punteros a una variable");
+					}else if (tipoAsignar.tipoEnumerado() ==EnumeradoTipos.PUNTERO){
+						EPointer pointer = (EPointer) instruccionAsignacion.getValor();
+						TipoPuntero tipoPuntero = (TipoPuntero) tipoAsignar;
+						if(tipoPuntero.getClaseApuntada().tipoEnumerado() == pointer.getTipo().tipoEnumerado()) {
+							//entonces los dos punteros son del mismo tipo y no hay problema
+							return true;
+						}
+					}else {
+						if(tipoAsignar.tipoEnumerado() == identificador.getTipo().tipoEnumerado()){
+							return true;
+						}
+						GestionErroresTiny.errorSemantico("Error de tipos en la asignación. Los tipos no coinciden.");
+					}
+				}
 				break;
 			case CALLPROC:
 				break;
@@ -391,9 +413,6 @@ public Tipo tiposExpresion(SentenciaAbstracta sentencia) {
 		case IDEN:
 			Iden identificador = (Iden) expresion;
 			return identificador.getTipo();
-		case MENOS:
-			//esta clase creo que sobra
-			break;
 		case NOT:
 			Not not  = (Not) expresion;
 			if(tiposExpresion(not.opnd1()).tipoEnumerado() == EnumeradoTipos.BOOLEAN) {
