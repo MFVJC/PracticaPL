@@ -2,6 +2,7 @@ package ast.I;
 
 import java.util.List;
 
+import ast.SentenciaAbstracta;
 import ast.E.E;
 import javafx.util.Pair;
 
@@ -9,7 +10,7 @@ public class InstSwitch extends I {
 
 	private E condicion;
 	private List<Pair<E, List<I>>> cases;
-
+	private SentenciaAbstracta referencia;
    public InstSwitch(E condicion, List<Pair<E, List<I>>> cases) {
 		this.condicion = condicion;
 		this.cases = cases;
@@ -35,11 +36,17 @@ public class InstSwitch extends I {
 	   
 	   return aux;
    }
-public E getCondicion() {
-	return condicion;
-}
-public List<Pair<E, List<I>>> getCases() {
-	return cases;
-}
+	public E getCondicion() {
+		return condicion;
+	}
+	public List<Pair<E, List<I>>> getCases() {
+		return cases;
+	}
+	public void setReferencia(SentenciaAbstracta ref) {
+		referencia = ref;
+	}
+	public SentenciaAbstracta getReferencia() {
+		return referencia;
+	}
    
 }

@@ -48,6 +48,7 @@ public class AS {
 	  public I instAsignacion(E iden, E valor) {return new InstAsignacion(iden, valor);};
 	  public I instStruct(E iden, List<I> declaraciones) {return new InstStruct(iden, declaraciones);};
 	  public I instDeclFun(Tipo tipoReturn, String tipo, E iden, List<Pair<String, E>> args, List<I> cuerpo, E ret) {return new InstDeclFun(tipoReturn,tipo, iden, args, cuerpo, ret);};
+	  //esto hay que cambiarlo a E iden
 	  public I instCallProc(String iden, List<E> args) {return new InstCallProc(iden, args);}
 
 	  public Tipo tipoInt() {return new TipoInt();}

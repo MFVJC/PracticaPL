@@ -2,6 +2,7 @@ package asem;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import ast.SentenciaAbstracta;
 import ast.E.*;
@@ -94,15 +95,20 @@ public class AnalizadorSemantico {
 				case SWITCH:
 					InstSwitch instSwitch = (InstSwitch) sentencia;
 					//aquí con la condicion cogemos la referencia de la tabla de símbolos
+			
 					SentenciaAbstracta referenciaVariableSwitch = tabla.getSentenciaDeclaracion(((Iden)instSwitch.getCondicion()).getNombre());
 					if(referenciaVariableSwitch == null) {
 						GestionErroresTiny.errorSemantico("La variable " + ((Iden)instSwitch.getCondicion()).getNombre() + " no ha sido declarada");
-					}
+					}else {
+						instSwitch.setReferencia(referenciaVariableSwitch);
+					
 					List<Pair<E, List<I>>> casos = instSwitch.getCases();
 					for(Pair<E, List<I>> caso : casos) {
+						
 						tabla.nuevaTablaSimbolos();
 						caso.getValue().forEach(x->vincula(x));
 						tabla.eliminaTablaSimbolos();
+					}
 					}
 					//Si no hacemos los cases vamos a perder la información de la SentenciaAbstracta correspondiente al case.
 					break;
@@ -237,12 +243,48 @@ public class AnalizadorSemantico {
 			case DECLFUN:
 				break;
 			case IF:
+				InstIf instruccionIf = (InstIf) instruccion;
+				if(tiposExpresion(instruccionIf.getCondicion()).tipoEnumerado() == EnumeradoTipos.BOOLEAN){
+				AtomicBoolean correcto = new AtomicBoolean(true);
+				instruccionIf.getCuerpo_if().forEach(x->{ correcto.set(correcto.get() && compruebaTipos(x));});
+				
+				if(instruccionIf.getCuerpo_else() != null) {
+					instruccionIf.getCuerpo_else().forEach(x->{ correcto.set(correcto.get() && compruebaTipos(x));});
+				}
+				return correcto.get();
+				}else {
+					GestionErroresTiny.errorSemantico("Error de tipos. La condición del if debe ser booleana");
+				}
 				break;
 			case STRUCT:
-				break;
+				InstStruct instruccionStruct = (InstStruct) instruccion;
+				AtomicBoolean correcto = new AtomicBoolean(true);
+				instruccionStruct.getDeclaraciones().forEach(x->{ correcto.set(correcto.get() && compruebaTipos(x));});
+				return correcto.get();
 			case SWITCH:
+				InstSwitch instruccionSwitch = (InstSwitch) instruccion;
+				E condicion = instruccionSwitch.getCondicion();
+				Tipo tipoCondicion = tiposExpresion(condicion);
+				AtomicBoolean correct = new AtomicBoolean(true);
+				for(Pair<E,List<I>> caso : instruccionSwitch.getCases()) {
+					if(tipoCondicion.tipoEnumerado() != tiposExpresion(caso.getKey()).tipoEnumerado()) {
+						correct.set(false);
+						GestionErroresTiny.errorSemantico("Error de tipos. Los tipos de los case deben coincidir con la expresión del switch.");
+						
+					}
+					caso.getValue().forEach(x->{correct.set(correct.get() && compruebaTipos(x));});
+					return correct.get();
+				}
 				break;
 			case WHILE:
+				InstWhile instruccionWhile = (InstWhile) instruccion;
+				if(tiposExpresion(instruccionWhile.getCondicion()).tipoEnumerado() == EnumeradoTipos.BOOLEAN) {
+					AtomicBoolean correctWhile = new AtomicBoolean(true);
+					instruccionWhile.getCuerpo().forEach(x->{correctWhile.set(correctWhile.get()  && compruebaTipos(x));});
+					return correctWhile.get();
+				}else {
+					GestionErroresTiny.errorSemantico("Error de tipos. La condición del while debe ser booleana.");
+				}
 				break;
 			default:
 				break;
