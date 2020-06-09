@@ -24,109 +24,109 @@ public class AnalizadorSemantico {
 	
 	public void vincula(SentenciaAbstracta sentencia) {
 		switch(sentencia.tipoSentencia()) {
-		
+			//Instrucciones
 			case INSTRUCCION:
 				I instruccion = (I) sentencia;
 				switch(instruccion.tipoInstruccion()) {
-				case ASIG:
-					InstAsignacion asignacion = (InstAsignacion) sentencia;
-					vincula(asignacion.getIden());
-					vincula(asignacion.getValor());
-					break;
-				case CALLPROC:
-					InstCallProc llamadaProcedimiento = (InstCallProc) sentencia;
-					SentenciaAbstracta referenciaDeclaracion = tabla.getSentenciaDeclaracion(((Iden)llamadaProcedimiento.getNombre_funcion()).getNombre());
-					if(referenciaDeclaracion!=null) {
-						llamadaProcedimiento.setReferencia(referenciaDeclaracion);
-						//habría que guardar la referenciaDeclaracion dentro del objeto InstCallProc
-						llamadaProcedimiento.getArgumentos().forEach(x -> vincula(x));
-					}else {
-						GestionErroresTiny.errorSemantico("El procedimiento " + llamadaProcedimiento.getNombre_funcion() + " no ha sido declarado. Solo se puede llamar a funciones declaradas anteriormente");
-					}
-					break;
-				case DECL:
-					//no se realmente que es esa clase. Supongo que para declarar cualquier variable incluso vectores (yo creo que sería mejor separar)
-					InstDeclaracion declaracion = (InstDeclaracion) sentencia;
-					Iden identificadorV = (Iden)declaracion.getIden();
-					identificadorV.setConstante(declaracion.isConstant());
-					identificadorV.setReferencia(declaracion);
-					vincula(declaracion.getTipo());
-					tabla.insertaSimbolo(identificadorV.getNombre(), declaracion);
-					E valorInicial = declaracion.getValor().get(0); //esto va haber que cambiarlo cuando se refactorice
-					if(valorInicial != null) {
-						vincula(valorInicial);
-					}
-					break;
-				case DECLFUN:
-					InstDeclFun declaracionFuncion = (InstDeclFun) sentencia;
-					Tipo tipo = declaracionFuncion.getTipo(); //no vale si es proc
-					//String tipoF = declaracionFuncion.getTipoF();// null si procedimiento
-					vincula(declaracionFuncion.getTipo());
-					tabla.insertaSimbolo(((Iden)declaracionFuncion.getIden()).getNombre(), sentencia);
-					//los argumentos de la funcion tienen que ser de tipo E
-					
-					//FALTAAAAAAAAAAAAAAA
-					
-					//Lo hace con el tipo de lo que se devuelve
-					//vincula(declaracionFuncion.getRet().tipo());
-					//esto tampoco podemos hacerlo porque nuestros identificadores en realidad no valen para nada
-					//tabla.insertaSimbolo(((Iden)declaracionFuncion.getIden())-, sentencia);
-					break;
-				case IF:
-					InstIf instIf = (InstIf) sentencia;
-					vincula(instIf.getCondicion());
-					tabla.nuevaTablaSimbolos();
-					instIf.getCuerpo_if().forEach(x->vincula(x));
-					tabla.eliminaTablaSimbolos();
-					List<I> cuerpoElse = instIf.getCuerpo_else();
-					if(cuerpoElse != null) {
-						tabla.nuevaTablaSimbolos();
-						instIf.getCuerpo_else().forEach(x->vincula(x));
-						tabla.eliminaTablaSimbolos();
-					}
-					break;
-				case STRUCT:
-					InstStruct instStruct = (InstStruct) sentencia;
-					//faltaría meter la referencia a la sentencia abstracta
-					tabla.insertaSimbolo(((Iden) instStruct.getIden()).getNombre(), instStruct);
-					tabla.nuevaTablaSimbolos();
-					instStruct.getDeclaraciones().forEach(x->vincula(x));
-					tabla.eliminaTablaSimbolos();
-					break;
-				case SWITCH:
-					InstSwitch instSwitch = (InstSwitch) sentencia;
-					//aquí con la condicion cogemos la referencia de la tabla de símbolos
-			
-					SentenciaAbstracta referenciaVariableSwitch = tabla.getSentenciaDeclaracion(((Iden)instSwitch.getCondicion()).getNombre());
-					if(referenciaVariableSwitch == null) {
-						GestionErroresTiny.errorSemantico("La variable " + ((Iden)instSwitch.getCondicion()).getNombre() + " no ha sido declarada");
-					}else {
-						instSwitch.setReferencia(referenciaVariableSwitch);
-					
-					List<Pair<E, List<I>>> casos = instSwitch.getCases();
-					for(Pair<E, List<I>> caso : casos) {
+					case ASIG:
+						InstAsignacion asignacion = (InstAsignacion) sentencia;
+						vincula(asignacion.getIden());
+						vincula(asignacion.getValor());
+						break;
+					case CALLPROC:
+						InstCallProc llamadaProcedimiento = (InstCallProc) sentencia;
+						SentenciaAbstracta referenciaDeclaracion = tabla.getSentenciaDeclaracion(((Iden)llamadaProcedimiento.getNombre_funcion()).getNombre());
+						if(referenciaDeclaracion!=null) {
+							llamadaProcedimiento.setReferencia(referenciaDeclaracion);
+							//habría que guardar la referenciaDeclaracion dentro del objeto InstCallProc
+							llamadaProcedimiento.getArgumentos().forEach(x -> vincula(x));
+						}else {
+							GestionErroresTiny.errorSemantico("El procedimiento " + llamadaProcedimiento.getNombre_funcion() + " no ha sido declarado. Solo se puede llamar a funciones declaradas anteriormente");
+						}
+						break;
+					case DECL:
+						//no se realmente que es esa clase. Supongo que para declarar cualquier variable incluso vectores (yo creo que sería mejor separar)
+						InstDeclaracion declaracion = (InstDeclaracion) sentencia;
+						Iden identificadorV = (Iden)declaracion.getIden();
+						identificadorV.setConstante(declaracion.isConstant());
+						identificadorV.setReferencia(declaracion);
+						vincula(declaracion.getTipo());
+						tabla.insertaSimbolo(identificadorV.getNombre(), declaracion);
+						E valorInicial = declaracion.getValor().get(0); //esto va haber que cambiarlo cuando se refactorice
+						if(valorInicial != null) {
+							vincula(valorInicial);
+						}
+						break;
+					case DECLFUN:
+						InstDeclFun declaracionFuncion = (InstDeclFun) sentencia;
+						Tipo tipo = declaracionFuncion.getTipo(); //no vale si es proc
+						//String tipoF = declaracionFuncion.getTipoF();// null si procedimiento
+						vincula(declaracionFuncion.getTipo());
+						tabla.insertaSimbolo(((Iden)declaracionFuncion.getIden()).getNombre(), sentencia);
+						//los argumentos de la funcion tienen que ser de tipo E
 						
+						//FALTAAAAAAAAAAAAAAA
+						
+						//Lo hace con el tipo de lo que se devuelve
+						//vincula(declaracionFuncion.getRet().tipo());
+						//esto tampoco podemos hacerlo porque nuestros identificadores en realidad no valen para nada
+						//tabla.insertaSimbolo(((Iden)declaracionFuncion.getIden())-, sentencia);
+						break;
+					case IF:
+						InstIf instIf = (InstIf) sentencia;
+						vincula(instIf.getCondicion());
 						tabla.nuevaTablaSimbolos();
-						caso.getValue().forEach(x->vincula(x));
+						instIf.getCuerpo_if().forEach(x->vincula(x));
 						tabla.eliminaTablaSimbolos();
-					}
-					}
-					//Si no hacemos los cases vamos a perder la información de la SentenciaAbstracta correspondiente al case.
-					break;
-				case WHILE:
-					InstWhile instWhile = (InstWhile) sentencia;
-					vincula(instWhile.getCondicion()); // así veo el tipo
-					tabla.nuevaTablaSimbolos();
-					instWhile.getCuerpo().forEach(x-> vincula(x));
-					tabla.eliminaTablaSimbolos();
-					break;
-				default:
-					break;
+						List<I> cuerpoElse = instIf.getCuerpo_else();
+						if(cuerpoElse != null) {
+							tabla.nuevaTablaSimbolos();
+							instIf.getCuerpo_else().forEach(x->vincula(x));
+							tabla.eliminaTablaSimbolos();
+						}
+						break;
+					case STRUCT:
+						InstStruct instStruct = (InstStruct) sentencia;
+						//faltaría meter la referencia a la sentencia abstracta
+						tabla.insertaSimbolo(((Iden) instStruct.getIden()).getNombre(), instStruct);
+						tabla.nuevaTablaSimbolos();
+						instStruct.getDeclaraciones().forEach(x->vincula(x));
+						tabla.eliminaTablaSimbolos();
+						break;
+					case SWITCH:
+						InstSwitch instSwitch = (InstSwitch) sentencia;
+						//aquí con la condicion cogemos la referencia de la tabla de símbolos
 				
+						SentenciaAbstracta referenciaVariableSwitch = tabla.getSentenciaDeclaracion(((Iden)instSwitch.getCondicion()).getNombre());
+						if(referenciaVariableSwitch == null) {
+							GestionErroresTiny.errorSemantico("La variable " + ((Iden)instSwitch.getCondicion()).getNombre() + " no ha sido declarada");
+						}else {
+							instSwitch.setReferencia(referenciaVariableSwitch);
+						
+						List<Pair<E, List<I>>> casos = instSwitch.getCases();
+						for(Pair<E, List<I>> caso : casos) {
+							
+							tabla.nuevaTablaSimbolos();
+							caso.getValue().forEach(x->vincula(x));
+							tabla.eliminaTablaSimbolos();
+						}
+						}
+						//Si no hacemos los cases vamos a perder la información de la SentenciaAbstracta correspondiente al case.
+						break;
+					case WHILE:
+						InstWhile instWhile = (InstWhile) sentencia;
+						vincula(instWhile.getCondicion()); // así veo el tipo
+						tabla.nuevaTablaSimbolos();
+						instWhile.getCuerpo().forEach(x-> vincula(x));
+						tabla.eliminaTablaSimbolos();
+						break;
+					default:
+						break;
+					
 				}
 			
 			break;
-			
+			//Expresiones
 			case EXPRESION_BINARIA:
 				EBin expresionBinaria = (EBin) sentencia;
 					//en el caso de que sea un punto solo tengo que vincular el primer operando
