@@ -9,18 +9,15 @@ import javafx.util.Pair;
 public class InstDeclFun extends I {
 	//hay que cambiar el AS.java y el .cup para añadir este tipo
 	//tipo del return
-	private Tipo tipo;
-	private String tipoF; //Si tipo es null es un procedimiento, en caso contrario es una funcion
-	
+	private Tipo tipo; //El tipo de una funcion es el tipo de la expresion que se devuelve
 	private E nombreFuncion;
-	private List<Pair<String, E>> args;
+	private List<Pair<Tipo, E>> args;
 	private List<I> cuerpo;
-	private E valorReturn;
+	private E valorReturn; //La expresion que se devuelve
 
- public InstDeclFun(Tipo tipoReturn, String tipoF, E iden, List<Pair<String, E>> args, List<I> cuerpo, E ret) {
-		this.tipo = tipoReturn;
-	 	this.tipoF = tipoF;
-		this.nombreFuncion = iden;
+ public InstDeclFun(Tipo tipo, E nombreFuncion, List<Pair<Tipo, E>> args, List<I> cuerpo, E ret) {
+		this.tipo = tipo;
+	 	this.nombreFuncion = nombreFuncion;
 		this.args = args;
 		this.cuerpo = cuerpo;
 		this.valorReturn = ret;
@@ -33,7 +30,7 @@ public class InstDeclFun extends I {
 	   else aux = "{{_DeclP_}" + nombreFuncion + "{{_Args__}";
 	   
 	   int i = 0;
-	   for(Pair<String, E> arg : args) {
+	   for(Pair<Tipo, E> arg : args) {
 		   aux += "{{_Arg" + i + "__}{" + arg.getKey() + "}";
 		   aux += arg.getValue();
 		   aux += "}";
@@ -46,20 +43,13 @@ public class InstDeclFun extends I {
 	   aux += "}}";
 	   
 	   return aux;
- }
-	public String getTipoF() {
-		return tipoF;
-	}
-	
-	public void setTipoF(String tipoF) {
-		this.tipoF = tipoF;
-	}
-	
+ 	}
+
 	public E getIden() {
 		return nombreFuncion;
 	}
 	
-	public List<Pair<String, E>> getArgs() {
+	public List<Pair<Tipo, E>> getArgs() {
 		return args;
 	}
 	
@@ -67,9 +57,10 @@ public class InstDeclFun extends I {
 		return cuerpo;
 	}
 	
-	public E getRet() {
+	public E getReturn() {
 		return valorReturn;
 	}
+	
 	public Tipo getTipo() {
 		return tipo;
 	}

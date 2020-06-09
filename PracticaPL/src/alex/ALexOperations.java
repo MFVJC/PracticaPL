@@ -138,6 +138,10 @@ public class ALexOperations {
   public UnidadLexica unidadStruct() {
 	  return new UnidadLexicaMultivaluada(alex.fila(), ClaseLexica.STRUCT, "Struct");
   }  
+  public UnidadLexica unidadNew() {
+	  return new UnidadLexicaMultivaluada(alex.fila(), ClaseLexica.STRUCT, "New");
+  }
+  
   public void error() {
     System.err.println("***"+alex.fila()+" Caracter inesperado: "+alex.lexema());
   }

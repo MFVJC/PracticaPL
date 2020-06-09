@@ -5,6 +5,7 @@ import ast.SentenciaAbstracta;
 public class TipoStruct extends Tipo{
 	private String nombreStruct;
 	private SentenciaAbstracta referenciaDeclaracion;
+	
 	public TipoStruct(String nombreStruct) {
 		this.nombreStruct = nombreStruct;
 	}

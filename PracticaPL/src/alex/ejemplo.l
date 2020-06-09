@@ -51,6 +51,7 @@ const = const
 true = true
 false = false
 struct = struct
+new = new
 
 identificador = {letra}({letra}|{digito}|_)*
 numeroEntero = ({parteEntera}|0)
@@ -102,6 +103,7 @@ punto = \.
 {true}                    {return ops.unidadTrue();}
 {false}                   {return ops.unidadFalse();}
 {struct}				  {return ops.unidadStruct();}
+{new}					  {return ops.unidadNew();}
 
 {identificador}           {return ops.unidadId();}
 

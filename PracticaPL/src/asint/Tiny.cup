@@ -7,6 +7,7 @@ import errors.GestionErroresTiny;
 import ast.*;
 import ast.E.*;
 import ast.I.*;
+import ast.T.*;
 import java.util.List;
 import java.util.ArrayList;
 import javafx.util.Pair;
@@ -33,7 +34,7 @@ init with {:
 	//Terminales
 terminal IGUAL, COMA, PCOMA, PUNTO, MAS, MENOS, POR, DIV, MOD, AND, OR, NOT, 
  LT, GT, LE, GE, LA, LC, CA, CC, PA, PC, SL, IF, DO, ELEV, EQUAL, INT, THEN,
- TRUE, FALSE, ELSE, PROC, CONST, WHILE, SWITCH, RETURN, BOOLEAN, DEFAULT, CASE, STRUCT;
+ TRUE, FALSE, ELSE, PROC, CONST, WHILE, SWITCH, RETURN, BOOLEAN, DEFAULT, CASE, STRUCT, NEW;
 
 terminal String IDEN, ENT;
 
@@ -47,7 +48,7 @@ non terminal List<E> LIST_ARG, CON_ARG, ARG, LIST_VAL, INIT_LIST_VAL, INIT_LIST_
 
 //Su clase Param corresponde con un par de String (identificador) con su tipo
 //esto probablemente haya que cambiarlo
-non terminal List<Pair<String, E>> LIST_TIPO_ARG, CON_TIPO_ARG, TIPO_ARG;
+non terminal List<Pair<Tipo, E>> LIST_TIPO_ARG, CON_TIPO_ARG, TIPO_ARG;
 
 non terminal I INST, INST_IF,INST_WHILE, INST_SWITCH, INST_ASIG, INST_DECL, INST_STRUCT, INST_DECL_FUN, INST_CALL_PROC;
 
@@ -240,11 +241,11 @@ LIST_VAL  ::= E0:val
 
 //Lista de tipos
 TIPO ::= INT:tipo
-{:RESULT = "int";:};
+{:RESULT = new TipoInt();:};
 TIPO ::= BOOLEAN:tipo
-{:RESULT = "boolean";:};
+{:RESULT = new TipoBoolean();:};
 TIPO ::= IDEN:tipo
-{:RESULT = tipo;:};
+{:RESULT = new TipoStruct(tipo);:}; //REALMENTE NO! REVISAR
 
 //Instruccion struct
 INST_STRUCT ::= STRUCT LA LIST_DECL:lista LC IDEN:nombre PCOMA
@@ -269,14 +270,14 @@ INST_DECL_FUN ::= PROC IDEN:id PA LIST_TIPO_ARG:args PC LA S:cuerpo LC
 LIST_TIPO_ARG ::= CON_TIPO_ARG:args
 {:RESULT=args;:};
 LIST_TIPO_ARG ::= 
-{:RESULT=new ArrayList<Pair<String, E>>();:};
+{:RESULT=new ArrayList<Pair<Tipo, E>>();:};
 CON_TIPO_ARG  ::= TIPO:tipo E0:arg TIPO_ARG:args
-{:args.add(0, new Pair<String, E>(tipo, arg)); RESULT=args;:};
+{:args.add(0, new Pair<Tipo, E>(tipo, arg)); RESULT=args;:};
 TIPO_ARG      ::= COMA TIPO:tipo E0:arg TIPO_ARG:args
-{:args.add(0, new Pair<String, E>(tipo, arg)); RESULT=args;:};
+{:args.add(0, new Pair<Tipo, E>(tipo, arg)); RESULT=args;:};
 TIPO_ARG	  ::= 
-{:RESULT=new ArrayList<Pair<String, E>>();:};
+{:RESULT=new ArrayList<Pair<Tipo, E>>();:};
 
 	//Instruccion llamada a procedimiento
 INST_CALL_PROC ::= IDEN:id PA LIST_ARG:args PC PCOMA
-{:RESULT = as.instCallProc(id, args);:};
+{:RESULT = as.instCallProc(as.iden(id), args);:};
