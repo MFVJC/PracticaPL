@@ -2,13 +2,14 @@ package ast.I;
 
 import java.util.List;
 
+import ast.SentenciaAbstracta;
 import ast.E.E;
 import ast.E.TipoE;
 
 public class InstCallProc extends I {
 	private E nombre_funcion;
 	private List<E> argumentos;
-	
+	private SentenciaAbstracta referencia;
 	public InstCallProc(E nombre_funcion, List<E> argumentos) {
 	       nombre_funcion = nombre_funcion;
 	       argumentos = argumentos;
@@ -27,4 +28,11 @@ public class InstCallProc extends I {
 	public List<E> getArgumentos() {
 		return argumentos;
 	}
+	public void setReferencia(SentenciaAbstracta referencia) {
+		this.referencia = referencia;
+	}
+	public SentenciaAbstracta getReferencia() {
+		return referencia;
+	}
+	
 }
