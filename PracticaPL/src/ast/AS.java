@@ -47,6 +47,7 @@ public class AS {
 	  public I instDeclaracion(boolean constant, Tipo tipo, E iden, List<E> tam, List<E> valor) {return new InstDeclaracion(constant, tipo, iden, tam, valor);};
 	  public I instAsignacion(E iden, E valor) {return new InstAsignacion(iden, valor);};
 	  public I instStruct(E iden, List<I> declaraciones) {return new InstStruct(iden, declaraciones);};
+
 	  public I instDeclFun(Tipo tipoReturn, E iden, List<Pair<Tipo, E>> args, List<I> cuerpo, E ret) {return new InstDeclFun(tipoReturn, iden, args, cuerpo, ret);};
 	  public I instCallProc(E iden, List<E> args) {return new InstCallProc(iden, args);}
 
