@@ -1,15 +1,15 @@
 package ast.E;
 
-public class Asterisk extends E{
+public class Dollar extends E{
 	E operando1;
 	
-	public Asterisk(E operando1){
+	public Dollar(E operando1){
 		this.operando1 = operando1;
 	}
 
 	@Override
 	public TipoE tipoExpresion() {
-		return TipoE.ASTERISK;
+		return TipoE.DOLLAR;
 	}
 	public E opnd1() {
 		return operando1;

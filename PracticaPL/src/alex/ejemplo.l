@@ -82,6 +82,7 @@ igual = \=
 coma  = \,
 puntoComa = \;
 punto = \.
+puntero = \$
 
 %%
 {separador}               {}
@@ -126,14 +127,15 @@ punto = \.
 {operadorGE}              {return ops.unidadGE();}
 
 {llaveApertura}           {return ops.unidadLA();}
-{llaveCierre}           {return ops.unidadLC();}
-{corcheteApertura}           {return ops.unidadCA();}
-{corcheteCierre}           {return ops.unidadCC();}
+{llaveCierre}     	      {return ops.unidadLC();}
+{corcheteApertura}        {return ops.unidadCA();}
+{corcheteCierre}          {return ops.unidadCC();}
 {parentesisApertura}      {return ops.unidadPA();}
 {parentesisCierre}        {return ops.unidadPC();}
 {igual}                   {return ops.unidadIgual();} 
 {coma}                    {return ops.unidadComa();}
 {puntoComa}               {return ops.unidadPuntoComa();}
 {punto}					  {return ops.unidadPunto();}
+{puntero}				  {return ops.unidadPuntero();}
 
 [^]                       {ops.error();}  

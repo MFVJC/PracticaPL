@@ -30,24 +30,24 @@ init with {:
    alex.fijaGestionErrores(errores);
 :};
 
-//Lista de terminales y no terminales con sus tipos correspondientes
-	//Terminales
+//1) Lista de terminales y no terminales con sus tipos correspondientes
+
+	//1.1) Terminales
 terminal IGUAL, COMA, PCOMA, PUNTO, MAS, MENOS, POR, DIV, MOD, AND, OR, NOT, 
  LT, GT, LE, GE, LA, LC, CA, CC, PA, PC, SL, IF, DO, ELEV, EQUAL, INT, THEN,
- TRUE, FALSE, ELSE, PROC, CONST, WHILE, SWITCH, RETURN, BOOLEAN, DEFAULT, CASE, STRUCT, NEW;
+ TRUE, FALSE, ELSE, PROC, CONST, WHILE, SWITCH, RETURN, BOOLEAN, DEFAULT, CASE, STRUCT, NEW, PUNTERO;
 
 terminal String IDEN, ENT;
 
 
-//No terminales
-non terminal Tipo TIPO; //modificado para que contenga la información del tipo
+	//1.2) No terminales
+non terminal Tipo TIPO, TIPO_BASICO, TIPO_PUNTERO; //modificado para que contenga la información del tipo (FRANKY)
 
 non terminal E E0, E1, E2, E3, E4, E5, E6, E7, E8, E9;
 
 non terminal List<E> LIST_ARG, CON_ARG, ARG, LIST_VAL, INIT_LIST_VAL, INIT_LIST_DIM;
 
-//Su clase Param corresponde con un par de String (identificador) con su tipo
-//esto probablemente haya que cambiarlo
+	//Su clase Param corresponde con un par de String (identificador) con su tipo, esto probablemente haya que cambiarlo (FRANKY)
 non terminal List<Pair<Tipo, E>> LIST_TIPO_ARG, CON_TIPO_ARG, TIPO_ARG;
 
 non terminal I INST, INST_IF,INST_WHILE, INST_SWITCH, INST_ASIG, INST_DECL, INST_STRUCT, INST_DECL_FUN, INST_CALL_PROC;
@@ -56,28 +56,31 @@ non terminal List<I> S, LIST_DECL;
 
 non terminal Pair<E, List<I>> SINGLE_DEFAULT, SINGLE_CASE;
 
-//usada para el switch( Su tipo Case es una lista de pares donde aparece el identificador y sus instrucciones)
+	//usada para el switch( Su tipo Case es una lista de pares donde aparece el identificador y sus instrucciones) (FRANKY)
 non terminal List<Pair<E, List<I>>> LIST_CASE;
 
-//Gramatica de expresiones ordenada respecto a la precedencia de los distintos operadores
 
-	//Inicio
+//2) Inicio
 S   ::= INST:inst S:lista_inst
 {:lista_inst.add(0,inst); RESULT = lista_inst;:};
 S   ::= 
 {:RESULT= new ArrayList<I>();:};
 
-	//Operadores Logicos
+
+//3) Gramatica de Expresiones (ordenada respecto a la precedencia de los distintos operadores)
+
+	//3.1) Operadores Logicos
 E0  ::= E1:op1 OR E0:op2
 {:RESULT=as.or(op1, op2);:};
 E0  ::= E1:op1
 {:RESULT=op1;:};
+
 E1  ::= E2:op1 AND E1:op2
 {:RESULT=as.and(op1, op2);:};
 E1  ::= E2:op1
 {:RESULT=op1;:};
 
-	//Operadores comparativos
+	//3.2) Operadores comparativos
 E2  ::= E3:op1 NOT IGUAL E3:op2
 {:RESULT=as.notEqual(op1, op2);:};
 E2  ::= E3:op1 GT E3:op2
@@ -93,13 +96,16 @@ E2  ::= E3:op1 EQUAL E3:op2
 E2  ::= E3:op1
 {:RESULT=op1;:};
 
-	//Operadores aritmeticos
+	//3.3) Operadores aritmeticos
+		//3.3.1) Suma y Resta
 E3  ::= E3:op1 MAS E4:op2
 {:RESULT=as.suma(op1, op2);:};
 E3  ::= E3:op1 MENOS E4:op2
 {:RESULT=as.resta(op1, op2);:};
 E3  ::= E4:op1
 {:RESULT=op1;:};
+
+		//3.3.2) Multiplicacion, Division y Modulo
 E4  ::= E4:op1 POR E5:op2
 {:RESULT=as.mul(op1, op2);:};
 E4  ::= E4:op1 DIV E5:op2
@@ -108,39 +114,39 @@ E4  ::= E4:op1 MOD E5:op2
 {:RESULT = as.mod(op1, op2);:};
 E4  ::= E5:op1
 {:RESULT=op1;:};
+
+		//3.3.3) Elevado
 E5  ::= E5:op1 ELEV E6:op2
 {:RESULT=as.elev(op1, op2);:};
 E5  ::= E6:op1
 {:RESULT = op1;:};
 
-	//Operador negacion
+	//3.4) Operador negacion
 E6  ::= NOT E6:op1
 {:RESULT=as.not(op1);:};
 E6  ::= E7:op1
 {:RESULT=op1;:};
 
-	//Operadores corchete y punto
+	//3.5) Operadores corchete, punto, asterisco y new
 E7  ::= E7:op1 CA E0:op2 CC
 {:RESULT=as.squareBracket(op1, op2);:};
-E7  ::= E7:op1 PUNTO E9:op2
-
-//ESTO ALOMEJOR HAY QUE CAMBIARLO PARA QUE PASARLE UN OBJETO IDEN
-{:RESULT = as.dot(op1, op2);:};
-
-
+E7  ::= E7:op1 PUNTO E9:op2 
+{:RESULT = as.dot(op1, op2);:}; //ESTO ALOMEJOR HAY QUE CAMBIARLO PARA QUE PASARLE UN OBJETO IDEN (FRANKY)
+E7  ::= PUNTERO E9:op1
+{:RESULT = as.dollar(op1);:};
+E7	::= NEW TIPO:tipo
+{:RESULT = as.nnew(tipo);:};
 E7  ::= E8:op1
 {:RESULT=op1;:};
 	
-	//Operador menos
+	//3.6) Operador menos
 E8  ::= MENOS E9:op1
 {:RESULT=as.menos(op1);:};
 E8  ::= E9:op1
 {:RESULT=op1;:};
 
 
-	//Terminales y llamada a funcion como expresion
-E9  ::= IDEN:id PA LIST_ARG:args PC
-{:RESULT=as.llamadaFuncion(id,args);:};
+	//3.7) Terminales y llamada a funcion como expresion
 E9  ::= ENT:op1
 {:RESULT=as.num(op1);:};
 E9  ::= IDEN:op1
@@ -151,12 +157,17 @@ E9  ::= TRUE
 {:RESULT=as.basicTrue();:};
 E9  ::= FALSE
 {:RESULT=as.basicFalse();:};
+E9  ::= IDEN:id PA LIST_ARG:args PC
+{:RESULT=as.llamadaFuncion(id,args);:};
 
-//No terminales auxiliares para la llamada a funcion como expresion
-LIST_ARG ::= CON_ARG:op1
-{:RESULT=op1;:};
+		//3.7.1) No terminales auxiliares para la llamada a funcion como expresion
+//Sin argumentos
 LIST_ARG ::= 
 {:RESULT=new ArrayList<E>();:};
+
+//Con argumentos
+LIST_ARG ::= CON_ARG:op1
+{:RESULT=op1;:};
 CON_ARG  ::= E0:op1 ARG:op2
 {:op2.add(0, op1); RESULT=op2;:};
 ARG      ::= COMA E0:op1 ARG:op2
@@ -165,8 +176,9 @@ ARG		 ::=
 {:RESULT=new ArrayList<E>();:};
 
 
-//Gramatica de instrucciones
-//Todas las instrucciones posibles
+//4) Gramatica de instrucciones
+
+	//4.1) Todas las instrucciones posibles
 INST ::= INST_IF:op1
 {:RESULT = op1;:};
 INST ::= INST_WHILE:op1
@@ -184,70 +196,103 @@ INST ::= INST_DECL_FUN:op1
 INST ::= INST_CALL_PROC:op1
 {:RESULT = op1;:};
 
-//Instruccion If
+	//4.2) Instruccion If
 INST_IF ::= IF PA E0:condicion PC THEN LA S:cuerpo LC
 {:RESULT = as.instIf(condicion, cuerpo, null);:};
 INST_IF ::= IF PA E0:condicion PC THEN LA S:cuerpo_if LC ELSE LA S:cuerpo_else LC
 {:RESULT = as.instIf(condicion, cuerpo_if, cuerpo_else);:};
 
-//Instruccion while
+	//4.3) Instruccion while
 INST_WHILE ::= WHILE PA E0:condicion PC DO LA S:cuerpo LC
 {:RESULT = as.instWhile(condicion, cuerpo);:};
 
-//Instruccion switch
+	//4.4) Instruccion switch
 INST_SWITCH ::= SWITCH PA IDEN:condicion PC LA LIST_CASE:list_cases LC
 {:RESULT = as.instSwitch(as.iden(condicion), list_cases);:};
 		
-//No terminales auxiliares para la instruccion switch: implementamos la lista de cases y default
-SINGLE_DEFAULT ::= DEFAULT LA S:cuerpo LC
-{:RESULT = new Pair<E, List<I>>(null, cuerpo);:};
-SINGLE_CASE ::= CASE E0:selector THEN LA S:cuerpo LC
-{:RESULT = new Pair<E, List<I>>(selector, cuerpo);:};
+		//4.4.1) No terminales auxiliares para la instruccion switch
+//Lista de Cases
+LIST_CASE ::= 
+{:List<Pair<E, List<I>>> cases = new ArrayList<Pair<E, List<I>>>(); RESULT = cases;:};
 LIST_CASE ::= SINGLE_CASE:single_case LIST_CASE:cases
 {:cases.add(0, single_case); RESULT = cases;:};
 LIST_CASE ::= SINGLE_DEFAULT:defa
 {:List<Pair<E, List<I>>> cases = new ArrayList<Pair<E, List<I>>>(); cases.add(defa); RESULT = cases;:};
-LIST_CASE ::= 
-{:List<Pair<E, List<I>>> cases = new ArrayList<Pair<E, List<I>>>(); RESULT = cases;:};
 
-//Instruccion asignacion
+//Un Case
+SINGLE_CASE ::= CASE E0:selector THEN LA S:cuerpo LC
+{:RESULT = new Pair<E, List<I>>(selector, cuerpo);:};
+
+//Default
+SINGLE_DEFAULT ::= DEFAULT LA S:cuerpo LC
+{:RESULT = new Pair<E, List<I>>(null, cuerpo);:};
+
+
+	//4.5) Instruccion asignacion
 INST_ASIG ::= E0:id IGUAL E0:valor PCOMA
 {:RESULT = as.instAsignacion(id, valor);:};
 
-//Instruccion declaracion
+	//4.6) Instruccion declaracion
+	
+		//4.6.1) Declaracion sin inicializar
 INST_DECL ::= TIPO:tipo IDEN:id INIT_LIST_DIM:tam PCOMA
 {:RESULT = as.instDeclaracion(false, tipo, as.iden(id), tam, null);:};
+
+		//4.6.2) Declaracion con valores inicializados
 INST_DECL ::= TIPO:tipo IDEN:id INIT_LIST_DIM:tam IGUAL INIT_LIST_VAL:valor PCOMA
 {:RESULT = as.instDeclaracion(false, tipo, as.iden(id), tam, valor);:};
+
+		//4.6.3) Declaracion constante (inicializacion forzosa)
 INST_DECL ::= CONST TIPO:tipo IDEN:id INIT_LIST_DIM:tam IGUAL INIT_LIST_VAL:valor PCOMA
 {:RESULT = as.instDeclaracion(true, tipo, as.iden(id), tam, valor);:};
-
-//No terminales auxiliares para la instruccion declaracion
+	
+		//4.6.4) No terminales auxiliares para la instruccion declaracion
 //Lista de dimensiones
-INIT_LIST_DIM ::= CA ENT:tam CC INIT_LIST_DIM:list
-{:list.add(0, as.num(tam)); RESULT = list;:};
 INIT_LIST_DIM ::=  
 {:List<E> list = new ArrayList<E>(); RESULT = list;:};
+INIT_LIST_DIM ::= CA ENT:tam CC INIT_LIST_DIM:list
+{:list.add(0, as.num(tam)); RESULT = list;:};
 
 //Lista de valores iniciales
-INIT_LIST_VAL ::= LIST_VAL:list
-{:RESULT = list;:};
+INIT_LIST_VAL ::= E0:val
+{: List<E> list = new ArrayList<E>(); list.add(0, val); RESULT = list; RESULT = list;:};
 INIT_LIST_VAL   ::= LA LIST_VAL:list LC
 {:RESULT = list;:};
+
 LIST_VAL  ::= E0:val COMA LIST_VAL:list
 {:list.add(0, val); RESULT = list;:};
 LIST_VAL  ::= E0:val
 {:List<E> list = new ArrayList<E>(); list.add(0, val); RESULT = list;:};
 
-//Lista de tipos
-TIPO ::= INT:tipo
-{:RESULT = new TipoInt();:};
-TIPO ::= BOOLEAN:tipo
-{:RESULT = new TipoBoolean();:};
-TIPO ::= IDEN:tipo
-{:RESULT = new TipoStruct(tipo);:}; //REALMENTE NO! REVISAR
 
-//Instruccion struct
+
+//Lista de tipos
+
+//Tipos simples
+TIPO ::= TIPO_BASICO:tipoBasico
+{:RESULT = tipoBasico;:};
+
+TIPO_BASICO ::= INT:tipoBasico
+{:RESULT = new TipoInt();:};
+TIPO_BASICO ::= BOOLEAN:tipoBasico
+{:RESULT = new TipoBoolean();:};
+TIPO_BASICO ::= IDEN:tipoPropio
+{:RESULT = new TipoStruct(tipoPropio);:}; //REALMENTE NO? REVISAR (JC)
+
+//Tipos punteros
+TIPO ::= TIPO_BASICO:tipoBasico TIPO_PUNTERO:tipoPuntero
+{:TipoPuntero t = (TipoPuntero) tipoPuntero;
+  while(t.getClaseApuntada() != null) t = (TipoPuntero) t.getClaseApuntada();
+  t.setClaseApuntada(tipoBasico);
+ RESULT = tipoPuntero;:};
+
+TIPO_PUNTERO ::= PUNTERO
+{:RESULT = new TipoPuntero(null);:};
+TIPO_PUNTERO ::= PUNTERO TIPO_PUNTERO:tipoPuntero
+{:RESULT = new TipoPuntero(tipoPuntero);:};
+
+
+	//4.7) Instruccion struct
 INST_STRUCT ::= STRUCT LA LIST_DECL:lista LC IDEN:nombre PCOMA
 {:RESULT = as.instStruct(as.iden(nombre), lista);:};
 		
@@ -258,7 +303,7 @@ LIST_DECL ::=
 {:RESULT = new ArrayList<I>();:};
 
 
-//Instruccion declaracion de funcion
+	//4.8) Instruccion declaracion de funcion
 //para diferenciar entre proc y fun necesitamos cambiar el tipo.
 INST_DECL_FUN ::= TIPO:tipo IDEN:id PA LIST_TIPO_ARG:args PC LA S:cuerpo RETURN E0:ret PCOMA LC
 {:RESULT = as.instDeclFun(tipo, as.iden(id), args, cuerpo, ret);:};
@@ -267,17 +312,17 @@ INST_DECL_FUN ::= PROC IDEN:id PA LIST_TIPO_ARG:args PC LA S:cuerpo LC
 
 //No terminales auxiliares para la instruccion de declaracion de funcion 
 //Implementamos una lista de argumentos con sus respectivos tipos
-LIST_TIPO_ARG ::= CON_TIPO_ARG:args
-{:RESULT=args;:};
 LIST_TIPO_ARG ::= 
 {:RESULT=new ArrayList<Pair<Tipo, E>>();:};
-CON_TIPO_ARG  ::= TIPO:tipo E0:arg TIPO_ARG:args
-{:args.add(0, new Pair<Tipo, E>(tipo, arg)); RESULT=args;:};
-TIPO_ARG      ::= COMA TIPO:tipo E0:arg TIPO_ARG:args
-{:args.add(0, new Pair<Tipo, E>(tipo, arg)); RESULT=args;:};
+LIST_TIPO_ARG ::= CON_TIPO_ARG:args
+{:RESULT=args;:};
+CON_TIPO_ARG  ::= TIPO:tipoArgumento IDEN:nombreArgumento TIPO_ARG:args
+{:args.add(0, new Pair<Tipo, E>(tipoArgumento, as.iden(nombreArgumento))); RESULT=args;:};
+TIPO_ARG      ::= COMA TIPO:tipoArgumento IDEN:nombreArgumento TIPO_ARG:args
+{:args.add(0, new Pair<Tipo, E>(tipoArgumento, as.iden(nombreArgumento))); RESULT=args;:};
 TIPO_ARG	  ::= 
 {:RESULT=new ArrayList<Pair<Tipo, E>>();:};
 
-	//Instruccion llamada a procedimiento
+	//4.9) Instruccion llamada a procedimiento
 INST_CALL_PROC ::= IDEN:id PA LIST_ARG:args PC PCOMA
 {:RESULT = as.instCallProc(as.iden(id), args);:};

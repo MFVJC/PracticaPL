@@ -169,7 +169,7 @@ public class AnalizadorSemantico {
 				vincula(expNot.opnd1());
 				break;
 			case ASTERISK:
-				Asterisk asterisk = (Asterisk) expresion;
+				Dollar asterisk = (Dollar) expresion;
 				vincula(asterisk.opnd1());
 			break;
 			default:
@@ -222,7 +222,7 @@ public class AnalizadorSemantico {
 					if(tipoAsignar.tipoEnumerado() == EnumeradoTipos.STRUCT) {
 						GestionErroresTiny.errorSemantico("Error de tipos. Operación no soportada: no se pueden asignar structs o punteros a una variable");
 					}else if (tipoAsignar.tipoEnumerado() ==EnumeradoTipos.PUNTERO){
-						EPointer pointer = (EPointer) instruccionAsignacion.getValor();
+						New pointer = (New) instruccionAsignacion.getValor();
 						TipoPuntero tipoPuntero = (TipoPuntero) tipoAsignar;
 						if(tipoPuntero.getClaseApuntada().tipoEnumerado() == pointer.getTipo().tipoEnumerado()) {
 							//entonces los dos punteros son del mismo tipo y no hay problema
@@ -431,7 +431,7 @@ public Tipo tiposExpresion(SentenciaAbstracta sentencia) {
 		switch(expresion.tipoExpresion()) {
 		case ASTERISK:
 			//lo de la derecha tiene que ser un vector
-			Asterisk asteriscoExp = (Asterisk) expresion;
+			Dollar asteriscoExp = (Dollar) expresion;
 			//necesitamos vector
 			//if(tiposExpresion(asteriscoExp.opnd1()).tipoEnumerado() == EnumeradoTipos.)
 			break;

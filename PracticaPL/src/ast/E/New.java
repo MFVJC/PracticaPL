@@ -2,19 +2,19 @@ package ast.E;
 
 import ast.T.Tipo;
 
-public class EPointer extends E{
-	private Tipo tipoVariable;
+public class New extends E{
+	private Tipo tipo;
 	//ellos lo tienen en una lista supongo por si es una lista de objetos propios
 	private int tam;
 	
-	public EPointer(Tipo tipoVariable) {
-		this.tipoVariable = tipoVariable;
+	public New(Tipo tipo) {
+		this.tipo = tipo;
 	}
 	public Tipo getTipo() {
-		return tipoVariable;
+		return tipo;
 	}
 	@Override
 	public TipoE tipoExpresion() {
-		return TipoE.EPOINTER;
+		return TipoE.NEW;
 	}
 }

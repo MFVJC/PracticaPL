@@ -13,4 +13,9 @@ public class TipoPuntero extends Tipo{
 	public Tipo getClaseApuntada() {
 		return claseApuntada;
 	}
+	
+	public void setClaseApuntada(Tipo claseApuntada) {
+		this.claseApuntada = claseApuntada;
+	}
+	
 }
