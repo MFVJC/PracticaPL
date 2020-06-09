@@ -14,12 +14,17 @@ import javafx.util.Pair;
 public class AnalizadorSemantico {
 	private List<I> programa;
 	private TablaSimbolos tabla = new TablaSimbolos();
+	
 	public AnalizadorSemantico(List<I> programa) {
 		this.programa = programa;
 	}
 	
 	public void analizaSemantica() {
+		//Vinculamos todas las instrucciones del programa
+		programa.forEach(x -> vincula(x));
 		
+		//Comprobamos tipos
+		programa.forEach(x -> compruebaTipos(x));
 	}
 	
 	public void vincula(SentenciaAbstracta sentencia) {
@@ -322,190 +327,191 @@ public class AnalizadorSemantico {
 		
 		return false;
 	}
-public Tipo tiposExpresion(SentenciaAbstracta sentencia) {
-	switch(sentencia.tipoSentencia()) {
-	case EXPRESION_BINARIA:
-		EBin ebin = (EBin) sentencia;
-		E operando1= ebin.opnd1();
-		E operando2 = ebin.opnd2();
-		Tipo tipoOperando1 = tiposExpresion(operando1);
-		Tipo tipoOperando2 = tiposExpresion(operando2);
-		switch(ebin.tipoExpresion()) {
-		case AND:
-			if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.BOOLEAN && tipoOperando2.tipoEnumerado()==EnumeradoTipos.BOOLEAN) {
-				//los dos operandos son booleanos entonces devolvemos un booleano
-				return new TipoBoolean();
-			}
-			GestionErroresTiny.errorSemantico("Error de tipos. Uno de los operandos del AND no es booleano");
-			break;
-		case DIV:
-			if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
-				return new TipoInt();
-			}
-			GestionErroresTiny.errorSemantico("Error de tipos. Uno de los operandos de la división no es entero");
-
-			break;
-		case DOT:
-			//tenemos que comprobar que operando1 es un struct
-			//
-			if(tipoOperando1.tipoEnumerado() == EnumeradoTipos.STRUCT) {
-				//falta comprobar que el punto corresponde con un campo del struct
-				Iden atributo = (Iden) ebin.opnd2();
-				//podemos coger la referencia al struct del TipoStruct
-				 //nos hace falta meter las referencias para esto
-				TipoStruct tipoStruct = (TipoStruct) tipoOperando1;
-				InstStruct sentenciaStruct = (InstStruct) tipoStruct.getReferencia();
-				for(I instruccion : sentenciaStruct.getDeclaraciones()) {
-					if(instruccion instanceof InstDeclaracion) {
-						Iden atributoStruct = (Iden)((InstDeclaracion) instruccion).getIden();
-						if(atributoStruct.getNombre() == atributo.getNombre()) {
-							//Entonces si que existe la variable
-							return atributoStruct.getTipo();
+	
+	public Tipo tiposExpresion(SentenciaAbstracta sentencia) {
+		switch(sentencia.tipoSentencia()) {
+			case EXPRESION_BINARIA:
+				EBin ebin = (EBin) sentencia;
+				E operando1= ebin.opnd1();
+				E operando2 = ebin.opnd2();
+				Tipo tipoOperando1 = tiposExpresion(operando1);
+				Tipo tipoOperando2 = tiposExpresion(operando2);
+				switch(ebin.tipoExpresion()) {
+				case AND:
+					if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.BOOLEAN && tipoOperando2.tipoEnumerado()==EnumeradoTipos.BOOLEAN) {
+						//los dos operandos son booleanos entonces devolvemos un booleano
+						return new TipoBoolean();
+					}
+					GestionErroresTiny.errorSemantico("Error de tipos. Uno de los operandos del AND no es booleano");
+					break;
+				case DIV:
+					if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
+						return new TipoInt();
+					}
+					GestionErroresTiny.errorSemantico("Error de tipos. Uno de los operandos de la división no es entero");
+		
+					break;
+				case DOT:
+					//tenemos que comprobar que operando1 es un struct
+					//
+					if(tipoOperando1.tipoEnumerado() == EnumeradoTipos.STRUCT) {
+						//falta comprobar que el punto corresponde con un campo del struct
+						Iden atributo = (Iden) ebin.opnd2();
+						//podemos coger la referencia al struct del TipoStruct
+						 //nos hace falta meter las referencias para esto
+						TipoStruct tipoStruct = (TipoStruct) tipoOperando1;
+						InstStruct sentenciaStruct = (InstStruct) tipoStruct.getReferencia();
+						for(I instruccion : sentenciaStruct.getDeclaraciones()) {
+							if(instruccion instanceof InstDeclaracion) {
+								Iden atributoStruct = (Iden)((InstDeclaracion) instruccion).getIden();
+								if(atributoStruct.getNombre() == atributo.getNombre()) {
+									//Entonces si que existe la variable
+									return atributoStruct.getTipo();
+								}
+							}
 						}
 					}
-				}
-			}
-				GestionErroresTiny.errorSemantico("Error de tipos. Tipo de operandos inválido para el .");
-			
-			
-			break;
-		case ELEV:
-			if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
-				return new TipoInt();
-			}
-			GestionErroresTiny.errorSemantico("Error de tipos. Tipo de operandos inválido para el operador **");
-
-			break;
-		case EQUAL:
-			//podemos tener booleanos o enteros
-			if((tipoOperando1.tipoEnumerado() == EnumeradoTipos.BOOLEAN || tipoOperando1.tipoEnumerado() == EnumeradoTipos.INT) && tipoOperando1.tipoEnumerado() == tipoOperando2.tipoEnumerado() ) {
-				return new TipoBoolean();
-			}
-			GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de igualdad no coinciden o no son válidos");
-			break;
-		case GREATEREQUAL:
-			if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
-				return new TipoBoolean();
-			}
-			GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de mayor-igual no son enteros");
-			break;
-		case GREATERTHAN:
-			if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
-				return new TipoBoolean();
-			}
-			GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de mayor no son enteros");
-
-			break;
-		case LESSEQUAL:
-			if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
-				return new TipoBoolean();
-			}
-			GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de menor-igual no son enteros");
-			break;
-		case LESSTHAN:
-			if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
-				return new TipoBoolean();
-			}
-			GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de menor no son enteros");
-			break;
-		case MUL:
-			if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
-				return new TipoInt();
-			}
-			GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la multiplicación no son enteros");
-			break;
-		case NOTEQUAL:
-			if((tipoOperando1.tipoEnumerado() == EnumeradoTipos.BOOLEAN || tipoOperando1.tipoEnumerado() == EnumeradoTipos.INT) && tipoOperando1.tipoEnumerado() == tipoOperando2.tipoEnumerado() ) {
-				return new TipoBoolean();
-			}
-			GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de desigualdad no coinciden o no son válidos");
-			break;
-		case OR:
-			if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.BOOLEAN && tipoOperando2.tipoEnumerado()==EnumeradoTipos.BOOLEAN) {
-				//los dos operandos son booleanos entonces devolvemos un booleano
-				return new TipoBoolean();
-			}
-			GestionErroresTiny.errorSemantico("Error de tipos. Uno de los operandos del OR no es booleano");
-			break;
-		case RESTA:
-			if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
-				return new TipoInt();
-			}
-			GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la resta no son enteros");
-
-			break;
-		case SQUAREBRACKET:
-			
-			
-			
-			
-			
-			break;
-		case SUMA:
-			if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
-				return new TipoInt();
-			}
-			GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la suma no son enteros");
-			break;
-		default:
-			break;
+						GestionErroresTiny.errorSemantico("Error de tipos. Tipo de operandos inválido para el .");
+					
+					
+					break;
+				case ELEV:
+					if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
+						return new TipoInt();
+					}
+					GestionErroresTiny.errorSemantico("Error de tipos. Tipo de operandos inválido para el operador **");
 		
-		}
-		break;
-	case EXPRESION:
-		E expresion = (E) sentencia;
-		switch(expresion.tipoExpresion()) {
-		case DOLLAR:
-			//lo de la derecha tiene que ser un vector
-			Dollar asteriscoExp = (Dollar) expresion;
-			//necesitamos vector
-			//if(tiposExpresion(asteriscoExp.opnd1()).tipoEnumerado() == EnumeradoTipos.)
-			break;
-		case BASICFALSE:
-			return new TipoBoolean();
-		case BASICTRUE:
-			return new TipoBoolean();
-		case NUM:
-			return new TipoInt();
-		case FUNCION:
-			LlamadaFuncion llamada = (LlamadaFuncion) expresion;
-			List<Iden> variable = (List<Iden>)(List<?>) llamada.getArgumentos();
-			List<Tipo> tiposLlamada = new ArrayList<>();
-			variable.forEach(x-> tiposLlamada.add(x.getTipo()));
-			InstDeclFun declaracionFuncion = (InstDeclFun) llamada.getReferencia();
-			int i = 0;
-			boolean coincidenTipos = true;
-			for(Pair<Tipo,E> atributo : declaracionFuncion.getArgs()) {
-				if(atributo.getKey().tipoEnumerado() != tiposLlamada.get(i).tipoEnumerado()){
-					coincidenTipos = false;
-					GestionErroresTiny.errorSemantico("Error de tipos. El tipo del parámetro " + i + " no coincide con el del respectivo argumento");
-				}
-				i++;
-			}
-			if(coincidenTipos) {
-				return llamada.getTipoReturn();
-			}
-			break;
-		case IDEN:
-			Iden identificador = (Iden) expresion;
-			return identificador.getTipo();
-		case NOT:
-			Not not  = (Not) expresion;
-			if(tiposExpresion(not.opnd1()).tipoEnumerado() == EnumeradoTipos.BOOLEAN) {
-				return new TipoBoolean();
-			}
-			GestionErroresTiny.errorSemantico("El operando de un NOT debe ser booleano");
-			break;
-		default:
-			break;
+					break;
+				case EQUAL:
+					//podemos tener booleanos o enteros
+					if((tipoOperando1.tipoEnumerado() == EnumeradoTipos.BOOLEAN || tipoOperando1.tipoEnumerado() == EnumeradoTipos.INT) && tipoOperando1.tipoEnumerado() == tipoOperando2.tipoEnumerado() ) {
+						return new TipoBoolean();
+					}
+					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de igualdad no coinciden o no son válidos");
+					break;
+				case GREATEREQUAL:
+					if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
+						return new TipoBoolean();
+					}
+					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de mayor-igual no son enteros");
+					break;
+				case GREATERTHAN:
+					if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
+						return new TipoBoolean();
+					}
+					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de mayor no son enteros");
 		
+					break;
+				case LESSEQUAL:
+					if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
+						return new TipoBoolean();
+					}
+					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de menor-igual no son enteros");
+					break;
+				case LESSTHAN:
+					if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
+						return new TipoBoolean();
+					}
+					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de menor no son enteros");
+					break;
+				case MUL:
+					if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
+						return new TipoInt();
+					}
+					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la multiplicación no son enteros");
+					break;
+				case NOTEQUAL:
+					if((tipoOperando1.tipoEnumerado() == EnumeradoTipos.BOOLEAN || tipoOperando1.tipoEnumerado() == EnumeradoTipos.INT) && tipoOperando1.tipoEnumerado() == tipoOperando2.tipoEnumerado() ) {
+						return new TipoBoolean();
+					}
+					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de desigualdad no coinciden o no son válidos");
+					break;
+				case OR:
+					if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.BOOLEAN && tipoOperando2.tipoEnumerado()==EnumeradoTipos.BOOLEAN) {
+						//los dos operandos son booleanos entonces devolvemos un booleano
+						return new TipoBoolean();
+					}
+					GestionErroresTiny.errorSemantico("Error de tipos. Uno de los operandos del OR no es booleano");
+					break;
+				case RESTA:
+					if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
+						return new TipoInt();
+					}
+					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la resta no son enteros");
+		
+					break;
+				case SQUAREBRACKET:
+					
+					
+					
+					
+					
+					break;
+				case SUMA:
+					if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
+						return new TipoInt();
+					}
+					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la suma no son enteros");
+					break;
+				default:
+					break;
+				
+				}
+				break;
+			case EXPRESION:
+				E expresion = (E) sentencia;
+				switch(expresion.tipoExpresion()) {
+				case DOLLAR:
+					//lo de la derecha tiene que ser un vector
+					Dollar asteriscoExp = (Dollar) expresion;
+					//necesitamos vector
+					//if(tiposExpresion(asteriscoExp.opnd1()).tipoEnumerado() == EnumeradoTipos.)
+					break;
+				case BASICFALSE:
+					return new TipoBoolean();
+				case BASICTRUE:
+					return new TipoBoolean();
+				case NUM:
+					return new TipoInt();
+				case FUNCION:
+					LlamadaFuncion llamada = (LlamadaFuncion) expresion;
+					List<Iden> variable = (List<Iden>)(List<?>) llamada.getArgumentos();
+					List<Tipo> tiposLlamada = new ArrayList<>();
+					variable.forEach(x-> tiposLlamada.add(x.getTipo()));
+					InstDeclFun declaracionFuncion = (InstDeclFun) llamada.getReferencia();
+					int i = 0;
+					boolean coincidenTipos = true;
+					for(Pair<Tipo,E> atributo : declaracionFuncion.getArgs()) {
+						if(atributo.getKey().tipoEnumerado() != tiposLlamada.get(i).tipoEnumerado()){
+							coincidenTipos = false;
+							GestionErroresTiny.errorSemantico("Error de tipos. El tipo del parámetro " + i + " no coincide con el del respectivo argumento");
+						}
+						i++;
+					}
+					if(coincidenTipos) {
+						return llamada.getTipoReturn();
+					}
+					break;
+				case IDEN:
+					Iden identificador = (Iden) expresion;
+					return identificador.getTipo();
+				case NOT:
+					Not not  = (Not) expresion;
+					if(tiposExpresion(not.opnd1()).tipoEnumerado() == EnumeradoTipos.BOOLEAN) {
+						return new TipoBoolean();
+					}
+					GestionErroresTiny.errorSemantico("El operando de un NOT debe ser booleano");
+					break;
+				default:
+					break;
+				
+				}
+				//aquí hay que añadir las expresiones que representan a los tipos, identificadores y llamadas a funciones
+				break;
+			default:
+				break;
 		}
-		//aquí hay que añadir las expresiones que representan a los tipos, identificadores y llamadas a funciones
-		break;
-	default:
-		break;
+		
+		return new TipoError();
 	}
-	return new TipoError();
-
-  }
 }

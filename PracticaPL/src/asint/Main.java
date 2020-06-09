@@ -7,7 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import alex.AnalizadorLexicoTiny;
+import asem.AnalizadorSemantico;
+import ast.SentenciaAbstracta;
 import ast.E.E;
+import ast.I.I;
 
 public class Main {
 
@@ -65,19 +68,21 @@ public class Main {
 	//Al ejecutar el programa, el AST se imprimira por pantalla
 	public static void main(String[] args) throws Exception {
 	     Reader input = new InputStreamReader(new FileInputStream("PracticaPL/input.txt"));
-		 AnalizadorLexicoTiny alex = new AnalizadorLexicoTiny(input);
+		 
+	     //1) Analisis Lexico y Sintactico
+	     AnalizadorLexicoTiny alex = new AnalizadorLexicoTiny(input);
 		 AnalizadorSintacticoTiny asint = new AnalizadorSintacticoTiny(alex);
 		 asint.setScanner(alex);
-		 //asint.parse();
+		 List<I> programa = (List<I>) asint.parse().value;
 		 
-		 String tree = asint.parse().value.toString();
-		 tree = tree.substring(1, tree.length()-1);
-		 String nivel = "";
-		 boolean last_child = true;
+		 	//1.1) Mostramos el AST resultante del analisis sintactico 
+		 String tree = programa.toString().substring(1, programa.toString().length()-1);
+		 System.out.println(printTree("_PROGR_", splitFromParent(tree), "", true));
 		 
-		 System.out.println(printTree("_PROGR_", splitFromParent(tree), nivel, last_child));
-		//devuelve la raíz del árbol 
-		 //List<I> programa = (I) asint.parse().value;
+		 //2) Analisis Semantico
+		 AnalizadorSemantico asem = new AnalizadorSemantico(programa);
+		 asem.analizaSemantica();
+
 	   }
 	
 }

@@ -1,1 +1,7 @@
 tPersona$ x = 2;
+
+int y = 2;
+
+if(y == x)then{
+	y = 2 + $2;
+}
