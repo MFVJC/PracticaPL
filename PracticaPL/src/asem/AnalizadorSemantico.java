@@ -126,7 +126,7 @@ public class AnalizadorSemantico {
 				}
 			
 			break;
-			//Expresiones
+			//Expresiones Binarias
 			case EXPRESION_BINARIA:
 				EBin expresionBinaria = (EBin) sentencia;
 					//en el caso de que sea un punto solo tengo que vincular el primer operando
@@ -135,47 +135,48 @@ public class AnalizadorSemantico {
 						vincula(expresionBinaria.opnd2());
 					}
 			break;
+			//Expresiones
 			case EXPRESION:
 			E expresion = (E) sentencia;
 				
 			switch(expresion.tipoExpresion()) {
-			case FUNCION:
-				LlamadaFuncion llamada = (LlamadaFuncion) expresion;
-				SentenciaAbstracta referenciaFuncion = tabla.getSentenciaDeclaracion(llamada.getNombre_funcion());
-				if(referenciaFuncion == null) {
-					GestionErroresTiny.errorSemantico("Llamada a función " + llamada.getNombre_funcion() + " no existente.");
-				}else {
-					//guardamos para luego poder comprobar los tipos
-					llamada.setReferencia(referenciaFuncion);
-					llamada.setTipoReturn(((InstDeclFun)referenciaFuncion).getTipo());
-					llamada.getArgumentos().forEach(x->vincula(x));
-				}
-				break;
-			case IDEN:
-				Iden identificador = (Iden) expresion;
-				SentenciaAbstracta refIdentificador = tabla.getSentenciaDeclaracion(identificador.getNombre());
-				if(refIdentificador == null) {
-					GestionErroresTiny.errorSemantico("El identificador " + identificador.getNombre() + " no ha sido declarado.");
-				}else {
-					if(refIdentificador instanceof InstDeclaracion) {
-						//guardo el tipo de la variable en el identificador para la comprobación de tipos posterior
-						identificador.setTipo(((InstDeclaracion)refIdentificador).getTipo());
+				case FUNCION:
+					LlamadaFuncion llamada = (LlamadaFuncion) expresion;
+					SentenciaAbstracta referenciaFuncion = tabla.getSentenciaDeclaracion(llamada.getNombre_funcion());
+					if(referenciaFuncion == null) {
+						GestionErroresTiny.errorSemantico("Llamada a función " + llamada.getNombre_funcion() + " no existente.");
 					}else {
-						GestionErroresTiny.errorSemantico("ERROR INESPERADO EN EL PROGRAMA.");
+						//guardamos para luego poder comprobar los tipos
+						llamada.setReferencia(referenciaFuncion);
+						llamada.setTipoReturn(((InstDeclFun)referenciaFuncion).getTipo());
+						llamada.getArgumentos().forEach(x->vincula(x));
 					}
-				}
+					break;
+				case IDEN:
+					Iden identificador = (Iden) expresion;
+					SentenciaAbstracta refIdentificador = tabla.getSentenciaDeclaracion(identificador.getNombre());
+					if(refIdentificador == null) {
+						GestionErroresTiny.errorSemantico("El identificador " + identificador.getNombre() + " no ha sido declarado.");
+					}else {
+						if(refIdentificador instanceof InstDeclaracion) {
+							//guardo el tipo de la variable en el identificador para la comprobación de tipos posterior
+							identificador.setTipo(((InstDeclaracion)refIdentificador).getTipo());
+						}else {
+							GestionErroresTiny.errorSemantico("ERROR INESPERADO EN EL PROGRAMA.");
+						}
+					}
+					break;
+				case NOT:
+					Not expNot = (Not) expresion;
+					vincula(expNot.opnd1());
+					break;
+				case DOLLAR:
+					Dollar asterisk = (Dollar) expresion;
+					vincula(asterisk.opnd1());
 				break;
-			case NOT:
-				Not expNot = (Not) expresion;
-				vincula(expNot.opnd1());
-				break;
-			case DOLLAR:
-				Dollar asterisk = (Dollar) expresion;
-				vincula(asterisk.opnd1());
-			break;
-			default:
-				break;
-			
+				default:
+					break;
+				
 			}
 			break;
 			
