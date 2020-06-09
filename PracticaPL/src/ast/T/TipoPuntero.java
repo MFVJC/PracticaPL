@@ -21,7 +21,7 @@ public class TipoPuntero extends Tipo{
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
-		return "$" + claseApuntada.toString();
+		return claseApuntada.toString() + "$";
 	}
 	
 }
