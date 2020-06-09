@@ -60,7 +60,7 @@ public class AnalizadorSemantico {
 				case DECLFUN:
 					InstDeclFun declaracionFuncion = (InstDeclFun) sentencia;
 					Tipo tipo = declaracionFuncion.getTipo(); //no vale si es proc
-					String tipoF = declaracionFuncion.getTipoF();// null si procedimiento
+					//String tipoF = declaracionFuncion.getTipoF();// null si procedimiento
 					vincula(declaracionFuncion.getTipo());
 					tabla.insertaSimbolo(((Iden)declaracionFuncion.getIden()).getNombre(), sentencia);
 					//los argumentos de la funcion tienen que ser de tipo E
@@ -256,8 +256,16 @@ public class AnalizadorSemantico {
 					return correctArguments;
 				break;
 			case DECL:
+				InstDeclaracion instruccionDeclaracion = (InstDeclaracion) instruccion;
+				if(instruccionDeclaracion.getIden().tipoExpresion() == TipoE.IDEN) {
+					//luego hay que comprobar que el valor con el que quieres asignar 
+				}else {
+					GestionErroresTiny.errorSemantico("Error de tipos. La variable tiene que ser necesariamente un identificador.");
+				}
 				break;
 			case DECLFUN:
+				InstDeclFun instruccionDeclaracionFuncion = (InstDeclFun) instruccion;
+				
 				break;
 			case IF:
 				InstIf instruccionIf = (InstIf) instruccion;
@@ -464,10 +472,18 @@ public Tipo tiposExpresion(SentenciaAbstracta sentencia) {
 			List<Tipo> tiposLlamada = new ArrayList<>();
 			variable.forEach(x-> tiposLlamada.add(x.getTipo()));
 			InstDeclFun declaracionFuncion = (InstDeclFun) llamada.getReferencia();
-			
-			// List<Pair<String, E>> argumentos = declaracionFuncion.getArgs();
-			
-			//Aquí deberíamos pasar también el tipo del parámetro.
+			int i = 0;
+			boolean coincidenTipos = true;
+			for(Pair<Tipo,E> atributo : declaracionFuncion.getArgs()) {
+				if(atributo.getKey().tipoEnumerado() != tiposLlamada.get(i).tipoEnumerado()){
+					coincidenTipos = false;
+					GestionErroresTiny.errorSemantico("Error de tipos. El tipo del parámetro " + i + " no coincide con el del respectivo argumento");
+				}
+				i++;
+			}
+			if(coincidenTipos) {
+				return llamada.getTipoReturn();
+			}
 			break;
 		case IDEN:
 			Iden identificador = (Iden) expresion;
