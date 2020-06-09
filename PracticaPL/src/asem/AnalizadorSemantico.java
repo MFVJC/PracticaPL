@@ -169,7 +169,7 @@ public class AnalizadorSemantico {
 				Not expNot = (Not) expresion;
 				vincula(expNot.opnd1());
 				break;
-			case ASTERISK:
+			case DOLLAR:
 				Dollar asterisk = (Dollar) expresion;
 				vincula(asterisk.opnd1());
 			break;
@@ -454,7 +454,7 @@ public Tipo tiposExpresion(SentenciaAbstracta sentencia) {
 	case EXPRESION:
 		E expresion = (E) sentencia;
 		switch(expresion.tipoExpresion()) {
-		case ASTERISK:
+		case DOLLAR:
 			//lo de la derecha tiene que ser un vector
 			Dollar asteriscoExp = (Dollar) expresion;
 			//necesitamos vector
