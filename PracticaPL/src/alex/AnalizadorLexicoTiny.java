@@ -313,36 +313,41 @@ public class AnalizadorLexicoTiny implements java_cup.runtime.Scanner {
 		/* 97 */ YY_NO_ANCHOR,
 		/* 98 */ YY_NO_ANCHOR,
 		/* 99 */ YY_NO_ANCHOR,
-		/* 100 */ YY_NO_ANCHOR
+		/* 100 */ YY_NO_ANCHOR,
+		/* 101 */ YY_NO_ANCHOR,
+		/* 102 */ YY_NO_ANCHOR,
+		/* 103 */ YY_NO_ANCHOR,
+		/* 104 */ YY_NO_ANCHOR
 	};
 	private int yy_cmap[] = unpackFromString(1,65538,
-"3:8,4:2,1,3:2,4,3:18,4,33,3,2,3,30,31,3,41,42,28,26,43,27,45,29,24,23:9,3,4" +
-"4,35,34,36,3:2,22:26,39,3,40,3,25,3,12,8,19,21,11,13,22,15,5,22:2,10,22,6,9" +
-",18,22,16,14,7,17,22,20,22:3,37,32,38,3:65410,0:2")[0];
+"3:8,4:2,1,3:2,4,3:18,4,33,3,2,46,30,31,3,41,42,28,26,43,27,45,29,24,23:9,3," +
+"44,35,34,36,3:2,22:26,39,3,40,3,25,3,12,8,19,21,11,13,22,15,5,22:2,10,22,6," +
+"9,18,22,16,14,7,17,22,20,22:3,37,32,38,3:65410,0:2")[0];
 
-	private int yy_rmap[] = unpackFromString(1,101,
-"0,1:2,2,1,3,4,1:2,5,1:5,6,7,8,1:9,9:2,1:4,9:15,1,10,11,12,13,14,15,16,17,18" +
-",19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43" +
-",44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61")[0];
+	private int yy_rmap[] = unpackFromString(1,105,
+"0,1:2,2,1,3,4,1:2,5,1:5,6,7,8,1:10,9:2,1:4,9:15,10,1,11,12,13,14,15,16,17,1" +
+"8,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,4" +
+"3,44,45,46,47,48,49,50,51,52,53,54,55,56,9,57,58,59,60,61,62,63")[0];
 
-	private int yy_nxt[][] = unpackFromString(62,46,
-"1,2,3,4,2,5,47,77,100,47:2,78,47,89,96,47,97,47,79,80,90,49,47,6,48,4,7,8,9" +
-",10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,-1:48,3:44,-1:5,47,50,4" +
-"7:6,27,47:12,-1:43,6:2,-1:49,29,-1:51,30,-1:45,31,-1:45,32,-1:16,47:21,-1:2" +
-"5,47:4,28,47,99,47:14,-1:25,47:2,33,47:18,-1:25,47,34,47:19,-1:25,47:6,35,4" +
-"7:14,-1:25,47:6,36,47:14,-1:25,47:14,37,47:6,-1:25,47:6,38,47:14,-1:25,47:6" +
-",39,47:14,-1:25,47:2,40,47:18,-1:25,47:6,41,47:14,-1:25,47:2,42,47:18,-1:25" +
-",47:10,43,47:10,-1:25,47,44,47:19,-1:25,47,45,47:19,-1:25,47:2,46,47:18,-1:" +
-"25,47:6,51,47:14,-1:25,47:12,52,47:8,-1:25,47:9,53,47:11,-1:25,47:4,54,47:1" +
-"6,-1:25,47:9,55,47:11,-1:25,47:9,56,47:11,-1:25,47:9,57,47:11,-1:25,47:5,58" +
-",47:15,-1:25,47:14,59,47:6,-1:25,47:14,60,47:6,-1:25,47:11,61,47:9,-1:25,47" +
-":7,62,47:13,-1:25,47:5,63,47:15,-1:25,47:10,64,65,47:9,-1:25,47:5,66,47:15," +
-"-1:25,47:11,67,47:9,-1:25,47:4,82,47:2,68,47:13,-1:25,47:5,69,47:15,-1:25,4" +
-"7,70,47:19,-1:25,71,47:20,-1:25,47:12,72,47:8,-1:25,47:2,73,47:18,-1:25,47:" +
-"12,74,47:8,-1:25,47:6,75,47:14,-1:25,47:12,76,47:8,-1:25,47:7,81,47:13,-1:2" +
-"5,47:10,83,47:10,-1:25,47:11,84,47:9,-1:25,85,47:20,-1:25,47:2,86,47:18,-1:" +
-"25,47:5,87,47:15,-1:25,47:7,88,47:13,-1:25,47:2,91,47:12,92,47:5,-1:25,47:6" +
-",93,47:14,-1:25,47:4,94,47:16,-1:25,47:8,95,47:12,-1:25,47:4,98,47:16,-1:20");
+	private int yy_nxt[][] = unpackFromString(64,47,
+"1,2,3,4,2,5,49,87,96,97:2,98,97,99,100,97,101,97,102,103,104,51,97,6,50,4,7" +
+",8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,-1:49,3:45,-1:5," +
+"97,52,97:6,28,97:12,-1:44,6:2,-1:50,30,-1:52,31,-1:46,32,-1:46,33,-1:17,97:" +
+"21,-1:26,97:6,53,97:14,-1:26,97:4,29,97,63,97:14,-1:26,97:2,34,97:18,-1:26," +
+"97:15,35,97:5,-1:26,97:6,64,97:14,-1:26,97:12,65,97:8,-1:26,97:4,90,97:16,-" +
+"1:26,97:9,66,97:11,-1:26,97:5,67,97:15,-1:26,97:11,68,97:9,-1:26,92,97:20,-" +
+"1:26,97:2,94,97:18,-1:26,97,93,97:19,-1:26,97:8,72,97:12,-1:26,97,36,97:19," +
+"-1:26,97:6,37,97:14,-1:26,97:6,38,97:14,-1:26,97:9,74,97:11,-1:26,97:12,75," +
+"97:8,-1:26,97:14,39,97:6,-1:26,97:6,40,97:14,-1:26,97:5,78,97:15,-1:26,97:7" +
+",79,97:13,-1:26,97:6,80,97:14,-1:26,97:6,41,97:14,-1:26,97:14,81,97:6,-1:26" +
+",97:11,83,97:9,-1:26,97:2,42,97:18,-1:26,97:6,43,97:14,-1:26,97:12,84,97:8," +
+"-1:26,97:7,85,97:13,-1:26,97:2,44,97:18,-1:26,97:10,45,97:10,-1:26,97,46,97" +
+":19,-1:26,97:5,86,97:15,-1:26,97,47,97:19,-1:26,97:2,48,97:18,-1:26,97:10,5" +
+"4,55,97:9,-1:26,97:4,69,97:16,-1:26,97:9,70,97:11,-1:26,97:5,73,97:15,-1:26" +
+",71,97:20,-1:26,97:2,95,97:18,-1:26,97:9,77,97:11,-1:26,97:12,76,97:8,-1:26" +
+",97:14,82,97:6,-1:26,97:4,56,97:16,-1:26,97:5,57,97:15,-1:26,97:7,58,97:13," +
+"-1:26,97:2,59,97:12,60,97:5,-1:26,97:6,61,97:14,-1:26,97:11,88,97:9,-1:26,9" +
+"7:4,62,97:2,89,97:13,-1:26,97:10,91,97:10,-1:21");
 
 	public java_cup.runtime.Symbol next_token ()
 		throws java.io.IOException {
@@ -494,91 +499,91 @@ public class AnalizadorLexicoTiny implements java_cup.runtime.Scanner {
 					case -27:
 						break;
 					case 27:
-						{return ops.unidadIf();}
+						{return ops.unidadPuntero();}
 					case -28:
 						break;
 					case 28:
-						{return ops.unidadDo();}
+						{return ops.unidadIf();}
 					case -29:
 						break;
 					case 29:
-						{return ops.unidadElev();}
+						{return ops.unidadDo();}
 					case -30:
 						break;
 					case 30:
-						{return ops.unidadEqual();}
+						{return ops.unidadElev();}
 					case -31:
 						break;
 					case 31:
-						{return ops.unidadLE();}
+						{return ops.unidadEqual();}
 					case -32:
 						break;
 					case 32:
-						{return ops.unidadGE();}
+						{return ops.unidadLE();}
 					case -33:
 						break;
 					case 33:
-						{return ops.unidadInt();}
+						{return ops.unidadGE();}
 					case -34:
 						break;
 					case 34:
-						{return ops.unidadThen();}
+						{return ops.unidadInt();}
 					case -35:
 						break;
 					case 35:
-						{return ops.unidadTrue();}
+						{return ops.unidadNew();}
 					case -36:
 						break;
 					case 36:
-						{return ops.unidadElse();}
+						{return ops.unidadThen();}
 					case -37:
 						break;
 					case 37:
-						{return ops.unidadProc();}
+						{return ops.unidadTrue();}
 					case -38:
 						break;
 					case 38:
-						{return ops.unidadCase();}
+						{return ops.unidadElse();}
 					case -39:
 						break;
 					case 39:
-						{return ops.unidadFalse();}
+						{return ops.unidadProc();}
 					case -40:
 						break;
 					case 40:
-						{return ops.unidadConst();}
+						{return ops.unidadCase();}
 					case -41:
 						break;
 					case 41:
-						{return ops.unidadWhile();}
+						{return ops.unidadFalse();}
 					case -42:
 						break;
 					case 42:
-						{return ops.unidadStruct();}
+						{return ops.unidadConst();}
 					case -43:
 						break;
 					case 43:
-						{return ops.unidadSwitch();}
+						{return ops.unidadWhile();}
 					case -44:
 						break;
 					case 44:
-						{return ops.unidadReturn();}
+						{return ops.unidadStruct();}
 					case -45:
 						break;
 					case 45:
-						{return ops.unidadBoolean();}
+						{return ops.unidadSwitch();}
 					case -46:
 						break;
 					case 46:
-						{return ops.unidadDefault();}
+						{return ops.unidadReturn();}
 					case -47:
 						break;
 					case 47:
-						{return ops.unidadId();}
+						{return ops.unidadBoolean();}
 					case -48:
 						break;
 					case 48:
-						{return ops.unidadEnt();}
+						{return ops.unidadDefault();}
 					case -49:
 						break;
 					case 49:
@@ -586,7 +591,7 @@ public class AnalizadorLexicoTiny implements java_cup.runtime.Scanner {
 					case -50:
 						break;
 					case 50:
-						{return ops.unidadId();}
+						{return ops.unidadEnt();}
 					case -51:
 						break;
 					case 51:
@@ -788,6 +793,22 @@ public class AnalizadorLexicoTiny implements java_cup.runtime.Scanner {
 					case 100:
 						{return ops.unidadId();}
 					case -101:
+						break;
+					case 101:
+						{return ops.unidadId();}
+					case -102:
+						break;
+					case 102:
+						{return ops.unidadId();}
+					case -103:
+						break;
+					case 103:
+						{return ops.unidadId();}
+					case -104:
+						break;
+					case 104:
+						{return ops.unidadId();}
+					case -105:
 						break;
 					default:
 						yy_error(YY_E_INTERNAL,false);

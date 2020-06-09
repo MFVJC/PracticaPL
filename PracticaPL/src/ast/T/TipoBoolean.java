@@ -7,4 +7,10 @@ public class TipoBoolean extends Tipo{
 		return EnumeradoTipos.BOOLEAN;
 	}
 
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return "Boolean";
+	}
+
 }

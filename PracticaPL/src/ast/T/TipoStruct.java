@@ -22,4 +22,9 @@ public class TipoStruct extends Tipo{
 	public SentenciaAbstracta getReferencia() {
 		return referenciaDeclaracion;
 	}
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return nombreStruct;
+	}
 }

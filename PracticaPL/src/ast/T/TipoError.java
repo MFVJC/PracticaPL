@@ -7,4 +7,10 @@ public class TipoError extends Tipo{
 		return EnumeradoTipos.ERROR;
 	}
 
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return "Error";
+	}
+
 }

@@ -7,4 +7,10 @@ public class TipoInt extends Tipo{
 		return EnumeradoTipos.INT;
 	}
 
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return "Int";
+	}
+
 }

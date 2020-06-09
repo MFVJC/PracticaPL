@@ -7,4 +7,6 @@ public abstract class Tipo extends SentenciaAbstracta{
 		return EnumeradoTipoGeneral.TIPOS;
 	}
 	public abstract EnumeradoTipos tipoEnumerado();
+	
+	public abstract String toString();	 
 }

@@ -64,7 +64,7 @@ public class Main {
 	//Introducir el codigo de prueba en el archivo input.txt
 	//Al ejecutar el programa, el AST se imprimira por pantalla
 	public static void main(String[] args) throws Exception {
-	     Reader input = new InputStreamReader(new FileInputStream("input.txt"));
+	     Reader input = new InputStreamReader(new FileInputStream("PracticaPL/input.txt"));
 		 AnalizadorLexicoTiny alex = new AnalizadorLexicoTiny(input);
 		 AnalizadorSintacticoTiny asint = new AnalizadorSintacticoTiny(alex);
 		 asint.setScanner(alex);
@@ -74,9 +74,7 @@ public class Main {
 		 tree = tree.substring(1, tree.length()-1);
 		 String nivel = "";
 		 boolean last_child = true;
-		 //NO
-		 //PRUEBA!
-		 //JEJE
+		 
 		 System.out.println(printTree("_PROGR_", splitFromParent(tree), nivel, last_child));
 		//devuelve la raíz del árbol 
 		 //List<I> programa = (I) asint.parse().value;

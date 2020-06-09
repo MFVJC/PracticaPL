@@ -14,4 +14,9 @@ public class Dollar extends E{
 	public E opnd1() {
 		return operando1;
 	} 
+	
+   public String toString() {
+		  return "{{_Dolar_}" + opnd1().toString() + "}";
+   }
+	
 }

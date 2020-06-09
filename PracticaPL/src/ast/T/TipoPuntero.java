@@ -18,4 +18,10 @@ public class TipoPuntero extends Tipo{
 		this.claseApuntada = claseApuntada;
 	}
 	
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return "$" + claseApuntada.toString();
+	}
+	
 }
