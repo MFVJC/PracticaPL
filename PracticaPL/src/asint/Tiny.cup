@@ -41,11 +41,11 @@ terminal String IDEN, ENT;
 
 
 	//1.2) No terminales
-non terminal Tipo TIPO, TIPO_BASICO, TIPO_PUNTERO; //modificado para que contenga la información del tipo (FRANKY)
+non terminal Tipo TIPO, TIPO_BASICO, TIPO_PUNTERO, TIPO_ARRAY; //modificado para que contenga la información del tipo (FRANKY)
 
 non terminal E E0, E1, E2, E3, E4, E5, E6, E7, E8, E9;
 
-non terminal List<E> LIST_ARG, CON_ARG, ARG, LIST_VAL, INIT_LIST_VAL, INIT_LIST_DIM;
+non terminal List<E> LIST_ARG, CON_ARG, ARG, LIST_VAL, INIT_LIST_VAL;
 
 	//Su clase Param corresponde con un par de String (identificador) con su tipo, esto probablemente haya que cambiarlo (FRANKY)
 non terminal List<Pair<Tipo, E>> LIST_TIPO_ARG, CON_TIPO_ARG, TIPO_ARG;
@@ -235,24 +235,18 @@ INST_ASIG ::= E0:id IGUAL E0:valor PCOMA
 	//4.6) Instruccion declaracion
 	
 		//4.6.1) Declaracion sin inicializar
-INST_DECL ::= TIPO:tipo IDEN:id INIT_LIST_DIM:tam PCOMA
-{:RESULT = as.instDeclaracion(false, tipo, as.iden(id), tam, null);:};
+INST_DECL ::= TIPO:tipo IDEN:id PCOMA
+{:RESULT = as.instDeclaracion(false, tipo, as.iden(id), null);:};
 
 		//4.6.2) Declaracion con valores inicializados
-INST_DECL ::= TIPO:tipo IDEN:id INIT_LIST_DIM:tam IGUAL INIT_LIST_VAL:valor PCOMA
-{:RESULT = as.instDeclaracion(false, tipo, as.iden(id), tam, valor);:};
+INST_DECL ::= TIPO:tipo IDEN:id IGUAL INIT_LIST_VAL:valor PCOMA
+{:RESULT = as.instDeclaracion(false, tipo, as.iden(id), valor);:};
 
 		//4.6.3) Declaracion constante (inicializacion forzosa)
-INST_DECL ::= CONST TIPO:tipo IDEN:id INIT_LIST_DIM:tam IGUAL INIT_LIST_VAL:valor PCOMA
-{:RESULT = as.instDeclaracion(true, tipo, as.iden(id), tam, valor);:};
+INST_DECL ::= CONST TIPO:tipo IDEN:id IGUAL INIT_LIST_VAL:valor PCOMA
+{:RESULT = as.instDeclaracion(true, tipo, as.iden(id), valor);:};
 	
 		//4.6.4) No terminales auxiliares para la instruccion declaracion
-//Lista de dimensiones
-INIT_LIST_DIM ::=  
-{:List<E> list = new ArrayList<E>(); RESULT = list;:};
-INIT_LIST_DIM ::= CA ENT:tam CC INIT_LIST_DIM:list
-{:list.add(0, as.num(tam)); RESULT = list;:};
-
 //Lista de valores iniciales
 INIT_LIST_VAL ::= E0:val
 {: List<E> list = new ArrayList<E>(); list.add(0, val); RESULT = list; RESULT = list;:};
@@ -282,14 +276,27 @@ TIPO_BASICO ::= IDEN:tipoPropio
 //Tipos punteros
 TIPO ::= TIPO_BASICO:tipoBasico TIPO_PUNTERO:tipoPuntero
 {:TipoPuntero t = (TipoPuntero) tipoPuntero;
-  while(t.getClaseApuntada() != null) t = (TipoPuntero) t.getClaseApuntada();
-  t.setClaseApuntada(tipoBasico);
- RESULT = tipoPuntero;:};
+  while(t.getTipoApuntado() != null) t = (TipoPuntero) t.getTipoApuntado();
+  t.setTipoApuntado(tipoBasico);
+  RESULT = tipoPuntero;:};
 
 TIPO_PUNTERO ::= PUNTERO
 {:RESULT = new TipoPuntero(null);:};
 TIPO_PUNTERO ::= PUNTERO TIPO_PUNTERO:tipoPuntero
 {:RESULT = new TipoPuntero(tipoPuntero);:};
+
+//Tipos Arrays
+TIPO ::= TIPO_BASICO:tipoBasico TIPO_ARRAY:tipoArray
+{:TipoArray t = (TipoArray) tipoArray;
+  while(t.getTipoBase() != null) t = (TipoArray) t.getTipoBase();
+  t.setTipoBase(tipoBasico);
+  RESULT = tipoArray;:};
+
+TIPO_ARRAY ::= LA E0:dimension LC
+{:RESULT = new TipoArray(null, dimension);:};
+TIPO_ARRAY ::= LA E0:dimension LC TIPO_ARRAY:tipoArray
+{:RESULT = new TipoArray(tipoArray, dimension);:};
+
 
 
 	//4.7) Instruccion struct

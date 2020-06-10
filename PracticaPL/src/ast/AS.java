@@ -44,8 +44,8 @@ public class AS {
 	  public I instIf(E condicion, List<I> cuerpo_if, List<I> cuerpo_else) {return new InstIf(condicion, cuerpo_if, cuerpo_else);}
 	  public I instWhile(E condicion, List<I> cuerpo) {return new InstWhile(condicion, cuerpo);};
 	  public I instSwitch(E condicion, List<Pair<E, List<I>>> cases) {return new InstSwitch(condicion, cases);};
-	  // a cambiar
-	  public I instDeclaracion(boolean constant, Tipo tipo, E iden, List<E> tam, List<E> valor) {return new InstDeclaracion(constant, tipo, iden, tam, valor);};
+	  
+	  public I instDeclaracion(boolean constant, Tipo tipo, E iden, List<E> valor) {return new InstDeclaracion(constant, tipo, iden, valor);};
 	  public I instAsignacion(E iden, E valor) {return new InstAsignacion(iden, valor);};
 	  public I instStruct(E iden, List<I> declaraciones) {return new InstStruct(iden, declaraciones);};
 
@@ -54,7 +54,8 @@ public class AS {
 
 	  public Tipo tipoInt() {return new TipoInt();}
 	  public Tipo tipoBoolean() {return new TipoBoolean();}
-	  public Tipo tipoPuntero(Tipo claseApuntada) {return new TipoPuntero(claseApuntada);}
+	  public Tipo tipoPuntero(Tipo tipoApuntado) {return new TipoPuntero(tipoApuntado);}
 	  public Tipo tipoStruct(String nombreStruct) {return new TipoStruct(nombreStruct);}
+	  public Tipo tipoArray(Tipo tipoBase, E dimension) {return new TipoArray(tipoBase, dimension);}
 
 }

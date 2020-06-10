@@ -1,27 +1,27 @@
 package ast.T;
 
 public class TipoPuntero extends Tipo{
-	private Tipo claseApuntada;
+	private Tipo tipoApuntado;
 
-	public TipoPuntero(Tipo claseApuntada) {
-		this.claseApuntada = claseApuntada;
+	public TipoPuntero(Tipo tipoApuntado) {
+		this.tipoApuntado = tipoApuntado;
 	}
 	@Override
 	public EnumeradoTipos tipoEnumerado() {
 		return EnumeradoTipos.PUNTERO;
 	}
-	public Tipo getClaseApuntada() {
-		return claseApuntada;
+	public Tipo getTipoApuntado() {
+		return tipoApuntado;
 	}
 	
-	public void setClaseApuntada(Tipo claseApuntada) {
-		this.claseApuntada = claseApuntada;
+	public void setTipoApuntado(Tipo tipoApuntado) {
+		this.tipoApuntado = tipoApuntado;
 	}
 	
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
-		return claseApuntada.toString() + "$";
+		return tipoApuntado.toString() + "$";
 	}
 	
 }

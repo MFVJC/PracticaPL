@@ -189,7 +189,7 @@ public class AnalizadorSemantico {
 				Tipo tipo = (Tipo) sentencia;
 				switch(tipo.tipoEnumerado()) {
 				case PUNTERO:
-					vincula(((TipoPuntero)tipo).getClaseApuntada());
+					vincula(((TipoPuntero)tipo).getTipoApuntado());
 					break;
 				case STRUCT:
 					TipoStruct tipoStruct = (TipoStruct) tipo;
@@ -231,7 +231,7 @@ public class AnalizadorSemantico {
 					}else if (tipoAsignar.tipoEnumerado() ==EnumeradoTipos.PUNTERO){
 						New pointer = (New) instruccionAsignacion.getValor();
 						TipoPuntero tipoPuntero = (TipoPuntero) tipoAsignar;
-						if(tipoPuntero.getClaseApuntada().tipoEnumerado() == pointer.getTipo().tipoEnumerado()) {
+						if(tipoPuntero.getTipoApuntado().tipoEnumerado() == pointer.getTipo().tipoEnumerado()) {
 							//entonces los dos punteros son del mismo tipo y no hay problema
 							return true;
 						}
