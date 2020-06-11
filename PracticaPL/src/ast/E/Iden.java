@@ -9,7 +9,10 @@ public class Iden extends E {
 	private Tipo tipoVariable;
 	private SentenciaAbstracta referencia;
 	private boolean constante =false;
-   
+	
+	private int profundidadAnidamiento = 0;
+	private int direccionMemoria;
+	
 	public Iden(String opnd1) {
      this.nombre = opnd1;  
    }    
@@ -38,5 +41,17 @@ public class Iden extends E {
 	public void setReferencia(SentenciaAbstracta referencia) {
 		this.referencia = referencia;
 	}
-	   
+	public void setPa(int pa) {
+		  profundidadAnidamiento = pa;
+	}
+	public int getPa() {
+		  return profundidadAnidamiento;
+	}
+	public int getDireccionMemoria() {
+		return direccionMemoria;
+	}
+	public void setDireccionMemoria(int direccionMemoria) {
+		this.direccionMemoria = direccionMemoria;
+	}
+	
 }
