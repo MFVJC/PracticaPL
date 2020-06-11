@@ -24,8 +24,6 @@ public class AS {
 	  public E div(E opnd1, E opnd2) {return new Div(opnd1,opnd2);}
 	  public E mod(E opnd1, E opnd2) {return new Mod(opnd1, opnd2);}
 	  public E elev(E opnd1, E opnd2) {return new Elev(opnd1, opnd2);}
-	  public E squareBracket(E opnd1, E opnd2) {return new SquareBracket(opnd1,opnd2);}
-	  public E dot(E opnd1, E opnd2) {return new Dot(opnd1, opnd2);}
 	  
 	  public E basicTrue() {return new BasicTrue();}
 	  public E basicFalse() {return new BasicFalse();}
@@ -33,6 +31,8 @@ public class AS {
 	
 	  
 	  public E llamadaFuncion(E nombreFuncion, List<E> args) {return new LlamadaFuncion(nombreFuncion, args);}
+	  public E squareBracket(E opnd1, E opnd2) {return new SquareBracket(opnd1,opnd2);}
+	  public E dot(E opnd1, E opnd2) {return new Dot(opnd1, opnd2);}
 	  public E dollar(E opnd1) {return new Dollar(opnd1);}
 	  public E nnew(Tipo tipo, E tam) {return new New(tipo, tam);} //nnew para que no coincida con la palabra reservada
 	  public E not(E opnd1) {return new Not(opnd1);}

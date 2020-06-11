@@ -31,6 +31,8 @@ public class TipoArray extends Tipo{
 	
 	@Override
 	public String toString() {
-		return tipoBase.toString() + "[" + dimension.toString().substring(1, dimension.toString().length()-1) + "]";
+		//dimension.toString().substring(1, dimension.toString().length()-1) Aparecen las dimensiones invertidas...
+		//Habria que liarla para reinvertirlas, asi que por ahora no mostramos las dimensiones y ya
+		return tipoBase.toString() + "[]";
 	}
 }

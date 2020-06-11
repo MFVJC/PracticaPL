@@ -136,6 +136,8 @@ E7  ::= PUNTERO E9:op1
 {:RESULT = as.dollar(op1);:};
 E7	::= NEW TIPO:tipo CA E0:tam CC
 {:RESULT = as.nnew(tipo, tam);:};
+E7	::= NEW TIPO:tipo CA CC
+{:RESULT = as.nnew(tipo, null);:};
 E7  ::= E8:op1
 {:RESULT=op1;:};
 	
@@ -197,13 +199,13 @@ INST ::= INST_CALL_PROC:op1
 {:RESULT = op1;:};
 
 	//4.2) Instruccion If
-INST_IF ::= IF PA E0:condicion PC THEN LA S:cuerpo LC
+INST_IF ::= IF PA E0:condicion PC LA S:cuerpo LC
 {:RESULT = as.instIf(condicion, cuerpo, null);:};
-INST_IF ::= IF PA E0:condicion PC THEN LA S:cuerpo_if LC ELSE LA S:cuerpo_else LC
+INST_IF ::= IF PA E0:condicion PC LA S:cuerpo_if LC ELSE LA S:cuerpo_else LC
 {:RESULT = as.instIf(condicion, cuerpo_if, cuerpo_else);:};
 
 	//4.3) Instruccion while
-INST_WHILE ::= WHILE PA E0:condicion PC DO LA S:cuerpo LC
+INST_WHILE ::= WHILE PA E0:condicion PC LA S:cuerpo LC
 {:RESULT = as.instWhile(condicion, cuerpo);:};
 
 	//4.4) Instruccion switch
@@ -220,7 +222,7 @@ LIST_CASE ::= SINGLE_DEFAULT:defa
 {:List<Pair<E, List<I>>> cases = new ArrayList<Pair<E, List<I>>>(); cases.add(defa); RESULT = cases;:};
 
 //Un Case
-SINGLE_CASE ::= CASE E0:selector THEN LA S:cuerpo LC
+SINGLE_CASE ::= CASE E0:selector LA S:cuerpo LC
 {:RESULT = new Pair<E, List<I>>(selector, cuerpo);:};
 
 //Default
@@ -235,16 +237,43 @@ INST_ASIG ::= E0:id IGUAL E0:valor PCOMA
 	//4.6) Instruccion declaracion
 	
 		//4.6.1) Declaracion sin inicializar
-INST_DECL ::= TIPO:tipo IDEN:id PCOMA
-{:RESULT = as.instDeclaracion(false, tipo, as.iden(id), null);:};
+INST_DECL ::= TIPO:tipoBase IDEN:id TIPO_ARRAY:tipoArray PCOMA
+{:Tipo tipoDeclaracion;
+  if(tipoArray == null) tipoDeclaracion = tipoBase;
+  else{
+	  TipoArray t = (TipoArray) tipoArray;
+	  while(t.getTipoBase() != null) t = (TipoArray) t.getTipoBase();
+	  t.setTipoBase(tipoBase);
+	  tipoDeclaracion = tipoArray;
+  }
+  RESULT = as.instDeclaracion(false, tipoDeclaracion, as.iden(id), null);
+:};
 
 		//4.6.2) Declaracion con valores inicializados
-INST_DECL ::= TIPO:tipo IDEN:id IGUAL INIT_LIST_VAL:valor PCOMA
-{:RESULT = as.instDeclaracion(false, tipo, as.iden(id), valor);:};
+INST_DECL ::= TIPO:tipoBase IDEN:id TIPO_ARRAY:tipoArray IGUAL INIT_LIST_VAL:valor PCOMA
+{:Tipo tipoDeclaracion;
+  if(tipoArray == null) tipoDeclaracion = tipoBase;
+  else{
+	  TipoArray t = (TipoArray) tipoArray;
+	  while(t.getTipoBase() != null) t = (TipoArray) t.getTipoBase();
+	  t.setTipoBase(tipoBase);
+	  tipoDeclaracion = tipoArray;
+  }
+  RESULT = as.instDeclaracion(false, tipoDeclaracion, as.iden(id), valor);
+:};
 
 		//4.6.3) Declaracion constante (inicializacion forzosa)
-INST_DECL ::= CONST TIPO:tipo IDEN:id IGUAL INIT_LIST_VAL:valor PCOMA
-{:RESULT = as.instDeclaracion(true, tipo, as.iden(id), valor);:};
+INST_DECL ::= CONST TIPO:tipoBase IDEN:id TIPO_ARRAY:tipoArray IGUAL INIT_LIST_VAL:valor PCOMA
+{:Tipo tipoDeclaracion;
+  if(tipoArray == null) tipoDeclaracion = tipoBase;
+  else{
+	  TipoArray t = (TipoArray) tipoArray;
+	  while(t.getTipoBase() != null) t = (TipoArray) t.getTipoBase();
+	  t.setTipoBase(tipoBase);
+	  tipoDeclaracion = tipoArray;
+  }
+  RESULT = as.instDeclaracion(true, tipoDeclaracion, as.iden(id), valor);
+:};
 	
 		//4.6.4) No terminales auxiliares para la instruccion declaracion
 //Lista de valores iniciales
@@ -253,11 +282,10 @@ INIT_LIST_VAL ::= E0:val
 INIT_LIST_VAL   ::= LA LIST_VAL:list LC
 {:RESULT = list;:};
 
-LIST_VAL  ::= E0:val COMA LIST_VAL:list
-{:list.add(0, val); RESULT = list;:};
 LIST_VAL  ::= E0:val
 {:List<E> list = new ArrayList<E>(); list.add(0, val); RESULT = list;:};
-
+LIST_VAL  ::= E0:val COMA LIST_VAL:list
+{:list.add(0, val); RESULT = list;:};
 
 
 //Lista de tipos
@@ -278,7 +306,8 @@ TIPO ::= TIPO_BASICO:tipoBasico TIPO_PUNTERO:tipoPuntero
 {:TipoPuntero t = (TipoPuntero) tipoPuntero;
   while(t.getTipoApuntado() != null) t = (TipoPuntero) t.getTipoApuntado();
   t.setTipoApuntado(tipoBasico);
-  RESULT = tipoPuntero;:};
+  RESULT = tipoPuntero;
+:};
 
 TIPO_PUNTERO ::= PUNTERO
 {:RESULT = new TipoPuntero(null);:};
@@ -286,17 +315,10 @@ TIPO_PUNTERO ::= PUNTERO TIPO_PUNTERO:tipoPuntero
 {:RESULT = new TipoPuntero(tipoPuntero);:};
 
 //Tipos Arrays
-TIPO ::= TIPO_BASICO:tipoBasico TIPO_ARRAY:tipoArray
-{:TipoArray t = (TipoArray) tipoArray;
-  while(t.getTipoBase() != null) t = (TipoArray) t.getTipoBase();
-  t.setTipoBase(tipoBasico);
-  RESULT = tipoArray;:};
-
-TIPO_ARRAY ::= LA E0:dimension LC
-{:RESULT = new TipoArray(null, dimension);:};
-TIPO_ARRAY ::= LA E0:dimension LC TIPO_ARRAY:tipoArray
+TIPO_ARRAY ::= 
+{:RESULT = null;:};
+TIPO_ARRAY ::= CA E0:dimension CC TIPO_ARRAY:tipoArray
 {:RESULT = new TipoArray(tipoArray, dimension);:};
-
 
 
 	//4.7) Instruccion struct
