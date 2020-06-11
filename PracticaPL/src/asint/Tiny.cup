@@ -334,21 +334,45 @@ LIST_DECL ::=
 
 	//4.8) Instruccion declaracion de funcion
 //para diferenciar entre proc y fun necesitamos cambiar el tipo.
-INST_DECL_FUN ::= TIPO:tipo IDEN:id PA LIST_TIPO_ARG:args PC LA S:cuerpo RETURN E0:ret PCOMA LC
-{:RESULT = as.instDeclFun(tipo, as.iden(id), args, cuerpo, ret);:};
-INST_DECL_FUN ::= PROC IDEN:id PA LIST_TIPO_ARG:args PC LA S:cuerpo LC
-{:RESULT = as.instDeclFun(null, as.iden(id), args, cuerpo, null);:};
+INST_DECL_FUN ::= TIPO:tipo IDEN:id PA LIST_TIPO_ARG:argumentos PC LA S:cuerpo RETURN E0:ret PCOMA LC
+{:RESULT = as.instDeclFun(tipo, as.iden(id), argumentos, cuerpo, ret);:};
+INST_DECL_FUN ::= PROC IDEN:id PA LIST_TIPO_ARG:argumentos PC LA S:cuerpo LC
+{:RESULT = as.instDeclFun(null, as.iden(id), argumentos, cuerpo, null);:};
 
 //No terminales auxiliares para la instruccion de declaracion de funcion 
 //Implementamos una lista de argumentos con sus respectivos tipos
 LIST_TIPO_ARG ::= 
 {:RESULT=new ArrayList<Pair<Tipo, E>>();:};
-LIST_TIPO_ARG ::= CON_TIPO_ARG:args
-{:RESULT=args;:};
-CON_TIPO_ARG  ::= TIPO:tipoArgumento IDEN:nombreArgumento TIPO_ARG:args
-{:args.add(0, new Pair<Tipo, E>(tipoArgumento, as.iden(nombreArgumento))); RESULT=args;:};
-TIPO_ARG      ::= COMA TIPO:tipoArgumento IDEN:nombreArgumento TIPO_ARG:args
-{:args.add(0, new Pair<Tipo, E>(tipoArgumento, as.iden(nombreArgumento))); RESULT=args;:};
+LIST_TIPO_ARG ::= CON_TIPO_ARG:argumentos
+{:RESULT=argumentos;:};
+CON_TIPO_ARG  ::= TIPO:tipoBase IDEN:nombreArgumento TIPO_ARRAY:tipoArray TIPO_ARG:argumentos
+{:
+  Tipo tipoArgumento;
+  if(tipoArray == null) tipoArgumento = tipoBase;
+  else{
+	  TipoArray t = (TipoArray) tipoArray;
+	  while(t.getTipoBase() != null) t = (TipoArray) t.getTipoBase();
+	  t.setTipoBase(tipoBase);
+	  tipoArgumento = tipoArray;
+  }
+  argumentos.add(0, new Pair<Tipo, E>(tipoArgumento, as.iden(nombreArgumento))); 
+  RESULT=argumentos;
+:};
+
+TIPO_ARG      ::= COMA TIPO:tipoBase IDEN:nombreArgumento TIPO_ARRAY:tipoArray TIPO_ARG:argumentos
+{:
+  Tipo tipoArgumento;
+  if(tipoArray == null) tipoArgumento = tipoBase;
+  else{
+	  TipoArray t = (TipoArray) tipoArray;
+	  while(t.getTipoBase() != null) t = (TipoArray) t.getTipoBase();
+	  t.setTipoBase(tipoBase);
+	  tipoArgumento = tipoArray;
+  }
+  argumentos.add(0, new Pair<Tipo, E>(tipoArgumento, as.iden(nombreArgumento))); 
+  RESULT=argumentos;
+:};
+
 TIPO_ARG	  ::= 
 {:RESULT=new ArrayList<Pair<Tipo, E>>();:};
 
