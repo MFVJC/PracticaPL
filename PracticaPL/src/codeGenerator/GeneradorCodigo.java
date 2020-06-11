@@ -150,7 +150,7 @@ public class GeneradorCodigo {
 			break;
 		case NEW:
 			New nuevo = (New) expresion;
-			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(nuevo.getTam())));
+			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,((Num)nuevo.getTam()).num()));
 			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.NEW,-2));
 			break;
 		case NOT:
