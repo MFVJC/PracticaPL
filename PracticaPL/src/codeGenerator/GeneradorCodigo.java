@@ -20,7 +20,7 @@ public class GeneradorCodigo {
 	private int maxAmbitos = 0;
 	
 	//para cada intrucción guardo en cuanto afecta al tamaño de la pila
-	private List<Pair<String,Integer>> codigoGenerado = new ArrayList<>();
+	private List<InstruccionMaquina> codigoGenerado = new ArrayList<>();
 	
 	private void generaCodigoSentencia(SentenciaAbstracta sentencia) {
 		switch(sentencia.tipoSentencia()) {
@@ -73,8 +73,9 @@ public class GeneradorCodigo {
 				Iden iden = (Iden) expresion;
 				InstDeclaracion declaracionIden = (InstDeclaracion)iden.getReferencia();
 				//tenemos que comprobar que no tenemos ninguna referencia a un iden que no sea instrucción
-				
+				int direccionMemoria = getBloqueNivelActual().getDireccionIdentificador(iden.getNombre());
 				//hay que ver si tenemos un vector o no creo
+				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,"0"));
 				if(iden.getTipo().tipoEnumerado() == EnumeradoTipos.ARRAY) {
 					
 				}else {
@@ -98,7 +99,7 @@ public class GeneradorCodigo {
 			InstAsignacion instruccionAsignacion = (InstAsignacion) instruccion;
 			codeL(instruccionAsignacion.getIden());
 			codeExpresiones(instruccionAsignacion.getValor());
-			codigoGenerado.add(new Pair<>("sto",-2));
+			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.STO,"-2"));
 			break;
 		case CALLPROC:
 			break;
