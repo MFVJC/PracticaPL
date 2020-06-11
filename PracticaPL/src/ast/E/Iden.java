@@ -8,7 +8,7 @@ public class Iden extends E {
 	private String nombre;
 	private Tipo tipoVariable;
 	private SentenciaAbstracta referencia;
-	private boolean constante =false;
+	private boolean constante =false; //true si es procedimiento
 	
 	private int profundidadAnidamiento = 0;
 	private int direccionMemoria;

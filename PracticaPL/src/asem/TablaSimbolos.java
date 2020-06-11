@@ -20,8 +20,13 @@ public class TablaSimbolos {
 	public void anadeTipoVariable(String identificador,Tipo tipoVariable) {
 		tiposVariables.put(identificador,tipoVariable);
 	}
+	
 	public Tipo getTipoVariable(String identificador) {
-		return tiposVariables.get(identificador);
+		if(tiposVariables.containsKey(identificador)) {
+			return tiposVariables.get(identificador);
+		}
+		System.out.println("Cuidado! Estás pidiendo el tipo de un identificador que ni siquiera lo tiene guardado" + identificador);
+		return null;
 	}
 	public void insertaId(String identificador, SentenciaAbstracta sentencia) {
 		HashMap<String,SentenciaAbstracta> ultimoBloque = bloques.get(bloques.size()-1);
