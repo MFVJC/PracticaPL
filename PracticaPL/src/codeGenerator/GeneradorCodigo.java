@@ -35,6 +35,7 @@ public class GeneradorCodigo {
 			case DECL:
 				break;
 			case DECLFUN:
+				//hay que rellenar todos los nuevos atributos de la clase
 				break;
 			case IF:
 				break;
@@ -129,6 +130,9 @@ public class GeneradorCodigo {
 			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
 			break;
 		case FUNCION:
+			LlamadaFuncion llamada = (LlamadaFuncion) expresion;
+			InstDeclFun declaracionFuncion =(InstDeclFun)llamada.getReferencia();
+			//mada a funcion
 			break;
 		case IDEN:
 			Iden identificador = (Iden) expresion;
@@ -164,6 +168,8 @@ public class GeneradorCodigo {
 			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,numero.num()));
 			break;
 		case SQUAREBRACKET:
+			codeL(expresion);
+			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
 			break;
 		default:
 			break;
@@ -195,9 +201,11 @@ public class GeneradorCodigo {
 			case SQUAREBRACKET:
 				SquareBracket accesoVector = (SquareBracket) expresion;
 				
-			break;
+				break;
 			case DOT:
-			break;
+				break;
+			case DOLLAR:
+				break;
 			default:
 			break;
 		

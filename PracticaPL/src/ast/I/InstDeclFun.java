@@ -15,6 +15,10 @@ public class InstDeclFun extends I {
 	private List<I> cuerpo;
 	private E valorReturn; //La expresion que se devuelve
 
+	private int profundidadAnidamiento = 0;
+	private int tamanoArgumentos = 0;
+	//la dirección inicial de la función deberíamos poder sacarla de los bloques.
+	
  public InstDeclFun(Tipo tipo, E nombreFuncion, List<Pair<Tipo, E>> args, List<I> cuerpo, E ret) {
 		this.tipo = tipo;
 	 	this.nombreFuncion = nombreFuncion;
@@ -64,4 +68,21 @@ public class InstDeclFun extends I {
 	public Tipo getTipo() {
 		return tipo;
 	}
+
+	public int getProfundidadAnidamiento() {
+		return profundidadAnidamiento;
+	}
+
+	public void setProfundidadAnidamiento(int profundidadAnidamiento) {
+		this.profundidadAnidamiento = profundidadAnidamiento;
+	}
+
+	public int getTamanoArgumentos() {
+		return tamanoArgumentos;
+	}
+
+	public void setTamanoArgumentos(int tamanoArgumentos) {
+		this.tamanoArgumentos = tamanoArgumentos;
+	}
+	
 }
