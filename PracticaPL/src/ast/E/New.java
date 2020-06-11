@@ -22,6 +22,6 @@ public class New extends E{
 	public E getTam() {
 		return tam;
 	}
-	
+
 	public String toString() {return "{{__New__}{" + tipo.toString() + "}}";}
 }

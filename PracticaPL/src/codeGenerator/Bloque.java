@@ -26,7 +26,9 @@ public class Bloque {
 			proximaDireccion = bloquePadre.getProximaDir();
 		}
 	}
-	
+	public int getDireccionIdentificador(String iden) {
+		return posicionIdentificador.get(iden);
+	}
 	public void insertaIdentificador(String identificador,int tam) {
 		posicionIdentificador.put(identificador, proximaDireccion);
 		proximaDireccion +=tam;
