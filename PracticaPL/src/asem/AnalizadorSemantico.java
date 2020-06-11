@@ -21,10 +21,14 @@ public class AnalizadorSemantico {
 	
 	public void analizaSemantica() {
 		//Vinculamos todas las instrucciones del programa
-		programa.forEach(x -> vincula(x));
+		tabla.nuevaTablaSimbolos();
+		for(I instruccion : programa) vincula(instruccion);
+		tabla.eliminaTablaSimbolos();
 		
 		//Comprobamos tipos
-		programa.forEach(x -> compruebaTipos(x));
+		AtomicBoolean correcto = new AtomicBoolean(true);
+		programa.forEach(x -> {correcto.set(correcto.get() && compruebaTipos(x));});
+		if(correcto.get()) System.out.println("Comprobacion de Tipos sin errores");
 	}
 	
 	public void vincula(SentenciaAbstracta sentencia) {
@@ -74,10 +78,11 @@ public class AnalizadorSemantico {
 							vincula(parametro.getValue());
 						}
 						
+						tabla.nuevaTablaSimbolos();
 						List<I> cuerpoFuncion = declaracionFuncion.getCuerpo();
 						cuerpoFuncion.forEach(x -> vincula(x));
-						
 						vincula(declaracionFuncion.getReturn());
+						tabla.eliminaTablaSimbolos();
 						break;
 					case IF:
 						InstIf instIf = (InstIf) sentencia;
@@ -230,7 +235,7 @@ public class AnalizadorSemantico {
 					Tipo tipoAsignar = tiposExpresion(instruccionAsignacion.getValor());
 						if(tipoAsignar.tipoEnumerado() == EnumeradoTipos.STRUCT) {
 							GestionErroresTiny.errorSemantico("Error de tipos. Operación no soportada: no se pueden asignar structs o punteros a una variable");
-						}else if (tipoAsignar.tipoEnumerado() ==EnumeradoTipos.PUNTERO){
+						}else if (tipoAsignar.tipoEnumerado() == EnumeradoTipos.PUNTERO){
 							New pointer = (New) instruccionAsignacion.getValor();
 							TipoPuntero tipoPuntero = (TipoPuntero) tipoAsignar;
 							if(tipoPuntero.getTipoApuntado().tipoEnumerado() == pointer.getTipo().tipoEnumerado()) {
@@ -268,11 +273,14 @@ public class AnalizadorSemantico {
 				if(instruccionDeclaracion.getIden().tipoExpresion() == TipoE.IDEN) {
 					Tipo tipoDeclaracion = instruccionDeclaracion.getTipo();
 					boolean correct = true;
-					for(E valor : instruccionDeclaracion.getValor()) {
-						if(tiposExpresion(valor) != tipoDeclaracion) {
-							correct = false;
-							GestionErroresTiny.errorSemantico("Error tipos. El tipo de la declaración no concuerda con su valor inicial");
-							break;
+					if(instruccionDeclaracion.getValor() != null) {//Esta inicializada
+						for(E valor : instruccionDeclaracion.getValor()) {
+							Tipo aux = tiposExpresion(valor);
+							if(tiposExpresion(valor).tipoEnumerado() != tipoDeclaracion.tipoEnumerado()) {
+								correct = false;
+								GestionErroresTiny.errorSemantico("Error tipos. El tipo de la declaración no concuerda con su valor inicial");
+								break;
+							}
 						}
 					}
 					return correct;
@@ -457,14 +465,12 @@ public class AnalizadorSemantico {
 						return new TipoInt();
 					}
 					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la resta no son enteros");
-		
 					break;
 				case SQUAREBRACKET:
-					
-					
-					
-					
-					
+					if(tipoOperando1.tipoEnumerado() == EnumeradoTipos.ARRAY && tipoOperando2.tipoEnumerado() == EnumeradoTipos.INT) {
+						return (((TipoArray) tipoOperando1).getTipoBase());
+					}
+					GestionErroresTiny.errorSemantico("Error de tipos. Se esta accediendo a un array erroneamente");
 					break;
 				case SUMA:
 					if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){

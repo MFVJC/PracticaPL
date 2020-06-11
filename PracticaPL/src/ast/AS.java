@@ -34,7 +34,7 @@ public class AS {
 	  
 	  public E llamadaFuncion(String iden, List<E> args) {return new LlamadaFuncion(iden, args);}
 	  public E dollar(E opnd1) {return new Dollar(opnd1);}
-	  public E nnew(Tipo tipo) {return new New(tipo);} //nnew para que no coincida con la palabra reservada
+	  public E nnew(Tipo tipo, E tam) {return new New(tipo, tam);} //nnew para que no coincida con la palabra reservada
 	  public E not(E opnd1) {return new Not(opnd1);}
 	  
 	  // esta función yo la quitaría

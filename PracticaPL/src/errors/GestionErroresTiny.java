@@ -12,6 +12,6 @@ public class GestionErroresTiny {
      System.exit(1);
    }
    public static void errorSemantico(String mensaje) {
-	   System.out.println("ERROR semantico." + mensaje);
+	   System.out.println("ERROR semantico: " + mensaje);
    }
 }
