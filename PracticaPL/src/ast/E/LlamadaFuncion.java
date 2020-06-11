@@ -9,23 +9,23 @@ import ast.T.Tipo;
 
 public class LlamadaFuncion extends E {
 	private Tipo tipoReturn;
-	private String nombre_funcion;
+	private E nombreFuncion;
 	private List<E> argumentos;
 	private SentenciaAbstracta referenciaDeclaracion;
 	
-	public LlamadaFuncion(String iden, List<E> args) {
-	       nombre_funcion = iden;
-	       argumentos = args;
+	public LlamadaFuncion(E nombreFuncion, List<E> argumentos) {
+		   this.nombreFuncion = nombreFuncion;
+	       this.argumentos = argumentos;
 	}     
 	public TipoE tipoExpresion() {return TipoE.FUNCION;}
 	public String toString() {
-		String aux = "{{_Call__}{" + nombre_funcion + "}{{_Args__}";
+		String aux = "{{_Call__}{" + nombreFuncion + "}{{_Args__}";
 		for(E argumento : argumentos) aux += argumento.toString();		
 		aux += "}}";
 		return aux;
 	}
-	public String getNombre_funcion() {
-		return nombre_funcion;
+	public E getNombreFuncion() {
+		return nombreFuncion;
 	}
 	public List<E> getArgumentos() {
 		return argumentos;

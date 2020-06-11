@@ -154,9 +154,9 @@ public class AnalizadorSemantico {
 			switch(expresion.tipoExpresion()) {
 				case FUNCION:
 					LlamadaFuncion llamada = (LlamadaFuncion) expresion;
-					SentenciaAbstracta referenciaFuncion = tabla.getSentenciaDeclaracion(llamada.getNombre_funcion());
+					SentenciaAbstracta referenciaFuncion = tabla.getSentenciaDeclaracion(((Iden) llamada.getNombreFuncion()).getNombre());
 					if(referenciaFuncion == null) {
-						GestionErroresTiny.errorSemantico("Llamada a función " + llamada.getNombre_funcion() + " no existente.");
+						GestionErroresTiny.errorSemantico("Llamada a función " + llamada.getNombreFuncion() + " no existente.");
 					}else {
 						//guardamos para luego poder comprobar los tipos
 						llamada.setReferencia(referenciaFuncion);

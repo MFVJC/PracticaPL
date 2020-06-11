@@ -158,7 +158,7 @@ E9  ::= TRUE
 E9  ::= FALSE
 {:RESULT=as.basicFalse();:};
 E9  ::= IDEN:id PA LIST_ARG:args PC
-{:RESULT=as.llamadaFuncion(id,args);:};
+{:RESULT=as.llamadaFuncion(as.iden(id),args);:};
 
 		//3.7.1) No terminales auxiliares para la llamada a funcion como expresion
 //Sin argumentos
