@@ -131,11 +131,27 @@ public class GeneradorCodigo {
 		case FUNCION:
 			break;
 		case IDEN:
+			Iden identificador = (Iden) expresion;
+			if(identificador.getTipo().tipoEnumerado() == EnumeradoTipos.STRUCT) {
+				//entonces hay que generar código para cargar los atributos
+				InstStruct referenciaIdentificador = (InstStruct)identificador.getReferencia();
+				for(I instruccion: referenciaIdentificador.getDeclaraciones()) {
+					InstDeclaracion declaracionAtributo = (InstDeclaracion) instruccion;
+					Iden identificadorCampo = new Iden(identificador.getNombre() + "." + ((Iden)declaracionAtributo.getIden()).getNombre());
+					identificadorCampo.setTipo(declaracionAtributo.getTipo());
+					generaCodigoIdentificador(identificadorCampo);
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
+				}
+			}
+			else {
+				codeL(identificador);
+				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
+			}
 			break;
 		case NEW:
 			New nuevo = (New) expresion;
-			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,0,Integer.toString(nuevo.getTam())));
-
+			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(nuevo.getTam())));
+			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.NEW,-2));
 			break;
 		case NOT:
 			Not not = (Not)expresion;
@@ -156,6 +172,12 @@ public class GeneradorCodigo {
 	}
 	public void codeVector() {
 		
+	}
+	public void generaCodigoIdentificador(E expresion) {
+		if(expresion.tipoExpresion() == TipoE.IDEN) {
+			Iden identificador = (Iden) expresion;
+			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDA,1,"0 " + getBloqueNivelActual().getDireccionIdentificador(identificador.getNombre())));
+		}
 	}
 	//genera código para la parte izquierda de una asignación
 	public void codeL(E expresion) {
