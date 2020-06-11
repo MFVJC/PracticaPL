@@ -17,6 +17,11 @@ public class New extends E{
 	public TipoE tipoExpresion() {
 		return TipoE.NEW;
 	}
-	
+	public void setTam() {
+		this.tam = tam;
+	}
+	public int getTam() {
+		return tam;
+	}
 	public String toString() {return "{{__New__}{" + tipo.toString() + "}}";}
 }

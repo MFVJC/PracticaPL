@@ -1,5 +1,8 @@
 package codeGenerator;
 
+/*
+ * Soporta enteros, booleanos y direcciones de memoria
+ */
 public enum InstruccionesMaquinaEnum {
 	// Instrucciones aritméticas, lógicas y relacionales de la máquina-P
 	ADD,
