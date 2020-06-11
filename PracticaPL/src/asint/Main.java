@@ -80,8 +80,8 @@ public class Main {
 		 System.out.println(printTree("_PROGR_", splitFromParent(tree), "", true));
 		 
 		 //2) Analisis Semantico
-		 //AnalizadorSemantico asem = new AnalizadorSemantico(programa);
-		 //asem.analizaSemantica();
+		 AnalizadorSemantico asem = new AnalizadorSemantico(programa);
+		 asem.analizaSemantica();
 
 	   }
 	

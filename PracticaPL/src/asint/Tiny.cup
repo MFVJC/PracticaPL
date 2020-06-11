@@ -134,8 +134,8 @@ E7  ::= E7:op1 PUNTO E9:op2
 {:RESULT = as.dot(op1, op2);:}; //ESTO ALOMEJOR HAY QUE CAMBIARLO PARA QUE PASARLE UN OBJETO IDEN (FRANKY)
 E7  ::= PUNTERO E9:op1
 {:RESULT = as.dollar(op1);:};
-E7	::= NEW TIPO:tipo
-{:RESULT = as.nnew(tipo);:};
+E7	::= NEW TIPO:tipo CA E0:tam CC
+{:RESULT = as.nnew(tipo, tam);:};
 E7  ::= E8:op1
 {:RESULT=op1;:};
 	
