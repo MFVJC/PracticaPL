@@ -8,13 +8,13 @@ public class TablaSimbolos {
 	//guardo la información de que los identificadores en diferentes bloques correspondientes a los diferentes bloques diferentes donde se pueden declarar variables sin que haya error semántico.
 	private List<HashMap<String,SentenciaAbstracta>> bloques = new ArrayList<>();
 	
-	public void nuevaTablaSimbolos() {
+	public void abreBloque() {
 		bloques.add(new HashMap<>());
 	}
-	public void eliminaTablaSimbolos() {
+	public void cierraBloque() {
 		bloques.remove(bloques.size()-1); //elimina la última tabla de símbolos.
 	}
-	public void insertaSimbolo(String identificador, SentenciaAbstracta sentencia) {
+	public void insertaId(String identificador, SentenciaAbstracta sentencia) {
 		HashMap<String,SentenciaAbstracta> ultimoBloque = bloques.get(bloques.size()-1);
 		if(ultimoBloque.containsKey(identificador)) {
 			GestionErroresTiny.errorSemantico("ERROR. La variable " + identificador + " ya ha sido declarada.");

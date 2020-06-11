@@ -21,9 +21,9 @@ public class AnalizadorSemantico {
 	
 	public void analizaSemantica() {
 		//Vinculamos todas las instrucciones del programa
-		tabla.nuevaTablaSimbolos();
+		tabla.abreBloque();
 		for(I instruccion : programa) vincula(instruccion);
-		tabla.eliminaTablaSimbolos();
+		tabla.cierraBloque();
 		
 		//Comprobamos tipos
 		AtomicBoolean correcto = new AtomicBoolean(true);
@@ -60,7 +60,7 @@ public class AnalizadorSemantico {
 						identificadorV.setConstante(declaracion.isConstant());
 						identificadorV.setReferencia(declaracion);
 						vincula(declaracion.getTipo());
-						tabla.insertaSimbolo(identificadorV.getNombre(), declaracion);
+						tabla.insertaId(identificadorV.getNombre(), declaracion);
 						List<E> valorInicial = declaracion.getValor(); //esto va haber que cambiarlo cuando se refactorice
 						if(valorInicial != null) valorInicial.forEach(x -> vincula(x));
 						break;
@@ -70,7 +70,7 @@ public class AnalizadorSemantico {
 						Tipo tipoFuncion = declaracionFuncion.getTipo(); //no vale si es proc
 						if(tipoFuncion != null) vincula(tipoFuncion);
 						
-						tabla.insertaSimbolo(((Iden)declaracionFuncion.getIden()).getNombre(), sentencia);
+						tabla.insertaId(((Iden)declaracionFuncion.getIden()).getNombre(), sentencia);
 						
 						List<Pair<Tipo, E>> listaParametros = declaracionFuncion.getArgs();
 						for(Pair<Tipo, E> parametro : listaParametros) {
@@ -78,32 +78,32 @@ public class AnalizadorSemantico {
 							vincula(parametro.getValue());
 						}
 						
-						tabla.nuevaTablaSimbolos();
+						tabla.abreBloque();
 						List<I> cuerpoFuncion = declaracionFuncion.getCuerpo();
 						cuerpoFuncion.forEach(x -> vincula(x));
 						vincula(declaracionFuncion.getReturn());
-						tabla.eliminaTablaSimbolos();
+						tabla.cierraBloque();
 						break;
 					case IF:
 						InstIf instIf = (InstIf) sentencia;
 						vincula(instIf.getCondicion());
-						tabla.nuevaTablaSimbolos();
+						tabla.abreBloque();
 						instIf.getCuerpoIf().forEach(x->vincula(x));
-						tabla.eliminaTablaSimbolos();
+						tabla.cierraBloque();
 						List<I> cuerpoElse = instIf.getCuerpoElse();
 						if(cuerpoElse != null) {
-							tabla.nuevaTablaSimbolos();
+							tabla.abreBloque();
 							instIf.getCuerpoElse().forEach(x->vincula(x));
-							tabla.eliminaTablaSimbolos();
+							tabla.cierraBloque();
 						}
 						break;
 					case STRUCT:
 						InstStruct instStruct = (InstStruct) sentencia;
 						//faltaría meter la referencia a la sentencia abstracta
-						tabla.insertaSimbolo(((Iden) instStruct.getIden()).getNombre(), instStruct);
-						tabla.nuevaTablaSimbolos();
+						tabla.insertaId(((Iden) instStruct.getIden()).getNombre(), instStruct);
+						tabla.abreBloque();
 						instStruct.getDeclaraciones().forEach(x->vincula(x));
-						tabla.eliminaTablaSimbolos();
+						tabla.cierraBloque();
 						break;
 					case SWITCH:
 						InstSwitch instSwitch = (InstSwitch) sentencia;
@@ -118,9 +118,9 @@ public class AnalizadorSemantico {
 							List<Pair<E, List<I>>> casos = instSwitch.getCases();
 							for(Pair<E, List<I>> caso : casos) {
 								
-								tabla.nuevaTablaSimbolos();
+								tabla.abreBloque();
 								caso.getValue().forEach(x->vincula(x));
-								tabla.eliminaTablaSimbolos();
+								tabla.cierraBloque();
 							}
 						}
 						//Si no hacemos los cases vamos a perder la información de la SentenciaAbstracta correspondiente al case.
@@ -128,9 +128,9 @@ public class AnalizadorSemantico {
 					case WHILE:
 						InstWhile instWhile = (InstWhile) sentencia;
 						vincula(instWhile.getCondicion()); // así veo el tipo
-						tabla.nuevaTablaSimbolos();
+						tabla.abreBloque();
 						instWhile.getCuerpo().forEach(x-> vincula(x));
-						tabla.eliminaTablaSimbolos();
+						tabla.cierraBloque();
 						break;
 					default:
 						break;
