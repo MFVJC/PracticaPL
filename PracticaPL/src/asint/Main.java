@@ -82,7 +82,6 @@ public class Main {
 		 //2) Analisis Semantico
 		 AnalizadorSemantico asem = new AnalizadorSemantico(programa);
 		 asem.analizaSemantica();
-
 	   }
 	
 }

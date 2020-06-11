@@ -273,12 +273,14 @@ public class AnalizadorSemantico {
 				if(instruccionDeclaracion.getIden().tipoExpresion() == TipoE.IDEN) {
 					Tipo tipoDeclaracion = instruccionDeclaracion.getTipo();
 					boolean correct = true;
-					for(E valor : instruccionDeclaracion.getValor()) {
-						Tipo aux = tiposExpresion(valor);
-						if(tiposExpresion(valor).tipoEnumerado() != tipoDeclaracion.tipoEnumerado()) {
-							correct = false;
-							GestionErroresTiny.errorSemantico("Error tipos. El tipo de la declaración no concuerda con su valor inicial");
-							break;
+					if(instruccionDeclaracion.getValor() != null) {//Esta inicializada
+						for(E valor : instruccionDeclaracion.getValor()) {
+							Tipo aux = tiposExpresion(valor);
+							if(tiposExpresion(valor).tipoEnumerado() != tipoDeclaracion.tipoEnumerado()) {
+								correct = false;
+								GestionErroresTiny.errorSemantico("Error tipos. El tipo de la declaración no concuerda con su valor inicial");
+								break;
+							}
 						}
 					}
 					return correct;
