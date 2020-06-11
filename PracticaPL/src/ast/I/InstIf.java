@@ -35,11 +35,11 @@ public E getCondicion() {
 	return condicion;
 }
 
-public List<I> getCuerpo_if() {
+public List<I> getCuerpoIf() {
 	return cuerpo_if;
 }
 
-public List<I> getCuerpo_else() {
+public List<I> getCuerpoElse() {
 	return cuerpo_else;
 }
    

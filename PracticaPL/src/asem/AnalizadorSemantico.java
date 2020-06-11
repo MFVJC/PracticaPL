@@ -57,36 +57,38 @@ public class AnalizadorSemantico {
 						identificadorV.setReferencia(declaracion);
 						vincula(declaracion.getTipo());
 						tabla.insertaSimbolo(identificadorV.getNombre(), declaracion);
-						E valorInicial = declaracion.getValor().get(0); //esto va haber que cambiarlo cuando se refactorice
-						if(valorInicial != null) {
-							vincula(valorInicial);
-						}
+						List<E> valorInicial = declaracion.getValor(); //esto va haber que cambiarlo cuando se refactorice
+						if(valorInicial != null) valorInicial.forEach(x -> vincula(x));
 						break;
 					case DECLFUN:
 						InstDeclFun declaracionFuncion = (InstDeclFun) sentencia;
-						Tipo tipo = declaracionFuncion.getTipo(); //no vale si es proc
-						//String tipoF = declaracionFuncion.getTipoF();// null si procedimiento
-						vincula(declaracionFuncion.getTipo());
+						
+						Tipo tipoFuncion = declaracionFuncion.getTipo(); //no vale si es proc
+						if(tipoFuncion != null) vincula(tipoFuncion);
+						
 						tabla.insertaSimbolo(((Iden)declaracionFuncion.getIden()).getNombre(), sentencia);
-						//los argumentos de la funcion tienen que ser de tipo E
 						
-						//FALTAAAAAAAAAAAAAAA
+						List<Pair<Tipo, E>> listaParametros = declaracionFuncion.getArgs();
+						for(Pair<Tipo, E> parametro : listaParametros) {
+							vincula(parametro.getKey());
+							vincula(parametro.getValue());
+						}
 						
-						//Lo hace con el tipo de lo que se devuelve
-						//vincula(declaracionFuncion.getRet().tipo());
-						//esto tampoco podemos hacerlo porque nuestros identificadores en realidad no valen para nada
-						//tabla.insertaSimbolo(((Iden)declaracionFuncion.getIden())-, sentencia);
+						List<I> cuerpoFuncion = declaracionFuncion.getCuerpo();
+						cuerpoFuncion.forEach(x -> vincula(x));
+						
+						vincula(declaracionFuncion.getReturn());
 						break;
 					case IF:
 						InstIf instIf = (InstIf) sentencia;
 						vincula(instIf.getCondicion());
 						tabla.nuevaTablaSimbolos();
-						instIf.getCuerpo_if().forEach(x->vincula(x));
+						instIf.getCuerpoIf().forEach(x->vincula(x));
 						tabla.eliminaTablaSimbolos();
-						List<I> cuerpoElse = instIf.getCuerpo_else();
+						List<I> cuerpoElse = instIf.getCuerpoElse();
 						if(cuerpoElse != null) {
 							tabla.nuevaTablaSimbolos();
-							instIf.getCuerpo_else().forEach(x->vincula(x));
+							instIf.getCuerpoElse().forEach(x->vincula(x));
 							tabla.eliminaTablaSimbolos();
 						}
 						break;
@@ -107,14 +109,14 @@ public class AnalizadorSemantico {
 							GestionErroresTiny.errorSemantico("La variable " + ((Iden)instSwitch.getCondicion()).getNombre() + " no ha sido declarada");
 						}else {
 							instSwitch.setReferencia(referenciaVariableSwitch);
-						
-						List<Pair<E, List<I>>> casos = instSwitch.getCases();
-						for(Pair<E, List<I>> caso : casos) {
 							
-							tabla.nuevaTablaSimbolos();
-							caso.getValue().forEach(x->vincula(x));
-							tabla.eliminaTablaSimbolos();
-						}
+							List<Pair<E, List<I>>> casos = instSwitch.getCases();
+							for(Pair<E, List<I>> caso : casos) {
+								
+								tabla.nuevaTablaSimbolos();
+								caso.getValue().forEach(x->vincula(x));
+								tabla.eliminaTablaSimbolos();
+							}
 						}
 						//Si no hacemos los cases vamos a perder la información de la SentenciaAbstracta correspondiente al case.
 						break;
@@ -199,14 +201,14 @@ public class AnalizadorSemantico {
 					}else {
 						tipoStruct.setReferencia(referenciaSentencia);
 						//guardo la referencia a la sentencia en la que se declaró dentro del nodo
-					}
-					
+					}	
+				case ARRAY:
+					vincula(((TipoArray)tipo).getTipoBase());
+					vincula(((TipoArray) tipo).getDimension()); //No estoy seguro de si hay que vincular la dimension (JC)
 					break;
 				default:
 					break;
 				}
-			break;
-		case EXPRESION_UNARIA:
 			break;
 		default:
 			break;
@@ -225,22 +227,23 @@ public class AnalizadorSemantico {
 				if(identificador.esConstante()) {
 					GestionErroresTiny.errorSemantico("Error de tipos. El identificador " + identificador.getNombre() + " corresponde con una constante por lo que no es modificable.");
 				}else {
-				Tipo tipoAsignar = tiposExpresion(instruccionAsignacion.getValor());
-					if(tipoAsignar.tipoEnumerado() == EnumeradoTipos.STRUCT) {
-						GestionErroresTiny.errorSemantico("Error de tipos. Operación no soportada: no se pueden asignar structs o punteros a una variable");
-					}else if (tipoAsignar.tipoEnumerado() ==EnumeradoTipos.PUNTERO){
-						New pointer = (New) instruccionAsignacion.getValor();
-						TipoPuntero tipoPuntero = (TipoPuntero) tipoAsignar;
-						if(tipoPuntero.getTipoApuntado().tipoEnumerado() == pointer.getTipo().tipoEnumerado()) {
-							//entonces los dos punteros son del mismo tipo y no hay problema
-							return true;
+					Tipo tipoAsignar = tiposExpresion(instruccionAsignacion.getValor());
+						if(tipoAsignar.tipoEnumerado() == EnumeradoTipos.STRUCT) {
+							GestionErroresTiny.errorSemantico("Error de tipos. Operación no soportada: no se pueden asignar structs o punteros a una variable");
+						}else if (tipoAsignar.tipoEnumerado() ==EnumeradoTipos.PUNTERO){
+							New pointer = (New) instruccionAsignacion.getValor();
+							TipoPuntero tipoPuntero = (TipoPuntero) tipoAsignar;
+							if(tipoPuntero.getTipoApuntado().tipoEnumerado() == pointer.getTipo().tipoEnumerado()) {
+								//entonces los dos punteros son del mismo tipo y no hay problema
+								//Esto creo que esta mal, puede ser que ambos apunten a otro tipo puntero que apunte a su vez a tipos distintos (JC)
+								return true;
+							}
+						}else {
+							if(tipoAsignar.tipoEnumerado() == identificador.getTipo().tipoEnumerado()){
+								return true;
+							}
+							GestionErroresTiny.errorSemantico("Error de tipos en la asignación. Los tipos no coinciden.");
 						}
-					}else {
-						if(tipoAsignar.tipoEnumerado() == identificador.getTipo().tipoEnumerado()){
-							return true;
-						}
-						GestionErroresTiny.errorSemantico("Error de tipos en la asignación. Los tipos no coinciden.");
-					}
 				}
 				break;
 			case CALLPROC:
@@ -253,18 +256,26 @@ public class AnalizadorSemantico {
 				for(Pair<Tipo,E> atributo : declaracionFuncion.getArgs()) {
 					if(tiposExpresion(argumentos.get(i)).tipoEnumerado() != atributo.getKey().tipoEnumerado()) {
 						correctArguments = false;
-					}else {
+					} else {
 						GestionErroresTiny.errorSemantico("Error tipos. El parámetro número " + i + " no concuerda con el tipo del atributo de la función.");
 					}
 					i++;
 				}
-				if(correctArguments)
-					return correctArguments;
+				if(correctArguments) return correctArguments;
 				break;
 			case DECL:
 				InstDeclaracion instruccionDeclaracion = (InstDeclaracion) instruccion;
 				if(instruccionDeclaracion.getIden().tipoExpresion() == TipoE.IDEN) {
-					//luego hay que comprobar que el valor con el que quieres asignar 
+					Tipo tipoDeclaracion = instruccionDeclaracion.getTipo();
+					boolean correct = true;
+					for(E valor : instruccionDeclaracion.getValor()) {
+						if(tiposExpresion(valor) != tipoDeclaracion) {
+							correct = false;
+							GestionErroresTiny.errorSemantico("Error tipos. El tipo de la declaración no concuerda con su valor inicial");
+							break;
+						}
+					}
+					return correct;
 				}else {
 					GestionErroresTiny.errorSemantico("Error de tipos. La variable tiene que ser necesariamente un identificador.");
 				}
@@ -272,15 +283,24 @@ public class AnalizadorSemantico {
 			case DECLFUN:
 				InstDeclFun instruccionDeclaracionFuncion = (InstDeclFun) instruccion;
 				
+				if(instruccionDeclaracionFuncion.getIden().tipoExpresion() == TipoE.IDEN) {
+					AtomicBoolean correcto = new AtomicBoolean(true);
+					instruccionDeclaracionFuncion.getCuerpo().forEach(x -> { correcto.set(correcto.get() && compruebaTipos(x));});
+					correcto.set(correcto.get() && (tiposExpresion(instruccionDeclaracionFuncion.getReturn()) == instruccionDeclaracionFuncion.getTipo()));
+					return correcto.get();
+				} else {
+					GestionErroresTiny.errorSemantico("Error de tipos. El nombre de la funcion tiene que ser necesariamente un identificador.");
+				}
+				
 				break;
 			case IF:
 				InstIf instruccionIf = (InstIf) instruccion;
 				if(tiposExpresion(instruccionIf.getCondicion()).tipoEnumerado() == EnumeradoTipos.BOOLEAN){
 				AtomicBoolean correcto = new AtomicBoolean(true);
-				instruccionIf.getCuerpo_if().forEach(x->{ correcto.set(correcto.get() && compruebaTipos(x));});
+				instruccionIf.getCuerpoIf().forEach(x->{ correcto.set(correcto.get() && compruebaTipos(x));});
 				
-				if(instruccionIf.getCuerpo_else() != null) {
-					instruccionIf.getCuerpo_else().forEach(x->{ correcto.set(correcto.get() && compruebaTipos(x));});
+				if(instruccionIf.getCuerpoElse() != null) {
+					instruccionIf.getCuerpoElse().forEach(x->{ correcto.set(correcto.get() && compruebaTipos(x));});
 				}
 				return correcto.get();
 				}else {
@@ -323,7 +343,6 @@ public class AnalizadorSemantico {
 			}
 			
 		}
-		
 		
 		return false;
 	}
