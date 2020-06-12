@@ -13,7 +13,7 @@ public class InstStruct extends I {
 	    this.declaraciones = declaraciones;
 	}
    
-   public TipoI tipoInstruccion() {return TipoI.ASIG;}
+   public TipoI tipoInstruccion() {return TipoI.STRUCT;}
    
    public String toString() {
 	   String aux = "{{_Stru__}";
