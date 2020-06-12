@@ -19,9 +19,10 @@ public class GeneradorCodigo {
 	//Atributos
 	
 	private static File archivoSalida = new File("instruccionesMaquina.txt");
-	private List<Bloque> listaBloques = new ArrayList<>();
 	
+	private List<Bloque> listaBloques = new ArrayList<>();
 	private Bloque bloqueActual = null;
+	
 	private int ambitoActual = 0;
 	private int maxPila = 0;
 	private int maxAmbitos = 0;
@@ -43,15 +44,16 @@ public class GeneradorCodigo {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(archivoSalida));
 			
 			//Asignamos direcciones a todas las declaraciones
-			
+			generaDireccionesPrograma();
 			
 			//Generamos el codigo del programa
-			
+			generaCodigoCuerpo(this.programa);
 			
 			//Escribimos el codigo generado en el archivo de salida
 			int i = 0;
 			for(InstruccionMaquina instruccion : codigoGenerado) {
-				//Quizas hay que diferenciar si es un comentario o no. Creo que nosotros no los pillamos!
+				//Ellos generan tambien comentario en el codigo para poder leerlo facilmente
+				//Quizas es buena idea, y cambiarlo en la version final
 				writer.write("(" + i + ")" + instruccion.toString());
 				i++;
 			}
@@ -63,52 +65,145 @@ public class GeneradorCodigo {
 		}
 	}
 	
-	private void generaCodigoSentencia(SentenciaAbstracta sentencia) {
-		switch(sentencia.tipoSentencia()) {
-		case INSTRUCCION:
-			I instruccion = (I) sentencia;
-			switch(instruccion.tipoInstruccion()) {
-			case ASIG:
-				break;
-			case CALLPROC:
-				break;
-			case DECL:
-				break;
-			case DECLFUN:
-				//hay que rellenar todos los nuevos atributos de la clase
-				break;
-			case IF:
-				break;
-			case STRUCT:
-				break;
-			case SWITCH:
-				break;
-			case WHILE:
-				break;
-			default:
-				break;
+	//Generamos las direcciones del programa
+	private void generaDireccionesPrograma() {
+		//Abrimos un nuevo bloque
+		Bloque nuevoBloque = new Bloque(bloqueActual, listaBloques.size(), true)
+		listaBloques.add(nuevoBloque);
+		bloqueActual = nuevoBloque;
+		
+		for(I instruccion : this.programa) {
+			generaDireccionesDeclaracion(instruccion);
+		}
+		
+		//Cerramos bloque
+		
+		codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.SSP, ));
+	}
+	
+	//Generamos las direcciones para una lista de instrucciones.
+	private void generaDireccionesCuerpo(List<I> instrucciones) {
+		
+	}
+	
+	//Generamos las direcciones de las instrucciones que declaren algo
+	private void generaDireccionesDeclaracion(I instruccion) {
+		switch(instruccion.tipoInstruccion()) {
+		case IF:
+			InstIf instruccionIf = (InstIf) instruccion;
+			//Direcciones de todas las declaraciones de las instrucciones de la rama if
+			generaDireccionesCuerpo(instruccionIf.getCuerpoIf());
 			
+			//Si tiene rama else, direcciones de todas sus declaraciones
+			if(instruccionIf.getCuerpoElse() != null) {
+				generaDireccionesCuerpo(instruccionIf.getCuerpoElse());
 			}
-			
-			break;
-		case EXPRESION:
-			break;
-		case EXPRESION_BINARIA:
-			break;
-
-		case TIPOS:
-			break;
-		default:
 			break;
 		
+		case WHILE:
+			InstWhile instruccionWhile = (InstWhile) instruccion;
+			generaDireccionesCuerpo(instruccionWhile.getCuerpo());
+			break;
+		
+		case SWITCH:
+			InstSwitch instruccionSwitch = (InstSwitch) instruccion;
+			
+			//Creamos una lista cuerpoSwitch con el cuerpo de todos los cases, al fin y al cabo
+			//las expresiones y la condicion del switch nos da igual, solo buscamos declaraciones!!
+			List<I> cuerpoSwitch = new ArrayList<I>();
+			for(Pair<E, List<I>> ccase : instruccionSwitch.getCases()) {
+				cuerpoSwitch.addAll(ccase.getValue());
+			}
+			generaDireccionesCuerpo(cuerpoSwitch);
+			break;
+			
+		case DECL:
+			
+			break;
+			
+		case STRUCT:
+			
+			break;
+			
+		case DECLFUN:
+			
+			break;
+			
+		case CALLPROC:
+			
+			break;
 		}
 	}
 	
-	private void codeExpresiones(E expresion) {
+	//Genera codigo para una lista de instrucciones. Usado para generar el codigo del programa completo,
+	//pero tambien usado para generar listas de instrucciones del cuerpo de un if o de una funcion
+	private void generaCodigoCuerpo(List<I> instrucciones) {
+		for(I instruccion : instrucciones) {
+			//Generamos codigo para la instruccion que toca
+			//Aqui ellos hacen diferencia entre declaracion funcion y otras...
+			//Creo que no hace falta esta diferencia, pues lo hacemos en el switch de despues.
+			generaCodigoInstruccion(instruccion);
+		}
+	}
+	
+	//Genera el codigo para una instruccion concreta
+	private void generaCodigoInstruccion (I instruccion) {
+		switch(instruccion.tipoInstruccion()) {
+			case ASIG:
+				InstAsignacion instruccionAsignacion = (InstAsignacion) instruccion;
+				//voy a ver el caso de vectores en otra función
+				generaCodigoLeft(instruccionAsignacion.getIden());
+				generaCodigoExpresion(instruccionAsignacion.getValor());
+				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.STO,-2));
+				break;
+			case CALLPROC:
+				
+				break;
+			case DECL:
+				
+				break;
+			case DECLFUN:
+				
+				break;
+			case IF:
+				InstIf instruccionIf = (InstIf) instruccion;
+				generaCodigoExpresion(instruccionIf.getCondicion());
+				
+				maxAmbitos++;
+				ambitoActual = maxAmbitos;
+				
+				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.FJP, -1));
+				generaCodigoCuerpo(instruccionIf.getCuerpoIf());
+				
+				if(instruccionIf.getCuerpoElse() != null) {
+					maxAmbitos++;
+					ambitoActual = maxAmbitos;
+					
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.UJP, 0));
+				}
+				
+				break;
+			case STRUCT:
+				
+				break;
+			case SWITCH:
+				
+				break;
+			case WHILE:
+				
+				break;
+			default:
+				
+				break;
+		}
+	}
+
+	//Genera el codigo para una expresion concreta
+	private void generaCodigoExpresion(E expresion) {
 		if(expresion.tipoSentencia() == EnumeradoTipoGeneral.EXPRESION_BINARIA) {
 			EBin expresionBinaria = (EBin)expresion;
-			codeExpresiones(expresionBinaria.opnd1());
-			codeExpresiones(expresionBinaria.opnd2());
+			generaCodigoExpresion(expresionBinaria.opnd1());
+			generaCodigoExpresion(expresionBinaria.opnd2());
 			switch(expresionBinaria.tipoExpresion()) {
 				case AND:
 					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.AND,-1));
@@ -173,7 +268,6 @@ public class GeneradorCodigo {
 				case FUNCION:
 					LlamadaFuncion llamada = (LlamadaFuncion) expresion;
 					InstDeclFun declaracionFuncion =(InstDeclFun)llamada.getReferencia();
-					//mada a funcion
 					break;
 				case IDEN:
 					Iden identificador = (Iden) expresion;
@@ -189,7 +283,7 @@ public class GeneradorCodigo {
 						}
 					}
 					else {
-						codeL(identificador);
+						generaCodigoLeft(identificador);
 						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
 					}
 					break;
@@ -200,7 +294,7 @@ public class GeneradorCodigo {
 					break;
 				case NOT:
 					Not not = (Not)expresion;
-					codeExpresiones(not.opnd1());
+					generaCodigoExpresion(not.opnd1());
 					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.NOT,0));
 					
 					break;
@@ -209,7 +303,7 @@ public class GeneradorCodigo {
 					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,numero.num()));
 					break;
 				case SQUAREBRACKET:
-					codeL(expresion);
+					generaCodigoLeft(expresion);
 					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
 					break;
 				default:
@@ -219,10 +313,12 @@ public class GeneradorCodigo {
 		}
 	}
 	
-	private void codeVector() {
+	//Genera el codigo para un vector
+	private void generaCodigoVector() {
 		
 	}
 	
+	//Genera el codigo para un identificador
 	private void generaCodigoIdentificador(E expresion) {
 		if(expresion.tipoExpresion() == TipoE.IDEN) {
 			Iden identificador = (Iden) expresion;
@@ -230,8 +326,8 @@ public class GeneradorCodigo {
 		}
 	}
 	
-	//genera código para la parte izquierda de una asignación
-	private void codeL(E expresion) {
+	//Genera el codigo para la parte izquierda de una asignación
+	private void generaCodigoLeft(E expresion) {
 		switch(expresion.tipoExpresion()) {
 			case IDEN:
 				Iden iden = (Iden) expresion;
@@ -252,35 +348,6 @@ public class GeneradorCodigo {
 			case DOLLAR:
 				break;
 			default:
-			break;
-		
-		}
-	}
-	
-	private void codeInstrucciones (I instruccion) {
-		switch(instruccion.tipoInstruccion()) {
-		case ASIG:
-			InstAsignacion instruccionAsignacion = (InstAsignacion) instruccion;
-			//voy a ver el caso de vectores en otra función
-			codeL(instruccionAsignacion.getIden());
-			codeExpresiones(instruccionAsignacion.getValor());
-			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.STO,-2));
-			break;
-		case CALLPROC:
-			break;
-		case DECL:
-			break;
-		case DECLFUN:
-			break;
-		case IF:
-			break;
-		case STRUCT:
-			break;
-		case SWITCH:
-			break;
-		case WHILE:
-			break;
-		default:
 			break;
 		
 		}
