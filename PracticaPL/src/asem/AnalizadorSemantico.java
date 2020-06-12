@@ -121,6 +121,7 @@ public class AnalizadorSemantico {
 						//aquí con la condicion cogemos la referencia de la tabla de símbolos
 				
 						SentenciaAbstracta referenciaVariableSwitch = tabla.getSentenciaDeclaracion(((Iden)instSwitch.getCondicion()).getNombre());
+						vincula((Iden)instSwitch.getCondicion());
 						if(referenciaVariableSwitch == null) {
 							GestionErroresTiny.errorSemantico("La variable " + ((Iden)instSwitch.getCondicion()).getNombre() + " no ha sido declarada");
 						}else {
@@ -182,6 +183,7 @@ public class AnalizadorSemantico {
 						GestionErroresTiny.errorSemantico("El identificador " + identificador.getNombre() + " no ha sido declarado.");
 					}else {
 						if(refIdentificador instanceof InstDeclaracion) {
+							//System.out.println("Guardando el tipo de la variable " + identificador.getNombre());
 							//en realidad esto lo estás haciendo cada vez que aparece uno
 							//guardo el tipo de la variable en el identificador para la comprobación de tipos posterior
 							tabla.anadeTipoVariable(identificador.getNombre(), ((InstDeclaracion)refIdentificador).getTipo());
@@ -198,6 +200,9 @@ public class AnalizadorSemantico {
 							}
 							//GestionErroresTiny.errorSemantico("ERROR INESPERADO EN EL PROGRAMA.");
 							
+						}else {
+							System.out.println("Nos sigue faltando el caso de ");
+							System.out.println(refIdentificador);
 						}
 					}
 					break;
@@ -339,15 +344,18 @@ public class AnalizadorSemantico {
 				break;
 			case DECLFUN:
 				InstDeclFun instruccionDeclaracionFuncion = (InstDeclFun) instruccion;
+				//System.out.println("Checkeando los tipos de la funcion " + ((Iden)instruccionDeclaracionFuncion.getIden()).getNombre());
 				//la x o la y no tiene tipo
-				Tipo tipoRealReturn = tiposExpresion(instruccionDeclaracionFuncion.getReturn());
+				Tipo tipoRealReturn = null;
+				if(instruccionDeclaracionFuncion.getTipo() != null)
+					tipoRealReturn = tiposExpresion(instruccionDeclaracionFuncion.getReturn());
 				//System.out.println("Checkeando el tipo de la función " + instruccionDeclaracionFuncion.toString());
 				if(instruccionDeclaracionFuncion.getIden().tipoExpresion() == TipoE.IDEN) {
 					AtomicBoolean correcto = new AtomicBoolean(true);
 					//System.out.println("El valor del return es" + instruccionDeclaracionFuncion.getReturn() );
 					//System.out.println("Con tipo " + tipoRealReturn);
-
-					if(tipoRealReturn.tipoEnumerado() != instruccionDeclaracionFuncion.getTipo().tipoEnumerado()){
+					
+					if(tipoRealReturn != null && tipoRealReturn.tipoEnumerado() != instruccionDeclaracionFuncion.getTipo().tipoEnumerado()){
 						GestionErroresTiny.errorSemantico("Error de tipos. El tipo del return no coincide con el de la función.");
 					}
 					//esto peta a veces y llega null
