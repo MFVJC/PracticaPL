@@ -178,6 +178,7 @@ public class AnalizadorSemantico {
 					break;
 				case IDEN:
 					Iden identificador = (Iden) expresion;
+					//System.out.println("Guardando el identificador: " + identificador.getNombre());
 					SentenciaAbstracta refIdentificador = tabla.getSentenciaDeclaracion(identificador.getNombre());
 					if(refIdentificador == null) {
 						GestionErroresTiny.errorSemantico("El identificador " + identificador.getNombre() + " no ha sido declarado.");
@@ -235,9 +236,11 @@ public class AnalizadorSemantico {
 						tipoStruct.setReferencia(referenciaSentencia);
 						//guardo la referencia a la sentencia en la que se declaró dentro del nodo
 					}	
+					break;
 				case ARRAY:
 					vincula(((TipoArray)tipo).getTipoBase());
 					vincula(((TipoArray) tipo).getDimension()); //No estoy seguro de si hay que vincular la dimension (JC)
+					
 					break;
 				default:
 					break;
@@ -294,7 +297,7 @@ public class AnalizadorSemantico {
 				break;
 			case CALLPROC:
 				InstCallProc intruccionLlamadaFuncion  = (InstCallProc) instruccion;
-				System.out.println("Llega hasta llamada a función");
+				//System.out.println("Llega hasta llamada a función");
 				SentenciaAbstracta declaracion = intruccionLlamadaFuncion.getReferencia();
 				InstDeclFun declaracionFuncion = (InstDeclFun) declaracion;
 				List<E> argumentos = intruccionLlamadaFuncion.getArgumentos();
@@ -459,6 +462,7 @@ public class AnalizadorSemantico {
 				case DOT:
 					//tenemos que comprobar que operando1 es un struct
 					//
+
 					if(tipoOperando1.tipoEnumerado() == EnumeradoTipos.STRUCT) {
 						//falta comprobar que el punto corresponde con un campo del struct
 						Iden atributo = (Iden) ebin.opnd2();
@@ -582,6 +586,7 @@ public class AnalizadorSemantico {
 					LlamadaFuncion llamada = (LlamadaFuncion) expresion;
 					List<E> argumentos = llamada.getArgumentos(); //esto no siempre es así
 					List<Tipo> tiposLlamada = new ArrayList<>();
+					//System.out.println("Entra en la llamada a función a " + ((Iden)llamada.getNombreFuncion()).getNombre());
 					for(E argumento: argumentos) {
 						if(argumento instanceof Iden) {
 							tiposLlamada.add(((Iden)argumento).getTipo());

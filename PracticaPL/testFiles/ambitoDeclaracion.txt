@@ -1,4 +1,10 @@
-
+struct{
+	int declaracion1;
+	const boolean declaracion2 = true;
+	const int declaracion3[1] = 1; #No reconoce este error (faltan {})
+}nombreDelStruct;
+nombreDelStruct persona;
+#persona.declaracion1=7;
 boolean esPrimo(int a){
 	return true;
 }
