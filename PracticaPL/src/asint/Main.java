@@ -86,8 +86,8 @@ public class Main {
 		 asem.analizaSemantica();
 		 
 		 //3) Generador Codigo
-		 GeneradorCodigo codeGenerator = new GeneradorCodigo(programa);
-		 codeGenerator.generaCodigo();
+		 //GeneradorCodigo codeGenerator = new GeneradorCodigo(programa);
+		 //codeGenerator.generaCodigo();
 	   }
 	
 }

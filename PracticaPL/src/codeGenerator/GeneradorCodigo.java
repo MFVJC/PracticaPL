@@ -403,9 +403,11 @@ public class GeneradorCodigo {
 				int direccionRelativa= getBloqueNivelActual().getDireccionIdentificador(iden.getNombre());
 				//hay que ver si tenemos un vector o no creo
 				//codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,"0"));
+<<<<<<< HEAD
 				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDA,Integer.toString(getBloqueNivelActual().getProfundidadAnidamiento() - referenciaIden.getPa() +1),Integer.toString(direccionRelativa)));
 			*/
 				break;
+
 			case SQUAREBRACKET:
 				SquareBracket accesoVector = (SquareBracket) expresion;
 				

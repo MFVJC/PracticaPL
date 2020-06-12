@@ -1,9 +1,12 @@
 int x=4;
 boolean resuelveCaso(int y){
 	boolean x = true;
-	return !y;
+	return x;
 }
 int declaracionFuncion(int x){
 	int y = 4;
+	if(resuelveCaso(x)){
+		x=5;
+	}
 	return x + y;
 }

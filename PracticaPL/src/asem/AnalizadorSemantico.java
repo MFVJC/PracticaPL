@@ -19,16 +19,18 @@ public class AnalizadorSemantico {
 		this.programa = programa;
 	}
 	
-	public void analizaSemantica() {
+	public boolean analizaSemantica() {
 		//Vinculamos todas las instrucciones del programa
+		System.out.println("Se inicia el proceso de análisis semántico del código.");
 		tabla.abreBloque();
 		for(I instruccion : programa) vincula(instruccion);
 		tabla.cierraBloque();
 		
 		//Comprobamos tipos
 		AtomicBoolean correcto = new AtomicBoolean(true);
-		programa.forEach(x -> {correcto.set(correcto.get() && compruebaTipos(x));});
+	programa.forEach(x -> {correcto.set(compruebaTipos(x) && correcto.get());});
 		if(correcto.get()) System.out.println("Comprobacion de Tipos sin errores");
+		return correcto.get();
 	}
 	
 	public void vincula(SentenciaAbstracta sentencia) {
@@ -65,6 +67,7 @@ public class AnalizadorSemantico {
 						if(valorInicial != null) valorInicial.forEach(x -> vincula(x));
 						break;
 					case DECLFUN:
+						System.out.println("Vinculando funcion");
 						InstDeclFun declaracionFuncion = (InstDeclFun) sentencia;
 						
 						Tipo tipoFuncion = declaracionFuncion.getTipo(); //no vale si es proc
@@ -79,7 +82,10 @@ public class AnalizadorSemantico {
 							//System.out.println("Se vincula el parámetro: " + ((Iden)parametro.getValue()).getNombre() + " con tipo " + parametro.getKey().toString());
 							//esto no hay que vincularlo
 							tabla.insertaId(((Iden)parametro.getValue()).getNombre(), declaracionFuncion);
-							tabla.anadeTipoVariable(((Iden)parametro.getValue()).getNombre(), parametro.getKey());
+							Iden identificadorParametro = (Iden)parametro.getValue();
+							System.out.println("Guardando en el iden "+ identificadorParametro + " el tipo " + parametro.getKey());
+							identificadorParametro.setTipo(parametro.getKey());
+							tabla.anadeTipoVariable(identificadorParametro.getNombre(), parametro.getKey());
 							vincula(parametro.getKey());
 						}
 						
@@ -181,7 +187,9 @@ public class AnalizadorSemantico {
 							tabla.anadeTipoVariable(identificador.getNombre(), ((InstDeclaracion)refIdentificador).getTipo());
 							identificador.setTipo(((InstDeclaracion)refIdentificador).getTipo());
 						}else { //instancia de InstDeclFun
-							
+							//identificador.
+							System.out.println("Es por este caso que no funciona");
+							System.out.println(refIdentificador);
 							//GestionErroresTiny.errorSemantico("ERROR INESPERADO EN EL PROGRAMA.");
 							
 						}
@@ -275,6 +283,7 @@ public class AnalizadorSemantico {
 				break;
 			case CALLPROC:
 				InstCallProc intruccionLlamadaFuncion  = (InstCallProc) instruccion;
+				System.out.println("Llega hasta llamada a función");
 				SentenciaAbstracta declaracion = intruccionLlamadaFuncion.getReferencia();
 				InstDeclFun declaracionFuncion = (InstDeclFun) declaracion;
 				List<E> argumentos = intruccionLlamadaFuncion.getArgumentos();
@@ -324,16 +333,19 @@ public class AnalizadorSemantico {
 				break;
 			case DECLFUN:
 				InstDeclFun instruccionDeclaracionFuncion = (InstDeclFun) instruccion;
+				//la x o la y no tiene tipo
 				Tipo tipoRealReturn = tiposExpresion(instruccionDeclaracionFuncion.getReturn());
-				//System.out.println("Checkeando el tipo de la función " + instruccionDeclaracionFuncion.toString());
+				System.out.println("Checkeando el tipo de la función " + instruccionDeclaracionFuncion.toString());
 				if(instruccionDeclaracionFuncion.getIden().tipoExpresion() == TipoE.IDEN) {
 					AtomicBoolean correcto = new AtomicBoolean(true);
-					//System.out.println("El valor del return es" + instruccionDeclaracionFuncion.getReturn());
+					//System.out.println("El valor del return es" + instruccionDeclaracionFuncion.getReturn() );
+					//System.out.println("Con tipo " + tipoRealReturn);
+
 					if(tipoRealReturn.tipoEnumerado() != instruccionDeclaracionFuncion.getTipo().tipoEnumerado()){
 						GestionErroresTiny.errorSemantico("Error de tipos. El tipo del return no coincide con el de la función.");
 					}
 					//esto peta a veces y llega null
-					instruccionDeclaracionFuncion.getCuerpo().forEach(x -> { correcto.set(correcto.get() && compruebaTipos(x));});
+					instruccionDeclaracionFuncion.getCuerpo().forEach(x -> {correcto.set(compruebaTipos(x) && correcto.get());});
 					if(instruccionDeclaracionFuncion.getTipo() != null) correcto.set(correcto.get() && tipoRealReturn == instruccionDeclaracionFuncion.getTipo());
 					return correcto.get();
 				} else {
@@ -345,10 +357,10 @@ public class AnalizadorSemantico {
 				InstIf instruccionIf = (InstIf) instruccion;
 				if(tiposExpresion(instruccionIf.getCondicion()).tipoEnumerado() == EnumeradoTipos.BOOLEAN){
 				AtomicBoolean correcto = new AtomicBoolean(true);
-				instruccionIf.getCuerpoIf().forEach(x->{ correcto.set(correcto.get() && compruebaTipos(x));});
+				instruccionIf.getCuerpoIf().forEach(x -> {correcto.set(compruebaTipos(x) && correcto.get());});
 				
 				if(instruccionIf.getCuerpoElse() != null) {
-					instruccionIf.getCuerpoElse().forEach(x->{ correcto.set(correcto.get() && compruebaTipos(x));});
+					instruccionIf.getCuerpoElse().forEach(x -> {correcto.set(compruebaTipos(x) && correcto.get());});
 				}
 				return correcto.get();
 				}else {
@@ -358,7 +370,7 @@ public class AnalizadorSemantico {
 			case STRUCT:
 				InstStruct instruccionStruct = (InstStruct) instruccion;
 				AtomicBoolean correcto = new AtomicBoolean(true);
-				instruccionStruct.getDeclaraciones().forEach(x->{ correcto.set(correcto.get() && compruebaTipos(x));});
+				instruccionStruct.getDeclaraciones().forEach(x -> {correcto.set(compruebaTipos(x) && correcto.get());});
 				return correcto.get();
 			case SWITCH:
 				InstSwitch instruccionSwitch = (InstSwitch) instruccion;
@@ -375,7 +387,7 @@ public class AnalizadorSemantico {
 							
 							}
 						}
-						caso.getValue().forEach(x->{correct.set(correct.get() && compruebaTipos(x));});
+						caso.getValue().forEach(x -> {correct.set(compruebaTipos(x) && correct.get());});
 					}
 				}
 
@@ -384,7 +396,7 @@ public class AnalizadorSemantico {
 				InstWhile instruccionWhile = (InstWhile) instruccion;
 				if(tiposExpresion(instruccionWhile.getCondicion()).tipoEnumerado() == EnumeradoTipos.BOOLEAN) {
 					AtomicBoolean correctWhile = new AtomicBoolean(true);
-					instruccionWhile.getCuerpo().forEach(x->{correctWhile.set(correctWhile.get()  && compruebaTipos(x));});
+					instruccionWhile.getCuerpo().forEach(x -> {correctWhile.set(compruebaTipos(x) && correctWhile.get());});
 					return correctWhile.get();
 				}else {
 					GestionErroresTiny.errorSemantico("Error de tipos. La condición del while debe ser booleana.");
@@ -408,6 +420,12 @@ public class AnalizadorSemantico {
 				E operando2 = ebin.opnd2();
 				Tipo tipoOperando1 = tiposExpresion(operando1);
 				Tipo tipoOperando2 = tiposExpresion(operando2);
+				if(tipoOperando1 == null || tipoOperando2 == null) {
+					System.out.println("Devuelven null cuando eso nunca debería pasar");
+					System.out.println(operando1);
+					System.out.println(operando2);
+				}
+				if (tipoOperando1.tipoEnumerado() != EnumeradoTipos.ERROR || (ebin.tipoExpresion() != TipoE.DOT && tipoOperando2.tipoEnumerado() != EnumeradoTipos.ERROR)) {
 				//System.out.println("Analizando expresión binaria con " + operando1.toString() + " " + operando2.toString() + " con tipos " + tipoOperando1.toString() + " y " + tipoOperando2.toString());
 				switch(ebin.tipoExpresion()) {
 				case AND:
@@ -520,6 +538,8 @@ public class AnalizadorSemantico {
 					break;
 				case SUMA:
 					//hay alguno que es null
+					System.out.println("Operando 1: " + operando1.toString());
+					System.out.println("Operando 2: " + tipoOperando2.toString());
 					if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
 						return new TipoInt();
 					}
@@ -528,6 +548,7 @@ public class AnalizadorSemantico {
 				default:
 					break;
 				
+				}
 				}
 				break;
 			case EXPRESION:
@@ -574,7 +595,7 @@ public class AnalizadorSemantico {
 				case IDEN:
 					Iden identificador = (Iden) expresion;
 					//System.out.println("Devolviendo tipo " + identificador.getTipo().toString() + " correspondiente a " + identificador.getNombre());
-					return tabla.getTipoVariable(identificador.getNombre());
+					return identificador.getTipo();
 				case NOT:
 					Not not  = (Not) expresion;
 					if(tiposExpresion(not.opnd1()).tipoEnumerado() == EnumeradoTipos.BOOLEAN) {
@@ -590,7 +611,7 @@ public class AnalizadorSemantico {
 				break;
 			default:
 				break;
-		}
+				}
 		
 		return new TipoError();
 	}
