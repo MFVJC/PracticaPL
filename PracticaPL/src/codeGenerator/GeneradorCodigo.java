@@ -47,36 +47,43 @@ public class GeneradorCodigo {
 			
 			//Asignamos direcciones a todas las declaraciones
 			generaDireccionesPrograma();
+			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.SSP, Integer.toString(listaBloques.get(0).getSsp())));
+			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.SEP, "0"));
 			
 			//Generamos el codigo del programa
 			generaCodigoCuerpo(this.programa);
+			//Jorge tiene esto despues de generar el codigo del programa.
+			//int tamPila = tamPilaEvaluacion(1);
+			//codigo.get(1).setName(codigo.get(1).getName() + tamPila);
+			//insertIns("stp", 0);
 			
 			//Escribimos el codigo generado en el archivo de salida
 			int i = 0;
 			for(InstruccionMaquina instruccion : codigoGenerado) {
 				//Ellos generan tambien comentario en el codigo para poder leerlo facilmente
 				//Quizas es buena idea, y cambiarlo en la version final
-				writer.write("(" + i + ")" + instruccion.toString());
+				writer.write("(" + i + ") " + instruccion.toString());
 				i++;
 			}
 			//Cerramos el archivo de salida
 			writer.close();
+			System.out.println("Codigo generado sin errores");
 		} catch (IOException e) {
 			System.out.println("Error al generar el archivo de salida");
 			e.printStackTrace();
 		}
 	}
 	
+	//1) GENERAR DIRECCIONES
+	
 	//Generamos las direcciones del programa
 	private void generaDireccionesPrograma() {
-		//Abrimos ambito
 		abrirAmbito(true);
 		
 		for(I instruccion : this.programa) {
 			generaDireccionesInstruccion(instruccion);
 		}
 		
-		//Cerramos Cerramos ambito
 		cerrarAmbito();
 		
 		//codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.SSP, ));
@@ -84,14 +91,12 @@ public class GeneradorCodigo {
 	
 	//Generamos las direcciones para una lista de instrucciones.
 	private void generaDireccionesCuerpo(List<I> instrucciones) {
-		//Abrimos ambito
 		abrirAmbito(false);
 		
 		for(I instruccion : instrucciones) {
 			generaDireccionesInstruccion(instruccion);
 		}
 		
-		//Cerramos ambito
 		cerrarAmbito();
 	}
 	
@@ -191,6 +196,10 @@ public class GeneradorCodigo {
 		}
 	}
 	
+	
+
+	//2) GENERAR CODIGO
+	
 	//Genera codigo para una lista de instrucciones. Usado para generar el codigo del programa completo,
 	//pero tambien usado para generar listas de instrucciones del cuerpo de un if o de una funcion
 	private void generaCodigoCuerpo(List<I> instrucciones) {
@@ -207,7 +216,7 @@ public class GeneradorCodigo {
 		switch(instruccion.tipoInstruccion()) {
 			case ASIG:
 				InstAsignacion instruccionAsignacion = (InstAsignacion) instruccion;
-				//voy a ver el caso de vectores en otra función
+				//voy a ver el caso de vectores en otra funcion
 				generaCodigoLeft(instruccionAsignacion.getIden());
 				generaCodigoExpresion(instruccionAsignacion.getValor());
 				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.STO,-2));
@@ -386,6 +395,7 @@ public class GeneradorCodigo {
 	private void generaCodigoLeft(E expresion) {
 		switch(expresion.tipoExpresion()) {
 			case IDEN:
+				/*insertIns("lda " + 0 + " " + bloqueActGenera().dirVar(((Iden) exp).id()), 1);
 				Iden iden = (Iden) expresion;
 				InstDeclaracion declaracionIden = (InstDeclaracion)iden.getReferencia();
 				Iden referenciaIden =(Iden)declaracionIden.getIden();
@@ -394,7 +404,8 @@ public class GeneradorCodigo {
 				//hay que ver si tenemos un vector o no creo
 				//codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,"0"));
 				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDA,Integer.toString(getBloqueNivelActual().getProfundidadAnidamiento() - referenciaIden.getPa() +1),Integer.toString(direccionRelativa)));
-			break;
+			*/
+				break;
 			case SQUAREBRACKET:
 				SquareBracket accesoVector = (SquareBracket) expresion;
 				
@@ -410,7 +421,7 @@ public class GeneradorCodigo {
 	}
 	
 	
-	//FUNCIONES AUXILIARES PARA EL MANEJO DE BLOQUES Y AMBITOS
+	//3) FUNCIONES AUXILIARES PARA EL MANEJO DE BLOQUES Y AMBITOS
 	
 	private Bloque getBloqueNivelActual() {
 		return listaBloques.get(ambitoActual); //Esto no deberia ser bloqueActual?

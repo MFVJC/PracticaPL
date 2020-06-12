@@ -68,8 +68,9 @@ public class Main {
 	//Introducir el codigo de prueba en el archivo input.txt
 	//Al ejecutar el programa, el AST se imprimira por pantalla
 	public static void main(String[] args) throws Exception {
-	     Reader input = new InputStreamReader(new FileInputStream("PracticaPL/input.txt"));
-		 /*
+	     boolean error = false;
+		 Reader input = new InputStreamReader(new FileInputStream("PracticaPL/input.txt"));
+		 
 	     //1) Analisis Lexico y Sintactico
 	     AnalizadorLexicoTiny alex = new AnalizadorLexicoTiny(input);
 		 AnalizadorSintacticoTiny asint = new AnalizadorSintacticoTiny(alex);
@@ -86,7 +87,7 @@ public class Main {
 		 
 		 //3) Generador Codigo
 		 GeneradorCodigo codeGenerator = new GeneradorCodigo(programa);
-		 codeGenerator.generaCodigo();*/
+		 codeGenerator.generaCodigo();
 	   }
 	
 }

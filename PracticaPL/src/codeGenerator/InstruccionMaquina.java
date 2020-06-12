@@ -39,4 +39,22 @@ public class InstruccionMaquina {
 		this.primerArgumento = primerArgumento;
 		this.segundoArgumento = segundoArgumento;
 	}
+
+	@Override
+	public String toString() {
+		String aux = tipoInstruccionMaquina.toString() + " ";
+		
+		if(primerArgumento != null) {
+			if(segundoArgumento != null) { //Dos argumentos
+				aux += primerArgumento + " " + segundoArgumento;
+			} else { //Un argumento
+				aux += primerArgumento;
+			}
+		}
+		else { //Sin argumentos -> Imprimimos cambioPila
+			aux += Integer.toString(cambioPila);
+		}
+		aux += ";\n";
+		return aux;
+	}
 }

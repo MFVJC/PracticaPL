@@ -147,6 +147,6 @@ public class ALexOperations {
   
   
   public void error() {
-    System.err.println("***"+alex.fila()+" Caracter inesperado: "+alex.lexema());
+    System.out.println("Error Lexico: Caracter inesperado: " + alex.lexema() + " encontrado en la fila " + alex.fila());
   }
 }
