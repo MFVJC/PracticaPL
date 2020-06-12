@@ -4,16 +4,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Bloque {
-	//mirar pag 133 en el pdf de GeneracionCodigo
+	//Guardamos el nombre y la direccion en la que esta almacenado cada identificador
 	private Map<String,Integer> direccionIdentificadores = new HashMap<>();
+	
+	//Guardamos el tipo y el tamano de los cada tipo declarado
 	private Map<String,Integer> tamanoTipos = new HashMap<>();
 	
 	private int tamano = 0;
 	private int tamanoBloque = 0;
-	private int posicionBloque;
+	private int posicionBloque; //Indice del bloque en la lista de bloques
 	private Bloque bloquePadre;
 	//lo anterior está reservado para  el SL,DL,EP,RA y el valor de la función
-	private int proximaDireccion = 5;
+	private int proximaDireccion;
 	//leer 6.5.1
 	private int profundidadAnidamiento = 0;
 	// se utiliza para modificar el SP (stack pointer)
@@ -27,13 +29,18 @@ public class Bloque {
 		this.bloquePadre = bloquePadre;
 		this.posicionBloque = posicionBloque;
 		this.ambitoFuncion = ambitoFuncion;
-		
-		if(ambitoFuncion) this.ssp = 5;
-		else this.ssp = 0;
-		
-		if(bloquePadre!=null) { //entonces la profundidad es != 0
-			profundidadAnidamiento = bloquePadre.getProfundidadAnidamiento() + 1;
-			proximaDireccion = bloquePadre.getProximaDireccion();
+
+		if(bloquePadre != null) { //entonces la profundidad es != 0
+			if(ambitoFuncion) {
+				this.ssp = 5; //Creo, no estoy seguro
+				this.profundidadAnidamiento = bloquePadre.getProfundidadAnidamiento() + 1;
+				this.proximaDireccion = 5;				
+			} else {
+				this.profundidadAnidamiento = bloquePadre.getProfundidadAnidamiento();
+				this.proximaDireccion = bloquePadre.getProximaDireccion();
+			}
+		} else {
+			this.proximaDireccion = 5;
 		}
 	}
 	
@@ -55,7 +62,7 @@ public class Bloque {
 		if(tamanoTipos.containsKey(tipo)) {
 			return tamanoTipos.get(tipo);
 		}
-		return bloquePadre.getTamanoTipo(tipo);
+		else return bloquePadre.getTamanoTipo(tipo);
 	}
 	
 	public int getProfundidadAnidamiento() {
@@ -64,5 +71,21 @@ public class Bloque {
 	
 	public int getProximaDireccion() {
 		return proximaDireccion;
+	}
+	
+	public boolean getAmbitoFuncion() {
+		return ambitoFuncion;
+	}
+	
+	public Bloque getBloquePadre() {
+		return bloquePadre;
+	}
+	
+	public int getSsp() {
+		return ssp;
+	}
+	
+	public void setSsp(int ssp) {
+		this.ssp = ssp;
 	}
 }

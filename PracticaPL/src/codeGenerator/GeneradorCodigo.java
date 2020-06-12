@@ -11,6 +11,7 @@ import ast.SentenciaAbstracta;
 import ast.I.*;
 import ast.T.EnumeradoTipoGeneral;
 import ast.T.EnumeradoTipos;
+import ast.T.Tipo;
 import javafx.util.Pair;
 import ast.E.*;
 
@@ -23,6 +24,7 @@ public class GeneradorCodigo {
 	private List<Bloque> listaBloques = new ArrayList<>();
 	private Bloque bloqueActual = null;
 	
+	private int proximaDireccion;
 	private int ambitoActual = 0;
 	private int maxPila = 0;
 	private int maxAmbitos = 0;
@@ -67,27 +69,34 @@ public class GeneradorCodigo {
 	
 	//Generamos las direcciones del programa
 	private void generaDireccionesPrograma() {
-		//Abrimos un nuevo bloque
-		Bloque nuevoBloque = new Bloque(bloqueActual, listaBloques.size(), true)
-		listaBloques.add(nuevoBloque);
-		bloqueActual = nuevoBloque;
+		//Abrimos ambito
+		abrirAmbito(true);
 		
 		for(I instruccion : this.programa) {
-			generaDireccionesDeclaracion(instruccion);
+			generaDireccionesInstruccion(instruccion);
 		}
 		
-		//Cerramos bloque
+		//Cerramos Cerramos ambito
+		cerrarAmbito();
 		
-		codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.SSP, ));
+		//codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.SSP, ));
 	}
 	
 	//Generamos las direcciones para una lista de instrucciones.
 	private void generaDireccionesCuerpo(List<I> instrucciones) {
+		//Abrimos ambito
+		abrirAmbito(false);
 		
+		for(I instruccion : instrucciones) {
+			generaDireccionesInstruccion(instruccion);
+		}
+		
+		//Cerramos ambito
+		cerrarAmbito();
 	}
 	
 	//Generamos las direcciones de las instrucciones que declaren algo
-	private void generaDireccionesDeclaracion(I instruccion) {
+	private void generaDireccionesInstruccion(I instruccion) {
 		switch(instruccion.tipoInstruccion()) {
 		case IF:
 			InstIf instruccionIf = (InstIf) instruccion;
@@ -118,6 +127,32 @@ public class GeneradorCodigo {
 			break;
 			
 		case DECL:
+			InstDeclaracion instruccionDeclaracion = (InstDeclaracion) instruccion;
+			
+			//Diferenciamos dependiendo de el tipo de la declaracion
+			switch(instruccionDeclaracion.getTipo().tipoEnumerado()) {
+			case INT: case BOOLEAN:
+				//Por el asin, siempre es un iden
+				String identificador = ((Iden) instruccionDeclaracion.getIden()).getNombre();
+				insertaIdentificadorBloqueActual(identificador, 1);
+				break;
+			
+			case STRUCT:
+				
+				break;
+			
+			case PUNTERO:
+				
+				break;
+				
+			case ARRAY:
+				
+				break;
+			
+			default:
+				
+				break;
+			}
 			
 			break;
 			
@@ -126,10 +161,31 @@ public class GeneradorCodigo {
 			break;
 			
 		case DECLFUN:
+			//Abrimos ambito
+			abrirAmbito(true);
+			
+			InstDeclFun instruccionDeclFun = (InstDeclFun) instruccion;
+			instruccionDeclFun.setProfundidadAnidamiento(bloqueActual.getProfundidadAnidamiento());
+			
+			//Asignamos direccion a cada parametro
+			for(Pair<Tipo, E> argumento : instruccionDeclFun.getArgs()) {
+				//Transformamos cada argumento en una declaracion (REVISAR)
+				InstDeclaracion argumentoDeclaracion = new InstDeclaracion(false, argumento.getKey(), argumento.getValue(), null);	
+				generaDireccionesInstruccion(argumentoDeclaracion);
+			}
+			
+			//Asignamos direccion a cada instruccion del cuerpo (no llamamos a 
+			//la funcion generaDireccionesCuerpo porque generariamos otro ambito)
+			for(I instr : instruccionDeclFun.getCuerpo()) {
+				generaDireccionesInstruccion(instr);
+			}
+			
+			//Cerramos ambito
+			cerrarAmbito();
 			
 			break;
-			
-		case CALLPROC:
+		
+		default:
 			
 			break;
 		}
@@ -337,7 +393,7 @@ public class GeneradorCodigo {
 				int direccionRelativa= getBloqueNivelActual().getDireccionIdentificador(iden.getNombre());
 				//hay que ver si tenemos un vector o no creo
 				//codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,"0"));
-				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDA,Integer.toString(getBloqueNivelActual().getPa() - referenciaIden.getPa() +1),Integer.toString(direccionRelativa)));
+				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDA,Integer.toString(getBloqueNivelActual().getProfundidadAnidamiento() - referenciaIden.getPa() +1),Integer.toString(direccionRelativa)));
 			break;
 			case SQUAREBRACKET:
 				SquareBracket accesoVector = (SquareBracket) expresion;
@@ -353,8 +409,38 @@ public class GeneradorCodigo {
 		}
 	}
 	
+	
+	//FUNCIONES AUXILIARES PARA EL MANEJO DE BLOQUES Y AMBITOS
+	
 	private Bloque getBloqueNivelActual() {
-		return listaBloques.get(ambitoActual);
+		return listaBloques.get(ambitoActual); //Esto no deberia ser bloqueActual?
 	}
+	
+	private void insertaIdentificadorBloqueActual(String identificador, int tamano) {
+		this.bloqueActual.insertaIdentificador(identificador, tamano);
+		proximaDireccion = proximaDireccion + tamano;
+		bloqueActual.setSsp(bloqueActual.getSsp() + tamano);
+	}
+	
+	private void insertaTipoBloqueActual() {
+		
+	}
+	
+	private void abrirAmbito(boolean ambitoFuncion) {
+		Bloque bloque = new Bloque(bloqueActual, listaBloques.size(), ambitoFuncion);
+		listaBloques.add(bloque);
+		bloqueActual = bloque;
+	}
+	
+	//Pendiente
+	private void cerrarAmbito() {
+		if(!bloqueActual.getAmbitoFuncion()) {
+			
+		}
+		//proximaDireccion = proximaDireccion - bloqueActual
+		bloqueActual = bloqueActual.getBloquePadre();
+	}
+	
+	
 	
 }
