@@ -67,7 +67,7 @@ public class AnalizadorSemantico {
 						if(valorInicial != null) valorInicial.forEach(x -> vincula(x));
 						break;
 					case DECLFUN:
-						System.out.println("Vinculando funcion");
+						//System.out.println("Vinculando funcion");
 						InstDeclFun declaracionFuncion = (InstDeclFun) sentencia;
 						
 						Tipo tipoFuncion = declaracionFuncion.getTipo(); //no vale si es proc
@@ -83,7 +83,7 @@ public class AnalizadorSemantico {
 							//esto no hay que vincularlo
 							tabla.insertaId(((Iden)parametro.getValue()).getNombre(), declaracionFuncion);
 							Iden identificadorParametro = (Iden)parametro.getValue();
-							System.out.println("Guardando en el iden "+ identificadorParametro + " el tipo " + parametro.getKey());
+							//System.out.println("Guardando en el iden "+ identificadorParametro + " el tipo " + parametro.getKey());
 							identificadorParametro.setTipo(parametro.getKey());
 							tabla.anadeTipoVariable(identificadorParametro.getNombre(), parametro.getKey());
 							vincula(parametro.getKey());
@@ -186,10 +186,16 @@ public class AnalizadorSemantico {
 							//guardo el tipo de la variable en el identificador para la comprobación de tipos posterior
 							tabla.anadeTipoVariable(identificador.getNombre(), ((InstDeclaracion)refIdentificador).getTipo());
 							identificador.setTipo(((InstDeclaracion)refIdentificador).getTipo());
-						}else { //instancia de InstDeclFun
+						}else if(refIdentificador instanceof InstDeclFun) { //instancia de InstDeclFun
 							//identificador.
-							System.out.println("Es por este caso que no funciona");
-							System.out.println(refIdentificador);
+							InstDeclFun declaracionFuncion = (InstDeclFun) refIdentificador;
+							for(Pair<Tipo,E> argumento: declaracionFuncion.getArgs()) {
+								Iden identificadorArgumento = (Iden)argumento.getValue();
+								if(identificadorArgumento.getNombre() .equals(identificador.getNombre())) {
+									//System.out.println("Guardando el tipo correctamente");
+									identificador.setTipo(argumento.getKey());
+								}
+							}
 							//GestionErroresTiny.errorSemantico("ERROR INESPERADO EN EL PROGRAMA.");
 							
 						}
@@ -335,7 +341,7 @@ public class AnalizadorSemantico {
 				InstDeclFun instruccionDeclaracionFuncion = (InstDeclFun) instruccion;
 				//la x o la y no tiene tipo
 				Tipo tipoRealReturn = tiposExpresion(instruccionDeclaracionFuncion.getReturn());
-				System.out.println("Checkeando el tipo de la función " + instruccionDeclaracionFuncion.toString());
+				//System.out.println("Checkeando el tipo de la función " + instruccionDeclaracionFuncion.toString());
 				if(instruccionDeclaracionFuncion.getIden().tipoExpresion() == TipoE.IDEN) {
 					AtomicBoolean correcto = new AtomicBoolean(true);
 					//System.out.println("El valor del return es" + instruccionDeclaracionFuncion.getReturn() );
@@ -538,8 +544,6 @@ public class AnalizadorSemantico {
 					break;
 				case SUMA:
 					//hay alguno que es null
-					System.out.println("Operando 1: " + operando1.toString());
-					System.out.println("Operando 2: " + tipoOperando2.toString());
 					if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
 						return new TipoInt();
 					}

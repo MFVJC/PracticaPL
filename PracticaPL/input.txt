@@ -38,4 +38,3 @@ int x = 3;
 proc funcion1(boolean x){
 	x=3;
 }
->>>>>>> stash

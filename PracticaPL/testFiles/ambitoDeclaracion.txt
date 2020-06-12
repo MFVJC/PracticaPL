@@ -1,7 +1,7 @@
-int x=4;
+
 boolean resuelveCaso(int y){
-	boolean x = true;
-	return x;
+	boolean z = true;
+	return z;
 }
 int declaracionFuncion(int x){
 	int y = 4;
