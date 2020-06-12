@@ -11,6 +11,7 @@ import asem.AnalizadorSemantico;
 import ast.SentenciaAbstracta;
 import ast.E.E;
 import ast.I.I;
+import codeGenerator.GeneradorCodigo;
 
 public class Main {
 
@@ -80,8 +81,12 @@ public class Main {
 		 System.out.println(printTree("_PROGR_", splitFromParent(tree), "", true));
 		 
 		 //2) Analisis Semantico
-		 //AnalizadorSemantico asem = new AnalizadorSemantico(programa);
-		 //asem.analizaSemantica();
+		 AnalizadorSemantico asem = new AnalizadorSemantico(programa);
+		 asem.analizaSemantica();
+		 
+		 //3) Generador Codigo
+		 GeneradorCodigo codeGenerator = new GeneradorCodigo(programa);
+		 codeGenerator.generaCodigo();
 	   }
 	
 }

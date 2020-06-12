@@ -5,7 +5,8 @@ public class InstruccionMaquina {
 	private int cambioPila = 0;
 	private String primerArgumento;
 	private String segundoArgumento;
-	private boolean tieneSalto,haSaltado;
+	private boolean tieneSalto;
+	private boolean haSaltado;
 	private boolean estaCompleta;
 	
 	public InstruccionMaquina() {
@@ -16,19 +17,23 @@ public class InstruccionMaquina {
 	public InstruccionMaquina(InstruccionesMaquinaEnum tipoInstruccionMaquina) {
 		this.tipoInstruccionMaquina = tipoInstruccionMaquina;
 	}
+	
 	public InstruccionMaquina(InstruccionesMaquinaEnum tipoInstruccionMaquina,int cambioPila) {
 		this.tipoInstruccionMaquina = tipoInstruccionMaquina;
 		this.cambioPila = cambioPila;
 	}
+	
 	public InstruccionMaquina(InstruccionesMaquinaEnum tipoInstruccionMaquina,int cambioPila,String primerArgumento) {
 		this.tipoInstruccionMaquina = tipoInstruccionMaquina;
 		this.cambioPila = cambioPila;
 		this.primerArgumento = primerArgumento;
 	}
-	public InstruccionMaquina (InstruccionesMaquinaEnum tipoInstruccion, String argumento) {
+
+	public InstruccionMaquina (InstruccionesMaquinaEnum tipoInstruccionMaquina, String primerArgumento) {
 		this.tipoInstruccionMaquina = tipoInstruccionMaquina;
-		this.primerArgumento = argumento;
+		this.primerArgumento = primerArgumento;
 	}
+	
 	public InstruccionMaquina (InstruccionesMaquinaEnum tipoInstruccion, String primerArgumento,String segundoArgumento) {
 		this.tipoInstruccionMaquina = tipoInstruccionMaquina;
 		this.primerArgumento = primerArgumento;

@@ -26,14 +26,17 @@ public class Bloque {
 			proximaDireccion = bloquePadre.getProximaDir();
 		}
 	}
+	
 	public int getDireccionIdentificador(String iden) {
 		return posicionIdentificador.get(iden);
 	}
+	
 	public void insertaIdentificador(String identificador,int tam) {
 		posicionIdentificador.put(identificador, proximaDireccion);
 		proximaDireccion +=tam;
 		tamanoBloque +=tam;
 	}
+	
 	public void insertaTamTipo(String tipo, int tam) {
 		tamanoTipos.put(tipo,tam);
 	}
@@ -44,9 +47,11 @@ public class Bloque {
 		}
 		return bloquePadre.getTamanoTipo(tipo);
 	}
+	
 	public int getPa() {
 		return profundidadAnidamiento;
 	}
+	
 	public int getProximaDir() {
 		return proximaDireccion;
 	}

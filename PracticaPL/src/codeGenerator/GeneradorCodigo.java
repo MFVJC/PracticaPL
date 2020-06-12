@@ -1,6 +1,9 @@
 package codeGenerator;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +15,10 @@ import javafx.util.Pair;
 import ast.E.*;
 
 public class GeneradorCodigo {
-	private static File outputFile = new File("instruccionesMaquina.txt");
+	
+	//Atributos
+	
+	private static File archivoSalida = new File("instruccionesMaquina.txt");
 	private List<Bloque> listaBloques = new ArrayList<>();
 	
 	private Bloque bloqueActual = null;
@@ -22,6 +28,40 @@ public class GeneradorCodigo {
 	
 	//para cada intrucción guardo en cuanto afecta al tamaño de la pila
 	private List<InstruccionMaquina> codigoGenerado = new ArrayList<>();
+	private List<I> programa;
+
+	
+	//Metodos
+	
+	public GeneradorCodigo(List<I> programa) {
+		this.programa = programa;
+	}
+	
+	public void generaCodigo() {
+		try {
+			//Abrimos el archivo de salida
+			BufferedWriter writer = new BufferedWriter(new FileWriter(archivoSalida));
+			
+			//Asignamos direcciones a todas las declaraciones
+			
+			
+			//Generamos el codigo del programa
+			
+			
+			//Escribimos el codigo generado en el archivo de salida
+			int i = 0;
+			for(InstruccionMaquina instruccion : codigoGenerado) {
+				//Quizas hay que diferenciar si es un comentario o no. Creo que nosotros no los pillamos!
+				writer.write("(" + i + ")" + instruccion.toString());
+				i++;
+			}
+			//Cerramos el archivo de salida
+			writer.close();
+		} catch (IOException e) {
+			System.out.println("Error al generar el archivo de salida");
+			e.printStackTrace();
+		}
+	}
 	
 	private void generaCodigoSentencia(SentenciaAbstracta sentencia) {
 		switch(sentencia.tipoSentencia()) {
@@ -64,129 +104,134 @@ public class GeneradorCodigo {
 		}
 	}
 	
-	public void codeExpresiones(E expresion) {
+	private void codeExpresiones(E expresion) {
 		if(expresion.tipoSentencia() == EnumeradoTipoGeneral.EXPRESION_BINARIA) {
 			EBin expresionBinaria = (EBin)expresion;
 			codeExpresiones(expresionBinaria.opnd1());
 			codeExpresiones(expresionBinaria.opnd2());
 			switch(expresionBinaria.tipoExpresion()) {
-			case AND:
-				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.AND,-1));
-				break;
-			case DIV:
-				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.DIV,-1));
-				break;
-			case ELEV:
-				//no está en la máquina-P
-				break;
-			case EQUAL:
-				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.EQU,-1));
-				break;
-			case GREATEREQUAL:
-				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.GEQ,-1));
-				break;
-			case GREATERTHAN:
-				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.GRT,-1));
-				break;
-			case LESSEQUAL:
-				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LEQ,-1));
-				break;
-			case LESSTHAN:
-				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LES,-1));
-				break;
-			case MUL:
-				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.MUL,-1));
-				break;
-			case NOTEQUAL:
-				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.NEQ,-1));
-				break;
-			case OR:
-				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.OR,-1));
-				break;
-			case RESTA:
-				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.SUB,-1));
-				break;
-			case SUMA:
-				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.ADD,-1));
-				break;
-			default:
-				break;
-			
+				case AND:
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.AND,-1));
+					break;
+				case DIV:
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.DIV,-1));
+					break;
+				case ELEV:
+					//no está en la máquina-P
+					break;
+				case EQUAL:
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.EQU,-1));
+					break;
+				case GREATEREQUAL:
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.GEQ,-1));
+					break;
+				case GREATERTHAN:
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.GRT,-1));
+					break;
+				case LESSEQUAL:
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LEQ,-1));
+					break;
+				case LESSTHAN:
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LES,-1));
+					break;
+				case MUL:
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.MUL,-1));
+					break;
+				case NOTEQUAL:
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.NEQ,-1));
+					break;
+				case OR:
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.OR,-1));
+					break;
+				case RESTA:
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.SUB,-1));
+					break;
+				case SUMA:
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.ADD,-1));
+					break;
+				default:
+					break;
+				
 			}
 		}
-		switch(expresion.tipoExpresion()) {
-		case BASICFALSE:
-			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,"false"));
-			break;
-		case BASICTRUE:
-			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,"true"));
-			break;
-		case DOLLAR:
-			//hay que generar el código del array
-			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
-			break;
-		case DOT:
-			//generar código para el struct de la izquierda
-			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
-			break;
-		case FUNCION:
-			LlamadaFuncion llamada = (LlamadaFuncion) expresion;
-			InstDeclFun declaracionFuncion =(InstDeclFun)llamada.getReferencia();
-			//mada a funcion
-			break;
-		case IDEN:
-			Iden identificador = (Iden) expresion;
-			if(identificador.getTipo().tipoEnumerado() == EnumeradoTipos.STRUCT) {
-				//entonces hay que generar código para cargar los atributos
-				InstStruct referenciaIdentificador = (InstStruct)identificador.getReferencia();
-				for(I instruccion: referenciaIdentificador.getDeclaraciones()) {
-					InstDeclaracion declaracionAtributo = (InstDeclaracion) instruccion;
-					Iden identificadorCampo = new Iden(identificador.getNombre() + "." + ((Iden)declaracionAtributo.getIden()).getNombre());
-					identificadorCampo.setTipo(declaracionAtributo.getTipo());
-					generaCodigoIdentificador(identificadorCampo);
+		else {
+			switch(expresion.tipoExpresion()) {
+				case BASICFALSE:
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,"false"));
+					break;
+				case BASICTRUE:
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,"true"));
+					break;
+				case DOLLAR:
+					//hay que generar el código del array
 					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
-				}
-			}
-			else {
-				codeL(identificador);
-				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
-			}
-			break;
-		case NEW:
-			New nuevo = (New) expresion;
-			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,((Num)nuevo.getTam()).num()));
-			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.NEW,-2));
-			break;
-		case NOT:
-			Not not = (Not)expresion;
-			codeExpresiones(not.opnd1());
-			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.NOT,0));
-			
-			break;
-		case NUM:
-			Num numero = (Num) expresion;
-			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,numero.num()));
-			break;
-		case SQUAREBRACKET:
-			codeL(expresion);
-			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
-			break;
-		default:
-			break;
-		
+					break;
+				case DOT:
+					//generar código para el struct de la izquierda
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
+					break;
+				case FUNCION:
+					LlamadaFuncion llamada = (LlamadaFuncion) expresion;
+					InstDeclFun declaracionFuncion =(InstDeclFun)llamada.getReferencia();
+					//mada a funcion
+					break;
+				case IDEN:
+					Iden identificador = (Iden) expresion;
+					if(identificador.getTipo().tipoEnumerado() == EnumeradoTipos.STRUCT) {
+						//entonces hay que generar código para cargar los atributos
+						InstStruct referenciaIdentificador = (InstStruct)identificador.getReferencia();
+						for(I instruccion: referenciaIdentificador.getDeclaraciones()) {
+							InstDeclaracion declaracionAtributo = (InstDeclaracion) instruccion;
+							Iden identificadorCampo = new Iden(identificador.getNombre() + "." + ((Iden)declaracionAtributo.getIden()).getNombre());
+							identificadorCampo.setTipo(declaracionAtributo.getTipo());
+							generaCodigoIdentificador(identificadorCampo);
+							codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
+						}
+					}
+					else {
+						codeL(identificador);
+						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
+					}
+					break;
+				case NEW:
+					New nuevo = (New) expresion;
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,((Num)nuevo.getTam()).num()));
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.NEW,-2));
+					break;
+				case NOT:
+					Not not = (Not)expresion;
+					codeExpresiones(not.opnd1());
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.NOT,0));
+					
+					break;
+				case NUM:
+					Num numero = (Num) expresion;
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,numero.num()));
+					break;
+				case SQUAREBRACKET:
+					codeL(expresion);
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
+					break;
+				default:
+					break;
+				
+			}	
 		}
 	}
-	public void codeVector() {
+	
+	private void codeVector() {
 		
 	}
-	public void generaCodigoIdentificador(E expresion) {
+	
+	private void generaCodigoIdentificador(E expresion) {
 		if(expresion.tipoExpresion() == TipoE.IDEN) {
 			Iden identificador = (Iden) expresion;
 			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDA,1,"0 " + getBloqueNivelActual().getDireccionIdentificador(identificador.getNombre())));
 		}
 	}
+	
 	//genera código para la parte izquierda de una asignación
-	public void codeL(E expresion) {
+	private void codeL(E expresion) {
 		switch(expresion.tipoExpresion()) {
 			case IDEN:
 				Iden iden = (Iden) expresion;
@@ -212,7 +257,7 @@ public class GeneradorCodigo {
 		}
 	}
 	
-	public void codeInstrucciones (I instruccion) {
+	private void codeInstrucciones (I instruccion) {
 		switch(instruccion.tipoInstruccion()) {
 		case ASIG:
 			InstAsignacion instruccionAsignacion = (InstAsignacion) instruccion;
