@@ -1,0 +1,26 @@
+int x = 4;
+int y = -5;
+
+boolean a = true;
+boolean b = false;
+
+int V[10]= {1,2,3,4,5,6,7,8,9,10};
+int V2[10] = {1,2,3,4,5,6,7,8,9,10,11,12}; #Debería dar fallo por haber exceso de valores para guardar.
+
+boolean a1[3] = {false,true,true};
+boolean a2[3] = {false, true,3}; #Debería dar fallo por tipo de valor a asignar.
+
+struct{
+	int declaracion1;
+	const boolean declaracion2 = true;
+	const int declaracion3[1] = 1; #No reconoce este error (faltan {}) y lo de la constante dudo que lo sea de vdd
+}nombreDelStruct;
+
+nombreDelStruct persona;
+persona.declaracion2 = false;#Fallo por ser constante
+persona.declaracion1 = false; #Debería dar fallo de tipos
+
+nombreDelStruct.declaracion1 = false; #el nombreDelStruct no es de tipo struct
+
+
+#int $v = new(5); #Probando punteros
