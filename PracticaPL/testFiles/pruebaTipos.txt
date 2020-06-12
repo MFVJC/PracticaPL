@@ -17,6 +17,7 @@ struct{
 }nombreDelStruct;
 
 nombreDelStruct persona;
+#En declaracion2 ni declaracion1 de abajo se guarda el tipo no se el tipo
 persona.declaracion2 = false;#Fallo por ser constante
 persona.declaracion1 = false; #Debería dar fallo de tipos
 

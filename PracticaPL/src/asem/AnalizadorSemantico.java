@@ -58,11 +58,15 @@ public class AnalizadorSemantico {
 					case DECL:
 						//no se realmente que es esa clase. Supongo que para declarar cualquier variable incluso vectores (yo creo que sería mejor separar)
 						InstDeclaracion declaracion = (InstDeclaracion) sentencia;
+						//System.out.println("Entramos en declaracion con " +  declaracion.getIden());
+						//System.out.println(declaracion.getTipo().tipoEnumerado());
 						Iden identificadorV = (Iden)declaracion.getIden();
 						identificadorV.setConstante(declaracion.isConstant());
 						identificadorV.setReferencia(declaracion);
+						identificadorV.setTipo(declaracion.getTipo());
 						vincula(declaracion.getTipo());
 						tabla.insertaId(identificadorV.getNombre(), declaracion);
+						//System.out.println(identificadorV.getTipo());
 						List<E> valorInicial = declaracion.getValor(); //esto va haber que cambiarlo cuando se refactorice
 						if(valorInicial != null) valorInicial.forEach(x -> vincula(x));
 						break;
@@ -202,11 +206,14 @@ public class AnalizadorSemantico {
 							//GestionErroresTiny.errorSemantico("ERROR INESPERADO EN EL PROGRAMA.");
 							
 						}else if(refIdentificador instanceof InstStruct){
+							//System.out.println(identificador.getNombre());
 							TipoStruct tipoVariable = new TipoStruct(identificador.getNombre());
 							tabla.anadeTipoVariable(identificador.getNombre(), tipoVariable);
 							identificador.setTipo(tipoVariable);
 							//System.out.println("Nos sigue faltando el caso de ");
 							//System.out.println(refIdentificador);
+						}else {
+							System.out.println("nuevo caso");
 						}
 					}
 					break;
@@ -267,15 +274,18 @@ public class AnalizadorSemantico {
 							GestionErroresTiny.errorSemantico("Error de tipos. El identificador " + identificador.getNombre() + " corresponde con una constante o una función por lo que no es modificable.");
 						}
 					}
+					E iden = instruccionAsignacion.getIden();
 					Tipo tipoOriginal = tiposExpresion(instruccionAsignacion.getIden());
 					Tipo tipoAsignar = tiposExpresion(instruccionAsignacion.getValor());
+					//hay que recoger los errores aquí
+					
 					//System.out.println("Explorando asignacion de" + instruccionAsignacion.getIden() + " " + instruccionAsignacion.getValor() );
 					if(tipoOriginal.tipoEnumerado() == tipoAsignar.tipoEnumerado()) {
 						//System.out.println("En serio se puede hacer así de facil?");
 						return true;
 						
 					}else {
-						GestionErroresTiny.errorSemantico("Error de tipos en la asignación. Los tipos no coinciden. Intentando asignar a " + instruccionAsignacion.getIden().toString() + " el valor " + instruccionAsignacion.getValor().toString());
+						GestionErroresTiny.errorSemantico("Error de tipos en la asignación. Los tipos no coinciden. Intentando asignar a " + instruccionAsignacion.getIden().toString() + " el valor " + instruccionAsignacion.getValor().toString()+ ".Tipos: " + tipoOriginal + " " + tipoAsignar);
 
 					}
 //						if(tipoAsignar.tipoEnumerado() == EnumeradoTipos.STRUCT) {
@@ -340,7 +350,7 @@ public class AnalizadorSemantico {
 							if(aux.tipoEnumerado() != tipoDeclaracion.tipoEnumerado()) {
 								//System.out.println("El tipo de la instruccion de declaracion es " +tipoDeclaracion.tipoEnumerado().toString()+ " y el del valor es " + aux.tipoEnumerado().toString());
 								correct = false;
-								GestionErroresTiny.errorSemantico("Error tipos. El tipo de la declaración no concuerda con su valor inicial");
+								GestionErroresTiny.errorSemantico("Error tipos. El tipo de la declaración no concuerda con su valor inicial. Asignando a " + instruccionDeclaracion.getIden().toString() + " el valor " + valor.toString() + ". Con tipos " + tipoDeclaracion + " y " + aux);
 							}
 					}
 					}
@@ -439,16 +449,22 @@ public class AnalizadorSemantico {
 				EBin ebin = (EBin) sentencia;
 				E operando1= ebin.opnd1();
 				E operando2 = ebin.opnd2();
+				//System.out.println("Va a calcular el tipo de " + operando1.toString());
+				//System.out.println(operando1.tipoExpresion());
 				Tipo tipoOperando1 = tiposExpresion(operando1);
-				Tipo tipoOperando2 = tiposExpresion(operando2);
-				if(tipoOperando1 == null || tipoOperando2 == null) {
+				Tipo tipoOperando2 = null;
+				if(ebin.tipoExpresion() != TipoE.DOT) {
+					tipoOperando2 = tiposExpresion(operando2);
+				}
+				if(tipoOperando1 == null  || (ebin.tipoExpresion()!= TipoE.DOT && tipoOperando2 ==null)) {
 					System.out.println("Devuelven null cuando eso nunca debería pasar. ha tenido que haber algún fallo previo. Operandos: " + operando1.toString() + " y " + operando2.toString());
-					if(tipoOperando1 == null)System.out.println(operando1);
-					if(tipoOperando2==null)System.out.println(operando2);
+					if(tipoOperando1 == null)System.out.println(operando1 +" "+ operando1.tipoExpresion());
+					if(tipoOperando2==null)System.out.println(operando2 + " " + operando2.tipoExpresion() + ((Iden)operando2).getTipo());
 				}
 				else {
 				if (tipoOperando1.tipoEnumerado() != EnumeradoTipos.ERROR || (ebin.tipoExpresion() != TipoE.DOT && tipoOperando2.tipoEnumerado() != EnumeradoTipos.ERROR)) {
 				//System.out.println("Analizando expresión binaria con " + operando1.toString() + " " + operando2.toString() + " con tipos " + tipoOperando1.toString() + " y " + tipoOperando2.toString());
+				
 				switch(ebin.tipoExpresion()) {
 				case AND:
 					if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.BOOLEAN && tipoOperando2.tipoEnumerado()==EnumeradoTipos.BOOLEAN) {
@@ -467,22 +483,29 @@ public class AnalizadorSemantico {
 				case DOT:
 					//tenemos que comprobar que operando1 es un struct
 					//
-
 					if(tipoOperando1.tipoEnumerado() == EnumeradoTipos.STRUCT) {
 						//falta comprobar que el punto corresponde con un campo del struct
 						Iden atributo = (Iden) ebin.opnd2();
+						//System.out.println("Guardando atributo " + atributo.getNombre());
 						//podemos coger la referencia al struct del TipoStruct
 						 //nos hace falta meter las referencias para esto
 						TipoStruct tipoStruct = (TipoStruct) tipoOperando1;
-						InstStruct sentenciaStruct = (InstStruct) tipoStruct.getReferencia();
+						InstStruct sentenciaStruct = (InstStruct) tipoStruct.getReferencia(); // esto es null
+						if(sentenciaStruct == null) {
+							GestionErroresTiny.errorSemantico("Debes especificar un struct definido y no un struct general. Struct: " + operando1);
+						}
+						else{
+							
+						
 						for(I instruccion : sentenciaStruct.getDeclaraciones()) {
 							if(instruccion instanceof InstDeclaracion) {
 								Iden atributoStruct = (Iden)((InstDeclaracion) instruccion).getIden();
-								if(atributoStruct.getNombre() == atributo.getNombre()) {
+								if(atributoStruct.getNombre() .equals(atributo.getNombre())) {
 									//Entonces si que existe la variable
 									return atributoStruct.getTipo();
 								}
 							}
+						}	
 						}
 					}
 						GestionErroresTiny.errorSemantico("Error de tipos. Tipo de operandos inválido para el . Operandos: " + operando1.toString() + " y " + operando2.toString());
