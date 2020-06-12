@@ -5,6 +5,7 @@ struct{
 }nombreDelStruct;
 nombreDelStruct persona;
 #persona.declaracion1=7;
+
 boolean esPrimo(int a){
 	return true;
 }

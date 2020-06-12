@@ -69,7 +69,7 @@ public class Main {
 	//Al ejecutar el programa, el AST se imprimira por pantalla
 	public static void main(String[] args) throws Exception {
 	     boolean error = false;
-		 Reader input = new InputStreamReader(new FileInputStream("PracticaPL/input.txt"));
+		 Reader input = new InputStreamReader(new FileInputStream(args[0]));
 		 
 	     //1) Analisis Lexico y Sintactico
 	     AnalizadorLexicoTiny alex = new AnalizadorLexicoTiny(input);
