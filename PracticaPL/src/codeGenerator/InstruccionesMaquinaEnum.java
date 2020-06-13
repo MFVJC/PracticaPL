@@ -24,10 +24,10 @@ public enum InstruccionesMaquinaEnum {
 	
 	// Instrucciones de carga y almacenamiento de la máquina-P
 	LDO,
-	LDC,
+	LDC, //Carga una constante
 	IND,
 	SRO,
-	STO,
+	STO, //Carga en la subcima lo que hay en la cima
 	
 	//Instrucciones-P de salto condicional e incondicional
 	UJP,
@@ -42,7 +42,7 @@ public enum InstruccionesMaquinaEnum {
 	
 	IXJ,
 	
-	INC,//para calcula direcciones relativas al comienzo del registro (En sp aumentas q)
+	INC,//para calcula direcciones relativas al comienzo del registro (En sp aumentas q) (INC carga el valor de la direccion de memoria del lda previo)
 
 	NEW,//para hacer news (memoria en monton)
 	
@@ -55,7 +55,7 @@ public enum InstruccionesMaquinaEnum {
 	//p y q cantidades que representan e la diferencia de profundidades de anidamiento y la
 	//dirección relativa de la variable en su marco respectivamente.
 	LOD, //lod p q apila contenido
-	LDA,//lda p q apila direccion
+	LDA,//lda p q apila direccion (te trae la direccion absoluta que le pongas lda <MP> <dir>)
 	STR, // almacena y desapila contenido
 	
 	MOVS, //copia un bloque de memoria
