@@ -1,0 +1,16 @@
+struct{
+	#En realidad el programa no detecta que son constantes.
+	const int declaracion = 3; 
+	const int vector[10]={1,2,3,4,5,6,7,8,9,10,11,12} #No reconoce cuando hay valores de más en esta lista
+
+	const int declaracion[1] = 1; #No reconoce que faltan {}
+}struct1
+
+
+
+#Esto falla la sintaxis no se porque
+#switch(y){
+#	case 1 {arg = 1};
+#	case 5 { arg = 5};
+#	default{};
+#}
