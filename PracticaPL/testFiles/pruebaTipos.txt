@@ -13,12 +13,12 @@ boolean a2[3] = {false, true,3}; #Debería dar fallo por tipo de valor a asignar
 struct{
 	int declaracion1;
 	const boolean declaracion2 = true;
-	const int declaracion3[1] = 1; #No reconoce este error (faltan {}) y lo de la constante dudo que lo sea de vdd
+	int declaracion3 =1;#const int declaracion3[1] = 1; #No reconoce este error (faltan {}) y lo de la constante dudo que lo sea de vdd
 }nombreDelStruct;
 
 nombreDelStruct persona;
 #En declaracion2 ni declaracion1 de abajo se guarda el tipo no se el tipo
-persona.declaracion2 = false;#Fallo por ser constante
+persona.declaracion2 = false;#Fallo por ser constante - no lo da por estar dentro del struct - se podr�a guardar en la tabladeSimbolos alomejor
 persona.declaracion1 = false; #Debería dar fallo de tipos
 
 nombreDelStruct.declaracion1 = false; #el nombreDelStruct no es de tipo struct
