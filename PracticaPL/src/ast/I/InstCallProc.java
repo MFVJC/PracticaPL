@@ -18,7 +18,7 @@ public class InstCallProc extends I {
 	public TipoI tipoInstruccion() {return TipoI.CALLPROC;}
 	public String toString() {
 		String aux = "{{_Call__}{" + nombre_funcion + "}{{_Args__}";
-		for(E argumento : argumentos) aux += argumento.toString();		
+		if(argumentos!=null)for(E argumento : argumentos) aux += argumento.toString();		
 		aux += "}}";
 		return aux;
 	}

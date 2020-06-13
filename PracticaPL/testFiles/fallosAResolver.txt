@@ -14,3 +14,13 @@ struct{
 #	case 5 { arg = 5};
 #	default{};
 #}
+
+#Fallo en procedimientos anidados, no reconoce bien los argumentos no se porqué.
+proc definicion1(int x){
+	proc definicion2(int y){
+		y =5;
+	}
+
+	x=4;
+}
+definicion2(5);
