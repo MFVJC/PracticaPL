@@ -347,12 +347,12 @@ public class GeneradorCodigo {
 							InstDeclaracion declaracionAtributo = (InstDeclaracion) instruccion;
 							Iden identificadorCampo = new Iden(identificador.getNombre() + "." + ((Iden)declaracionAtributo.getIden()).getNombre());
 							identificadorCampo.setTipo(declaracionAtributo.getTipo());
-							generaCodigoIdentificador(identificadorCampo);
+							generaCodigoDireccionIdentificador(identificadorCampo);
 							codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
 						}
 					}
 					else {
-						generaCodigoLeft(identificador);
+						generaCodigoLeft(identificador); //genera la direccion de memoria del identificador
 						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
 					}
 					break;
@@ -387,18 +387,53 @@ public class GeneradorCodigo {
 		
 	}
 	
-	//Genera el codigo para un identificador
-	private void generaCodigoIdentificador(E expresion) {
+	//Genera el codigo para obtener la dirección un identificador
+	private void generaCodigoDireccionIdentificador(E expresion) {
 		if(expresion.tipoExpresion() == TipoE.IDEN) {
 			Iden identificador = (Iden) expresion;
 			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDA,1,"0 " + getBloqueNivelActual().getDireccionIdentificador(identificador.getNombre())));
 		}
 	}
 	
-	//Genera el codigo para la parte izquierda de una asignación
+	//Genera el codigo para la parte izquierda de una asignación (coge la direccion donde esta guardada)
+	
+	//este código en realidad lo que hace es generar el código necesaario para las expresiones de la derecha y carga la dirección de la variable implicada en esta expresión
+	//Es realmente el pdf de tradu 
 	private void generaCodigoLeft(E expresion) {
 		switch(expresion.tipoExpresion()) {
 			case IDEN:
+				Iden iden = (Iden) expresion;
+				SentenciaAbstracta refIdentificador = iden.getReferencia();
+				if(refIdentificador instanceof InstDeclaracion) { //es global (si iden es local también entra aquí?)
+					InstDeclaracion declaracionVariable = (InstDeclaracion) refIdentificador;
+					
+					//apilaind - ind de la máquinaP
+					
+					//las locales también entran aquí y no se distinguir entre locales y globales solo por instDeclaracion
+					//Si x es una variable
+					/*si es global
+					 * 	Apila la dirección de iden (ldc)
+					*/
+					
+					/*si es local o parámetro por valor
+						Apila con indirecciones (ldo)
+						Apila la dirección de iden (ldc)
+						suma
+						
+						//apilaind (ind) esto sería para parámetros por referencia
+						
+						Si es p
+						*/
+					
+				}else if(refIdentificador instanceof InstDeclFun) {// es un parámetro 
+					InstDeclFun declaracionFuncion = (InstDeclFun) refIdentificador;
+					// es  parámetro por valor
+					
+					
+					
+				}else {
+					System.out.println("nuevo caso");
+				}
 				/*insertIns("lda " + 0 + " " + bloqueActGenera().dirVar(((Iden) exp).id()), 1);
 				Iden iden = (Iden) expresion;
 				InstDeclaracion declaracionIden = (InstDeclaracion)iden.getReferencia();
@@ -407,18 +442,36 @@ public class GeneradorCodigo {
 				int direccionRelativa= getBloqueNivelActual().getDireccionIdentificador(iden.getNombre());
 				//hay que ver si tenemos un vector o no creo
 				//codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,"0"));
-<<<<<<< HEAD
 				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDA,Integer.toString(getBloqueNivelActual().getProfundidadAnidamiento() - referenciaIden.getPa() +1),Integer.toString(direccionRelativa)));
 			*/
 				break;
 
 			case SQUAREBRACKET:
 				SquareBracket accesoVector = (SquareBracket) expresion;
-				
+				E array = accesoVector.opnd1();
+				E elemento= accesoVector.opnd2();
+				//buscas la dirección del array
+				//código para elemento
+				//si elemento es un puntero tienes que usar el (ind)
+				//apilas el tamaño del tipo del array
+				//multiplicas
+				//sumas
 				break;
 			case DOT:
+				Dot dot = (Dot) expresion;
+				E struct = dot.opnd1();
+				E atributo= dot.opnd2();
+				//coges la dirección del struct
+				//apilas el desplazamiento del atributo
+				//sumas los dos y quedará en la cima la dirección del atributo 
+				
 				break;
 			case DOLLAR:
+				Dollar dollar = (Dollar) expresion;
+				E operando1Dollar = dollar.opnd1();
+				//Calculas la dirección de operando1Dollar y la dejas en la cima de la pila
+				//aplicas una indirección
+				
 				break;
 			default:
 			break;
