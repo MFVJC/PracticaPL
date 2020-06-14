@@ -12,6 +12,7 @@ import ast.I.*;
 import ast.T.EnumeradoTipoGeneral;
 import ast.T.EnumeradoTipos;
 import ast.T.Tipo;
+import ast.T.TipoStruct;
 import javafx.util.Pair;
 import ast.E.*;
 
@@ -47,12 +48,15 @@ public class GeneradorCodigo {
 			
 			//Asignamos direcciones a todas las declaraciones
 			generaDireccionesPrograma();
-			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.SSP, Integer.toString(listaBloques.get(0).getSsp())));
-			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.SEP, "0"));
-			
+			int i = 0;
+			for(Bloque bloque : listaBloques) {
+				System.out.println("----------" + "BLOQUE " + i + "----------");
+				System.out.println(bloque.toString());
+				i++;
+			}
+			/*
 			//Generamos el codigo del programa
 			generaCodigoCuerpo(this.programa);
-			//Jorge tiene esto despues de generar el codigo del programa.
 			//int tamPila = tamPilaEvaluacion(1);
 			//codigo.get(1).setName(codigo.get(1).getName() + tamPila);
 			//insertIns("stp", 0);
@@ -68,6 +72,7 @@ public class GeneradorCodigo {
 			//Cerramos el archivo de salida
 			writer.close();
 			System.out.println("Codigo generado sin errores");
+			*/
 		} catch (IOException e) {
 			System.out.println("Error al generar el archivo de salida");
 			e.printStackTrace();
@@ -78,26 +83,26 @@ public class GeneradorCodigo {
 	
 	//Generamos las direcciones del programa
 	private void generaDireccionesPrograma() {
-		abrirAmbito(true);
+		crearNuevoBloque(true);
 		
 		for(I instruccion : this.programa) {
 			generaDireccionesInstruccion(instruccion);
 		}
 		
-		cerrarAmbito();
+		guardarBloqueActual();
 		
 		//codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.SSP, ));
 	}
 	
 	//Generamos las direcciones para una lista de instrucciones.
 	private void generaDireccionesCuerpo(List<I> instrucciones) {
-		abrirAmbito(false);
+		crearNuevoBloque(false);
 		
 		for(I instruccion : instrucciones) {
 			generaDireccionesInstruccion(instruccion);
 		}
 		
-		cerrarAmbito();
+		guardarBloqueActual();
 	}
 	
 	//Generamos las direcciones de las instrucciones que declaren algo
@@ -109,9 +114,7 @@ public class GeneradorCodigo {
 			generaDireccionesCuerpo(instruccionIf.getCuerpoIf());
 			
 			//Si tiene rama else, direcciones de todas sus declaraciones
-			if(instruccionIf.getCuerpoElse() != null) {
-				generaDireccionesCuerpo(instruccionIf.getCuerpoElse());
-			}
+			if(instruccionIf.getCuerpoElse() != null) generaDireccionesCuerpo(instruccionIf.getCuerpoElse());
 			break;
 		
 		case WHILE:
@@ -123,7 +126,7 @@ public class GeneradorCodigo {
 			InstSwitch instruccionSwitch = (InstSwitch) instruccion;
 			
 			//Creamos una lista cuerpoSwitch con el cuerpo de todos los cases, al fin y al cabo
-			//las expresiones y la condicion del switch nos da igual, solo buscamos declaraciones!!
+			//las expresiones y la condicion del switch nos da igual, solo buscamos declaraciones!
 			List<I> cuerpoSwitch = new ArrayList<I>();
 			for(Pair<E, List<I>> ccase : instruccionSwitch.getCases()) {
 				cuerpoSwitch.addAll(ccase.getValue());
@@ -138,22 +141,20 @@ public class GeneradorCodigo {
 			switch(instruccionDeclaracion.getTipo().tipoEnumerado()) {
 			case INT: case BOOLEAN:
 				//Por el asin, siempre es un iden
-				String identificador = ((Iden) instruccionDeclaracion.getIden()).getNombre();
-				insertaIdentificadorBloqueActual(identificador, 1);
+				String iden = ((Iden) instruccionDeclaracion.getIden()).getNombre();
+				insertaIdentificadorBloqueActual(iden, 1);
 				break;
-			
 			case STRUCT:
-				
+				String idenStruct = ((Iden) instruccionDeclaracion.getIden()).getNombre();
+				int tamano = bloqueActual.getTipo(idenStruct);
+				insertaIdentificadorBloqueActual(idenStruct, tamano);
 				break;
-			
 			case PUNTERO:
 				
 				break;
-				
 			case ARRAY:
 				
-				break;
-			
+				break;		
 			default:
 				
 				break;
@@ -162,12 +163,15 @@ public class GeneradorCodigo {
 			break;
 			
 		case STRUCT:
-			
+			InstStruct instruccionStruct = (InstStruct) instruccion;
+			String nombreStruct = ((Iden) instruccionStruct.getIden()).getNombre();
+			int tamanoStruct = calcularTamanoStruct(instruccionStruct);
+			bloqueActual.insertaTipo(nombreStruct, tamanoStruct);
 			break;
 			
 		case DECLFUN:
 			//Abrimos ambito
-			abrirAmbito(true);
+			crearNuevoBloque(true);
 			
 			InstDeclFun instruccionDeclFun = (InstDeclFun) instruccion;
 			instruccionDeclFun.setProfundidadAnidamiento(bloqueActual.getProfundidadAnidamiento());
@@ -186,7 +190,7 @@ public class GeneradorCodigo {
 			}
 			
 			//Cerramos ambito
-			cerrarAmbito();
+			guardarBloqueActual();
 			
 			break;
 		
@@ -429,31 +433,52 @@ public class GeneradorCodigo {
 		return listaBloques.get(ambitoActual); //Esto no deberia ser bloqueActual?
 	}
 	
-	private void insertaIdentificadorBloqueActual(String identificador, int tamano) {
-		this.bloqueActual.insertaIdentificador(identificador, tamano);
-		proximaDireccion = proximaDireccion + tamano;
-		bloqueActual.setSsp(bloqueActual.getSsp() + tamano);
+	private void insertaIdentificadorBloqueActual(String nombreIdentificador, int tamanoIdentificador) {
+		this.bloqueActual.insertaIdentificador(nombreIdentificador, tamanoIdentificador);
+		this.proximaDireccion += tamanoIdentificador;
 	}
 	
-	private void insertaTipoBloqueActual() {
-		
+	private void insertaTipoBloqueActual(String nombreTipo, int tamanoTipo) {
+		this.bloqueActual.insertaTipo(nombreTipo, tamanoTipo);
 	}
 	
-	private void abrirAmbito(boolean ambitoFuncion) {
+	private void crearNuevoBloque(boolean ambitoFuncion) {
 		Bloque bloque = new Bloque(bloqueActual, listaBloques.size(), ambitoFuncion);
 		listaBloques.add(bloque);
 		bloqueActual = bloque;
 	}
 	
-	//Pendiente
-	private void cerrarAmbito() {
-		if(!bloqueActual.getAmbitoFuncion()) {
-			
-		}
-		//proximaDireccion = proximaDireccion - bloqueActual
+	private void guardarBloqueActual() {
+		proximaDireccion = proximaDireccion - bloqueActual.getTamanoBloque();
 		bloqueActual = bloqueActual.getBloquePadre();
 	}
 	
-	
+	private int calcularTamanoStruct(InstStruct struct) {
+		int tamanoStruct = 0;
+		for(I declaracion : struct.getDeclaraciones()) { //Para cada declaracion del struct, sumamos su tamano
+			InstDeclaracion declaracionStruct = (InstDeclaracion) declaracion;
+			switch(declaracionStruct.getTipo().tipoEnumerado()) {
+			case INT: case BOOLEAN:
+				//Sumamos 1 (lo que ocupan int y boolean)
+				tamanoStruct++;
+				break;
+			case STRUCT:
+				//Sumamos el tamano del tipo struct, que lo tendremos almacenado en un bloque previo
+				TipoStruct tipoStruct = (TipoStruct) declaracionStruct.getTipo();
+				tamanoStruct += bloqueActual.getTipo(tipoStruct.getNombreStruct());
+				break;
+			case PUNTERO:
+				
+				break;
+			case ARRAY:
+				
+				break;		
+			default:
+				
+				break;
+			}
+		}
+		return tamanoStruct;
+	}
 	
 }
