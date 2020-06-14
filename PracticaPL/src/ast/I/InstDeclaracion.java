@@ -1,12 +1,8 @@
 package ast.I;
 
-import java.util.ArrayList;
 import java.util.List;
-
 import ast.E.E;
-import ast.T.EnumeradoTipos;
 import ast.T.Tipo;
-import ast.E.*;
 
 public class InstDeclaracion extends I {
 	private boolean constant;

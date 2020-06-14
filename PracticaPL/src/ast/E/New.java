@@ -24,7 +24,7 @@ public class New extends E{
 	}
 
 	public String toString() {
-		if(tam != null) return "{{__New__}{" + tipo.toString() + "[" + tam.toString() + "]}}";
+		if(tam != null) return "{{__New__}{" + tipo.toString() + "[" + tam.toString().substring(1, tam.toString().length()-1) + "]}}";
 		else return "{{__New__}{" + tipo.toString() + "}}";
 	}
 }

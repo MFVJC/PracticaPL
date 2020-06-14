@@ -68,9 +68,9 @@ public class Main {
 	//Introducir el codigo de prueba en el archivo input.txt
 	//Al ejecutar el programa, el AST se imprimira por pantalla
 	public static void main(String[] args) throws Exception {
-	     boolean correcto = true;
-	     Reader input = new InputStreamReader(new FileInputStream(args[0]));
-		 //Reader input = new InputStreamReader(new FileInputStream("auxiliar.txt"));
+		boolean correcto = true;
+	     //Reader input = new InputStreamReader(new FileInputStream(args[0]));
+		 Reader input = new InputStreamReader(new FileInputStream("auxiliar.txt"));
 		 
 	     //1) Analisis Lexico y Sintactico
 	     AnalizadorLexicoTiny alex = new AnalizadorLexicoTiny(input);
@@ -87,10 +87,11 @@ public class Main {
 		 //correcto = asem.analizaSemantica();
 
 		 //3) Generador Codigo
-		 /*if(correcto) { //Si no hemos tenido errores en el alex, asint y asem, procedemos a generar el codigo
+		 //if(correcto) { //Si no hemos tenido errores en el alex, asint y asem, procedemos a generar el codigo
 			 GeneradorCodigo codeGenerator = new GeneradorCodigo(programa);
 			 codeGenerator.generaCodigo(); 
-		 }*/
+		 //}
+
 	   }
 	
 }

@@ -57,8 +57,7 @@ public class GeneradorCodigo {
 				System.out.println(bloque.toString());
 				i++;
 			}
-			int aux = listaBloques.get(0).getDireccionCampoStruct("tPersona", "juan", "y");
-			System.out.println(aux);
+
 			/*
 			//Generamos el codigo del programa
 			generaCodigoCuerpo(this.programa);
@@ -158,9 +157,10 @@ public class GeneradorCodigo {
 				break;
 			case PUNTERO:
 				//Cuando declaramos un puntero, guardamos su identificador de tamano 1 y gestionamos la memoria dinamica
-				insertaIdentificadorBloqueActual(idenDeclaracion, 1);
+				//Tipo tipoApuntado = ((TipoPuntero) instruccionDeclaracion.getTipo());
 				
-				//PENDIENTE: Gestionar memoria dinamica!
+				insertaIdentificadorBloqueActual(idenDeclaracion, 1);
+				//bloqueActual.insertaTamanoTipo(idenDeclaracion, tamanoBasePuntero);
 				
 				break;
 			case ARRAY:
@@ -619,7 +619,7 @@ public class GeneradorCodigo {
 	//3) FUNCIONES AUXILIARES PARA EL MANEJO DE BLOQUES
 	
 	private Bloque getBloqueNivelActual() {
-		return listaBloques.get(ambitoActual); //Esto no deberia ser bloqueActual?
+		return listaBloques.get(ambitoActual);
 	}
 
 	private void crearNuevoBloque(boolean ambitoFuncion) {
@@ -714,6 +714,7 @@ public class GeneradorCodigo {
 				break;
 			case PUNTERO:
 				//GESTIONAR MEMORIA DINAMICA PARA UN ARRAY DE PUNTEROS!
+				
 				break;
 			default:
 				break;
@@ -721,5 +722,6 @@ public class GeneradorCodigo {
 			return new Pair(tamanoArray, new Pair(tamanoTipoBase, dimensiones));
 		}
 	}
+
 	
 }
