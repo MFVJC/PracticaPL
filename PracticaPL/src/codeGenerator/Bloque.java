@@ -130,9 +130,9 @@ public class Bloque {
 	}
 	
 	//Funccion para obtener la direccion relativa de un campo de un tipo struct
-	public int getCampoStruct(String nombreStruct, String nombreCampo) {
-		if(camposStructs.containsKey(nombreStruct)) return camposStructs.get(nombreStruct).get(nombreCampo);
-		else return bloquePadre.getCampoStruct(nombreStruct, nombreCampo);
+	public int getCampoStruct(String tipoStruct, String nombreCampo) {
+		if(camposStructs.containsKey(tipoStruct)) return camposStructs.get(tipoStruct).get(nombreCampo);
+		else return bloquePadre.getCampoStruct(tipoStruct, nombreCampo);
 	}
 	
 	//Funcion para almacenar las direcciones relativas de los campos de un struct. Recibe los tamanos de cada campo del struct
@@ -150,9 +150,9 @@ public class Bloque {
 	}
 	
 	//Funcion para obtener la direccion absoluta de un campo de un struct
-	public int getDireccionCampoStruct(String nombreStruct, String nombreCampo) {
+	public int getDireccionCampoStruct(String tipoStruct, String nombreStruct, String nombreCampo) {
 		//La direccion absoluta sera la direccion base del struct + la direccion relativa del campo buscado
-		return getDireccionIdentificador(nombreStruct) + getCampoStruct(nombreStruct, nombreCampo);
+		return getDireccionIdentificador(nombreStruct) + getCampoStruct(tipoStruct, nombreCampo);
 	}
 	
 	
