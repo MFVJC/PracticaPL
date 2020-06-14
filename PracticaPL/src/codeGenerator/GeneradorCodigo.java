@@ -57,7 +57,7 @@ public class GeneradorCodigo {
 				System.out.println(bloque.toString());
 				i++;
 			}
-			int aux = listaBloques.get(0).getCampoStruct("juan", "y");
+			int aux = listaBloques.get(0).getDireccionCampoStruct("tPersona", "juan", "y");
 			System.out.println(aux);
 			/*
 			//Generamos el codigo del programa
