@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import asint.Main;
 import ast.SentenciaAbstracta;
 import ast.I.*;
 import ast.T.EnumeradoTipoGeneral;
@@ -23,7 +24,8 @@ public class GeneradorCodigo {
 	
 	//Atributos
 	
-	private static File archivoSalida = new File("instruccionesMaquina.txt");
+	
+	private File archivoSalida ;
 	
 	private List<Bloque> listaBloques = new ArrayList<>();
 	private Bloque bloqueActual = null;
@@ -42,6 +44,10 @@ public class GeneradorCodigo {
 	
 	public GeneradorCodigo(List<I> programa) {
 		this.programa = programa;
+		String fileName = Main.FILE_NAME;
+		int lastIndex = fileName.lastIndexOf("/");
+		String newFilename = fileName.substring(0, lastIndex+1) + "CodigoMaquina" + fileName.substring(lastIndex+1, fileName.length()-1);
+		archivoSalida = new File(newFilename);
 	}
 	
 	public void generaCodigo() {
@@ -58,7 +64,7 @@ public class GeneradorCodigo {
 				i++;
 			}
 
-			/*
+
 			//Generamos el codigo del programa
 			generaCodigoCuerpo(this.programa);
 			//int tamPila = tamPilaEvaluacion(1);
@@ -66,7 +72,7 @@ public class GeneradorCodigo {
 			//insertIns("stp", 0);
 			
 			//Escribimos el codigo generado en el archivo de salida
-			int i = 0;
+			i = 0;
 			for(InstruccionMaquina instruccion : codigoGenerado) {
 				//Ellos generan tambien comentario en el codigo para poder leerlo facilmente
 				//Quizas es buena idea, y cambiarlo en la version final
@@ -76,7 +82,7 @@ public class GeneradorCodigo {
 			//Cerramos el archivo de salida
 			writer.close();
 			System.out.println("Codigo generado sin errores");
-			*/
+			
 		} catch (IOException e) {
 			System.out.println("Error al generar el archivo de salida");
 			e.printStackTrace();
@@ -254,13 +260,27 @@ public class GeneradorCodigo {
 				break;
 			case DECL:
 				InstDeclaracion instruccionDeclaracion = (InstDeclaracion) instruccion;
+				Iden identificadorVariable = (Iden) instruccionDeclaracion.getIden();
 				if(instruccionDeclaracion.getValor() != null) { //está inicializada por lo que no tendremos que generar código a menos que sea un struct
 					switch(instruccionDeclaracion.getTipo().tipoEnumerado()) {
 					case ARRAY:
 						TipoArray tipoArray = (TipoArray)instruccionDeclaracion.getTipo();
 						//distinguir casos dependiendo del tipo de array
+						E dimension = tipoArray.getDimension();
 						switch(tipoArray.getTipoBase().tipoEnumerado()) {
 						case ARRAY:
+							//SIN ACABAAR-ESTA MAL
+							generaCodigoLeft(identificadorVariable);
+							Tipo aux = tipoArray;
+							while(aux instanceof TipoArray && ((TipoArray)aux).getTipoBase().tipoEnumerado() == EnumeradoTipos.ARRAY) {
+								aux = ((TipoArray)aux).getTipoBase();
+							}
+							
+							//en este punto tenemos la dirección del primer elemento del array
+							//recorremos los valores del array con las direcciones y loos añadimos a esas direcciones
+							List<E> valoresIniciales = instruccionDeclaracion.getValor();
+							int tamanoTipo = getBloqueNivelActual().getTamanoTipo(identificadorVariable.getNombre());
+							
 							break;
 						case PUNTERO:
 							break;
@@ -337,12 +357,14 @@ public class GeneradorCodigo {
 				InstSwitch instruccionSwitch = (InstSwitch) instruccion;
 				E condicion = instruccionSwitch.getCondicion();
 				List<Integer> listaPosicionesSalto = new ArrayList<>();
+				maxAmbitos++;
+				ambitoActual = maxAmbitos;
 				for(Pair<E,List<I>> caso : instruccionSwitch.getCases()) {
 					//para cada caso tenemos que comprobar si coincide con la condición del switch
 					//hay que comprobar si  la condicion == caso.getKey()
 					generaCodigoExpresion(new Equal(condicion,caso.getKey()));
-					maxAmbitos++;
-					ambitoActual = maxAmbitos;
+					//maxAmbitos++;
+					//ambitoActual = maxAmbitos;
 					
 					int momentoSaltoDefault = codigoGenerado.size();
 					listaPosicionesSalto.add(momentoSaltoDefault);
@@ -355,13 +377,14 @@ public class GeneradorCodigo {
 					listaPosicionesSalto.add(momentoSaltoFinal);
 					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.UJP, 0));
 					
-					ambitoActual = getBloqueNivelActual().getBloquePadre().getPosicionBloque();
+					//ambitoActual = getBloqueNivelActual().getBloquePadre().getPosicionBloque();
 
 				}
 				String finalSwitch = Integer.toString(codigoGenerado.size());
 				for(int posicion: listaPosicionesSalto) {
 					codigoGenerado.get(posicion).setArgumento1(finalSwitch); // tanto los condicionales como los no condicionales saltan al final de switch
 				}
+				ambitoActual = getBloqueNivelActual().getBloquePadre().getPosicionBloque();
 				break;
 			case WHILE:
 				InstWhile instruccionWhile = (InstWhile) instruccion;
@@ -387,6 +410,7 @@ public class GeneradorCodigo {
 	//Genera el codigo para una expresion concreta
 	//codeR del pdf de Generación de código
 	private void generaCodigoExpresion(E expresion) {
+		if(expresion!=null) {
 		if(expresion.tipoSentencia() == EnumeradoTipoGeneral.EXPRESION_BINARIA) {
 			EBin expresionBinaria = (EBin)expresion;
 			generaCodigoExpresion(expresionBinaria.opnd1());
@@ -497,6 +521,7 @@ public class GeneradorCodigo {
 					break;
 				
 			}	
+		}	
 		}
 	}
 	
@@ -522,16 +547,13 @@ public class GeneradorCodigo {
 			case IDEN:
 				Iden iden = (Iden) expresion;
 				SentenciaAbstracta refIdentificador = iden.getReferencia();
-				if(refIdentificador instanceof InstDeclaracion) { //es global (si iden es local también entra aquí?)
 					InstDeclaracion declaracionVariable = (InstDeclaracion) refIdentificador;
-					Bloque primerBloque = listaBloques.get(0); //cojo el primer bloque para mirar si la variable es global o no
-					if(primerBloque.estaIdentificador(iden.getNombre())) {
-						//entonces la variable es global
-						
-					}else {
-						//la variable es local
-						
-					}
+					//si la dirección esta bien guardada debería bastar con esto
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(getBloqueNivelActual().getDireccionIdentificador(iden.getNombre()))));
+					
+					
+
+
 					//las locales también entran aquí y no se distinguir entre locales y globales solo por instDeclaracion
 					//Si x es una variable
 					/*si es global
@@ -540,33 +562,14 @@ public class GeneradorCodigo {
 					
 					/*si es local o parámetro por valor
 						Apila con indirecciones (ldo) // lo que coges es lo que hay en la pila en esa posición y lo guardas en la cima
+						
 						Apila la dirección de iden (ldc)
 						suma
 						
 						//apilaind (ind) esto sería para parámetros por referencia
 						
 						Si es p
-						*/
-					
-				}else if(refIdentificador instanceof InstDeclFun) {// es un parámetro 
-					InstDeclFun declaracionFuncion = (InstDeclFun) refIdentificador;
-					// es  parámetro por valor
-					
-					
-					
-				}else {
-					System.out.println("nuevo caso");
-				}
-				/*insertIns("lda " + 0 + " " + bloqueActGenera().dirVar(((Iden) exp).id()), 1);
-				Iden iden = (Iden) expresion;
-				InstDeclaracion declaracionIden = (InstDeclaracion)iden.getReferencia();
-				Iden referenciaIden =(Iden)declaracionIden.getIden();
-				//tenemos que comprobar que no tenemos ninguna referencia a un iden que no sea instrucción
-				int direccionRelativa= getBloqueNivelActual().getDireccionIdentificador(iden.getNombre());
-				//hay que ver si tenemos un vector o no creo
-				//codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,"0"));
-				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDA,Integer.toString(getBloqueNivelActual().getProfundidadAnidamiento() - referenciaIden.getPa() +1),Integer.toString(direccionRelativa)));
-			*/
+						*/ 
 				break;
 
 			case SQUAREBRACKET:

@@ -14,7 +14,7 @@ import ast.I.I;
 import codeGenerator.GeneradorCodigo;
 
 public class Main {
-
+	public static String FILE_NAME;
 	//Funcion auxiliar encargada de separar obtener los hijos de un nodo del arbol
 	public static List<String> splitFromParent(String parent){
 		List<String> children = new ArrayList<String>();
@@ -68,10 +68,11 @@ public class Main {
 	//Introducir el codigo de prueba en el archivo input.txt
 	//Al ejecutar el programa, el AST se imprimira por pantalla
 	public static void main(String[] args) throws Exception {
-		boolean correcto = true;
-	     //Reader input = new InputStreamReader(new FileInputStream(args[0]));
-		 Reader input = new InputStreamReader(new FileInputStream("auxiliar.txt"));
-		 
+
+	     boolean correcto = true;
+	     Reader input = new InputStreamReader(new FileInputStream(args[0]));
+	     FILE_NAME = args[0];
+		 //Reader input = new InputStreamReader(new FileInputStream("auxiliar.txt"));
 	     //1) Analisis Lexico y Sintactico
 	     AnalizadorLexicoTiny alex = new AnalizadorLexicoTiny(input);
 		 AnalizadorSintacticoTiny asint = new AnalizadorSintacticoTiny(alex);
@@ -84,14 +85,14 @@ public class Main {
 		 
 		 //2) Analisis Semantico
 		 AnalizadorSemantico asem = new AnalizadorSemantico(programa);
-		 //correcto = asem.analizaSemantica();
+		 correcto = asem.analizaSemantica();
 
-		 //3) Generador Codigo
-		 //if(correcto) { //Si no hemos tenido errores en el alex, asint y asem, procedemos a generar el codigo
+
+		 if(correcto) { //Si no hemos tenido errores en el alex, asint y asem, procedemos a generar el codigo
 			 GeneradorCodigo codeGenerator = new GeneradorCodigo(programa);
 			 codeGenerator.generaCodigo(); 
-		 //}
 
+		 }
 	   }
 	
 }

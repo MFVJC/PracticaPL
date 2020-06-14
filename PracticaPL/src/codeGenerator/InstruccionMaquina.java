@@ -28,6 +28,12 @@ public class InstruccionMaquina {
 		this.cambioPila = cambioPila;
 		this.primerArgumento = primerArgumento;
 	}
+	public InstruccionMaquina(InstruccionesMaquinaEnum tipoInstruccionMaquina,int cambioPila,String primerArgumento,String segundoArgumento) {
+		this.tipoInstruccionMaquina = tipoInstruccionMaquina;
+		this.cambioPila = cambioPila;
+		this.primerArgumento = primerArgumento;
+		this.segundoArgumento = segundoArgumento;
+	}
 
 	public InstruccionMaquina (InstruccionesMaquinaEnum tipoInstruccionMaquina, String primerArgumento) {
 		this.tipoInstruccionMaquina = tipoInstruccionMaquina;
