@@ -265,31 +265,28 @@ public class GeneradorCodigo {
 					switch(instruccionDeclaracion.getTipo().tipoEnumerado()) {
 					case ARRAY:
 						TipoArray tipoArray = (TipoArray)instruccionDeclaracion.getTipo();
-						//distinguir casos dependiendo del tipo de array
-						E dimension = tipoArray.getDimension();
-						switch(tipoArray.getTipoBase().tipoEnumerado()) {
-						case ARRAY:
-							//SIN ACABAAR-ESTA MAL
-							generaCodigoLeft(identificadorVariable);
-							Tipo aux = tipoArray;
-							while(aux instanceof TipoArray && ((TipoArray)aux).getTipoBase().tipoEnumerado() == EnumeradoTipos.ARRAY) {
-								aux = ((TipoArray)aux).getTipoBase();
-							}
-							
-							//en este punto tenemos la dirección del primer elemento del array
-							//recorremos los valores del array con las direcciones y loos añadimos a esas direcciones
-							List<E> valoresIniciales = instruccionDeclaracion.getValor();
-							int tamanoTipo = getBloqueNivelActual().getTamanoTipo(identificadorVariable.getNombre());
-							
-							break;
-						case PUNTERO:
-							break;
-						case STRUCT:
-							break;
-						default://casos básicos
-							
-							break;
+						//CREO QUE NO NECESITAMOS DISTINGUIR CASOS
+						if(tipoArray.getTipoBase().tipoEnumerado() == EnumeradoTipos.PUNTERO || tipoArray.getTipoBase().tipoEnumerado() == EnumeradoTipos.STRUCT) {
+							//SI PASA ESO QUE SE VAYA A TOMAR POR CULO
+							// VA A CREAR ARRAY DE PUNTEROS INICIALIZADOS SU PUTA MADRE
+							// PA LOS STRUCTS IIGUAL
+							System.out.println("Operación no soportada.");
+						}else{
 						
+							int tamanoTipo = getBloqueNivelActual().getTamanoTipo(identificadorVariable.getNombre());
+							int direccion = getBloqueNivelActual().getDireccionIdentificador(identificadorVariable.getNombre());
+							//inicializamos solo la primera dimensión o no en realizad?
+							List<E> valoresIniciales = instruccionDeclaracion.getValor();
+							for(E valor: valoresIniciales) {
+								//FALTA CHECKEAR RANGO
+								codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(direccion)));
+								generaCodigoExpresion(valor);
+								//Esto guarda el valor de la expresión en la pila
+								codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.STO, -2));
+								//guardamos el valor de la variable
+								direccion+=tamanoTipo;
+								
+							}
 						}
 						break;
 					case STRUCT:
