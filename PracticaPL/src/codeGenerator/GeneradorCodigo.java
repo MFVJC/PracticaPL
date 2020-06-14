@@ -564,35 +564,38 @@ public class GeneradorCodigo {
 
 			case SQUAREBRACKET:
 				SquareBracket accesoVector = (SquareBracket) expresion;
-				E array = accesoVector.opnd1();
+				E op1 = accesoVector.opnd1(); // se que es de tipo array
 				E elemento= accesoVector.opnd2();
-				//REVISAAR
-				//buscas la dirección del array
-				//código para elemento
-				//si elemento es un puntero tienes que usar el (ind)
-				//apilas el tamaño del tipo del array
-				//multiplicas
-				//sumas
 				
+				
+				/*
+				generaCodigoLeft(op1);
+				generaCodigoExpresion(elemento);
+				//FALTAAAAA: apilo el tamaño del tipo de array
+				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.MUL,-1));
+				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.ADD,-1));
+				*/
 				
 				//chk 0 longitudArray
 				//por lo que necesitamos guardar el tamaño de los elementos en SP y la dirección del inicio del array en SP-1.
 				//ixa posicionArray (STORE[SP-1] = STORE[SP-1] + STORE[SP]*posicionArray)
+				
+				
 				break;
 			case DOT:
 				Dot dot = (Dot) expresion;
 				E struct = dot.opnd1();
 				E atributo= dot.opnd2();
-				//coges la dirección del struct
-				//apilas el desplazamiento del atributo
-				//sumas los dos y quedará en la cima la dirección del atributo 
-				
+				generaCodigoLeft(struct); //guarda la direccion del struct
+				int direccionRelativaCampo= getBloqueNivelActual().getDireccionIdentificador(((Iden)atributo).getNombre());
+				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(direccionRelativaCampo))); //guardo la dirección relativa al campo
+				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.ADD,-1)); //las sumo
 				break;
 			case DOLLAR:
 				Dollar dollar = (Dollar) expresion;
 				E operando1Dollar = dollar.opnd1();
-				//Calculas la dirección de operando1Dollar y la dejas en la cima de la pila
-				//aplicas una indirección
+				generaCodigoLeft(operando1Dollar);
+
 				
 				break;
 			default:
