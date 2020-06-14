@@ -113,13 +113,14 @@ public class Bloque {
 		//Si la lista de indices no es de la misma longitud que la lista de dimensiones del array => ERROR
 		if(indices.size() != dimensiones.size()) return -1;
 		else {
+			int tamanoTipoBase = getTamanoTipo(nombreArray);
 			int direccion = getDireccionIdentificador(nombreArray);
 			for(int i = 0; i < indices.size(); i++) {
 				 //Si algun indice >= dimension => Index out of range Exception!
 				if(indices.get(i) >= dimensiones.get(i)) throw new Exception(errorMessage + indices.get(i) + ") fuera de rango (" + dimensiones.get(i) + ")");
 				else {
-					if(i == indices.size() - 1) direccion += indices.get(i); //Si es el ultimo indice, sumamos solo el indice
-					else direccion += dimensiones.get(i) * indices.get(i); //Si no es el ultimo indice sumamos el (indice*dimension)
+					if(i == indices.size() - 1) direccion += indices.get(i) * tamanoTipoBase; //Si es el ultimo indice, sumamos solo el (indice*tamanoTipoBase)
+					else direccion += dimensiones.get(i) * indices.get(i) * tamanoTipoBase; //Si no es el ultimo indice sumamos el (indice*dimension*tamanoTipoBase)
 				}
 			}
 			return direccion;

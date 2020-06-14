@@ -163,11 +163,13 @@ public class GeneradorCodigo {
 				break;
 			case ARRAY:
 				//Cuando declaramos un array, tenemos que almacenar su identificador con el tamano y su lista de dimensiones
-				Pair<Integer, List<Integer>> informacionArray = obtenerInformacionArray(instruccionDeclaracion);
+				Pair<Integer, Pair<Integer, List<Integer>>> informacionArray = obtenerInformacionArray(instruccionDeclaracion);
 				int tamanoArray = informacionArray.getKey();
-				List<Integer> dimensionesArray = informacionArray.getValue();
+				int tamanoBaseArray = informacionArray.getValue().getKey();
+				List<Integer> dimensionesArray = informacionArray.getValue().getValue();
 				
 				insertaIdentificadorBloqueActual(idenDeclaracion, tamanoArray);
+				bloqueActual.insertaTamanoTipo(idenDeclaracion, tamanoBaseArray);
 				bloqueActual.insertaDimensionesArray(idenDeclaracion, dimensionesArray);
 				break;		
 			default:
@@ -648,11 +650,15 @@ public class GeneradorCodigo {
 				
 				break;
 			case ARRAY:
-				//Sumamos el tamano del tipo array y almacenamos sus dimensiones
-				Pair<Integer, List<Integer>> informacionArray = obtenerInformacionArray(declaracion);
+				//Sumamos el tamano del tipo array y almacenamos sus dimensiones y tamano del tipo base
+				Pair<Integer, Pair<Integer, List<Integer>>> informacionArray = obtenerInformacionArray(declaracion);
 				tamanoCampo = informacionArray.getKey();
-				List<Integer> dimensionesArray = informacionArray.getValue();
+				
+				List<Integer> dimensionesArray = informacionArray.getValue().getValue();
 				this.bloqueActual.insertaDimensionesArray(idenDeclaracion, dimensionesArray);
+				
+				int tamanoBaseArray = informacionArray.getValue().getKey();
+				this.bloqueActual.insertaTamanoTipo(idenDeclaracion, tamanoBaseArray);
 				break;		
 			default:
 				break;
@@ -663,13 +669,14 @@ public class GeneradorCodigo {
 		return new Pair(tamanoStruct, tamanoCamposStruct);
 	}
 	
-	//Dada la declaracion de un array, devuelve su lista de dimensiones y el tamano total que este ocupa en memoria
-	private Pair<Integer, List<Integer>> obtenerInformacionArray(InstDeclaracion declaracionArray) {
+	//Dada la declaracion de un array, devuelve (tamanoTotal, tamanoTipoBase, Lista Dimensiones)
+	private Pair<Integer, Pair<Integer, List<Integer>>> obtenerInformacionArray(InstDeclaracion declaracionArray) {
 		//Si la declaracion pasada no es de tipo array => ERROR
 		if(declaracionArray.getTipo().tipoEnumerado() != EnumeradoTipos.ARRAY) return null;
 		else {
 			List<Integer> dimensiones = new ArrayList<Integer>();
 			int tamanoArray = 1; //El tamano total sera el multiplicatorio de sus dimensiones por el tipo base
+			int tamanoTipoBase = 1;
 			TipoArray t = (TipoArray) declaracionArray.getTipo();
 
 			int dimension = Integer.parseInt(((Num) t.getDimension()).num());
@@ -688,7 +695,8 @@ public class GeneradorCodigo {
 			switch(tipoBase.tipoEnumerado()) {
 			case STRUCT:
 				TipoStruct tipoStruct = (TipoStruct) tipoBase;
-				tamanoArray *= this.bloqueActual.getTamanoTipo(tipoStruct.getNombreStruct());
+				tamanoTipoBase = this.bloqueActual.getTamanoTipo(tipoStruct.getNombreStruct());
+				tamanoArray *= tamanoTipoBase;
 				break;
 			case PUNTERO:
 				//GESTIONAR MEMORIA DINAMICA PARA UN ARRAY DE PUNTEROS!
@@ -696,7 +704,7 @@ public class GeneradorCodigo {
 			default:
 				break;
 			}
-			return new Pair(tamanoArray, dimensiones);
+			return new Pair(tamanoArray, new Pair(tamanoTipoBase, dimensiones));
 		}
 	}
 	
