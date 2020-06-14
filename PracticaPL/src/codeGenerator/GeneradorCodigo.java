@@ -86,6 +86,10 @@ public class GeneradorCodigo {
 		} catch (IOException e) {
 			System.out.println("Error al generar el archivo de salida");
 			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			if(e.getMessage() != null) System.out.println(e.getMessage());
+			e.printStackTrace();
 		}
 	}
 	
@@ -236,7 +240,7 @@ public class GeneradorCodigo {
 	
 	//Genera codigo para una lista de instrucciones. Usado para generar el codigo del programa completo,
 	//pero tambien usado para generar listas de instrucciones del cuerpo de un if o de una funcion
-	private void generaCodigoCuerpo(List<I> instrucciones) {
+	private void generaCodigoCuerpo(List<I> instrucciones) throws Exception {
 		for(I instruccion : instrucciones) {
 			//Generamos codigo para la instruccion que toca
 			//Aqui ellos hacen diferencia entre declaracion funcion y otras...
@@ -246,7 +250,7 @@ public class GeneradorCodigo {
 	}
 	
 	//Genera el codigo para una instruccion concreta
-	private void generaCodigoInstruccion (I instruccion) {
+	private void generaCodigoInstruccion (I instruccion) throws Exception {
 		switch(instruccion.tipoInstruccion()) {
 			case ASIG:
 				InstAsignacion instruccionAsignacion = (InstAsignacion) instruccion;
@@ -406,7 +410,7 @@ public class GeneradorCodigo {
 
 	//Genera el codigo para una expresion concreta
 	//codeR del pdf de Generación de código
-	private void generaCodigoExpresion(E expresion) {
+	private void generaCodigoExpresion(E expresion) throws Exception {
 		if(expresion!=null) {
 		if(expresion.tipoSentencia() == EnumeradoTipoGeneral.EXPRESION_BINARIA) {
 			EBin expresionBinaria = (EBin)expresion;
@@ -539,7 +543,7 @@ public class GeneradorCodigo {
 	
 	//este código en realidad lo que hace es generar el código necesaario para las expresiones de la derecha y carga la dirección de la variable implicada en esta expresión
 	//Es realmente el pdf de tradu 
-	private void generaCodigoLeft(E expresion) {
+	private void generaCodigoLeft(E expresion) throws Exception {
 		switch(expresion.tipoExpresion()) {
 			case IDEN:
 				Iden iden = (Iden) expresion;
@@ -570,27 +574,23 @@ public class GeneradorCodigo {
 				break;
 
 			case SQUAREBRACKET:
-				SquareBracket accesoVector = (SquareBracket) expresion;
-				E op1 = accesoVector.opnd1(); // se que es de tipo array
-				E elemento= accesoVector.opnd2();
+				SquareBracket accesoArray = (SquareBracket) expresion;
+				List<Integer> indices = new ArrayList<>();
 				
-				List<Integer> listaIndices = new ArrayList<>();
-				while(op1.tipoExpresion() != TipoE.IDEN) {
-					
-					
+				E op1 = accesoArray.opnd1();
+				int indice = Integer.parseInt(((Num) accesoArray.opnd2()).num()); //Doy por hecho que lo que va dentro de los corchetes es un num (COMPROBACION DE TIPOS)
+				indices.add(indice);
+				
+				while(op1.tipoExpresion() == TipoE.SQUAREBRACKET) {
+					indice = Integer.parseInt(((Num) op1.opnd2()).num());
+					indices.add(indice);
+					op1 = ((SquareBracket) op1).opnd1();
 				}
-				/*
-				generaCodigoLeft(op1);
-				generaCodigoExpresion(elemento);
-				//FALTAAAAA: apilo el tamaño del tipo de array
-				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.MUL,-1));
-				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.ADD,-1));
-				*/
 				
-				//chk 0 longitudArray
-				//por lo que necesitamos guardar el tamaño de los elementos en SP y la dirección del inicio del array en SP-1.
-				//ixa posicionArray (STORE[SP-1] = STORE[SP-1] + STORE[SP]*posicionArray)
-				
+				//Cuando se salga del bucle, el op1 sera un iden
+				String nombreArray = ((Iden) op1).getNombre();
+				int direccionElemento = getBloqueNivelActual().getDireccionElementoArray(nombreArray, indices);
+				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1, Integer.toString(direccionElemento)));
 				
 				break;
 			case DOT:
