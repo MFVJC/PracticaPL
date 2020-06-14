@@ -68,11 +68,13 @@ public class Bloque {
 		if(marcoActivacion) ssp = Math.max(ssp, nuevoSsp);
 		else bloquePadre.actualizarSsp(nuevoSsp);
 	}
-	
+	public boolean estaIdentificador(String identificador) {
+		return direccionIdentificadores.containsKey(identificador);
+	}
 	//Funcion para acceder a la direccion de un identificador, si no se encuentra en el bloque actual, buscamos en su bloque padre
 	public int getDireccionIdentificador(String iden) {
 		if(direccionIdentificadores.containsKey(iden)) return direccionIdentificadores.get(iden);
-		else return bloquePadre.getDireccionIdentificador(iden);
+		else return bloquePadre.getDireccionIdentificador(iden); // y si ninguno lo tinee
 	}
 	
 	//Funcion para insertar un identificador y su direccion en el bloque

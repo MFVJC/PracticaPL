@@ -522,9 +522,14 @@ public class GeneradorCodigo {
 				SentenciaAbstracta refIdentificador = iden.getReferencia();
 				if(refIdentificador instanceof InstDeclaracion) { //es global (si iden es local también entra aquí?)
 					InstDeclaracion declaracionVariable = (InstDeclaracion) refIdentificador;
-					
-					//apilaind - ind de la máquinaP
-					
+					Bloque primerBloque = listaBloques.get(0); //cojo el primer bloque para mirar si la variable es global o no
+					if(primerBloque.estaIdentificador(iden.getNombre())) {
+						//entonces la variable es global
+						
+					}else {
+						//la variable es local
+						
+					}
 					//las locales también entran aquí y no se distinguir entre locales y globales solo por instDeclaracion
 					//Si x es una variable
 					/*si es global
@@ -567,7 +572,11 @@ public class GeneradorCodigo {
 				E op1 = accesoVector.opnd1(); // se que es de tipo array
 				E elemento= accesoVector.opnd2();
 				
-				
+				List<Integer> listaIndices = new ArrayList<>();
+				while(op1.tipoExpresion() != TipoE.IDEN) {
+					
+					
+				}
 				/*
 				generaCodigoLeft(op1);
 				generaCodigoExpresion(elemento);
