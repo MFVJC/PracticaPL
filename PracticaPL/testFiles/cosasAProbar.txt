@@ -1,0 +1,1 @@
+-En las declaraciones solo les puedes pasar un valor si no son arrays.

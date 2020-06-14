@@ -44,7 +44,9 @@ public class InstDeclaracion extends I {
 	public boolean isConstant() {
 		return constant;
 	}
-	
+	public void setConstant(boolean constant) { //función para generación de código por si intentan declarar un struct
+		this.constant  = constant;
+	}
 	public Tipo getTipo() {
 		return tipoVariable;
 	}

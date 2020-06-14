@@ -69,6 +69,7 @@ public class AnalizadorSemantico {
 						//System.out.println(identificadorV.getTipo());
 						List<E> valorInicial = declaracion.getValor(); //esto va haber que cambiarlo cuando se refactorice
 						if(valorInicial != null) valorInicial.forEach(x -> vincula(x));
+						//aquí falta comprobar que pasa si es un vector
 						break;
 					case DECLFUN:
 						//System.out.println("Vinculando funcion");

@@ -29,7 +29,7 @@ public class GeneradorCodigo {
 	private Bloque bloqueActual = null;
 	
 	private int proximaDireccion;
-	private int ambitoActual = 0;
+	private static int ambitoActual = 0;
 	private int maxPila = 0;
 	private int maxAmbitos = 0;
 	
@@ -249,6 +249,54 @@ public class GeneradorCodigo {
 				
 				break;
 			case DECL:
+				InstDeclaracion instruccionDeclaracion = (InstDeclaracion) instruccion;
+				if(instruccionDeclaracion.getValor() != null) { //está inicializada por lo que no tendremos que generar código a menos que sea un struct
+					switch(instruccionDeclaracion.getTipo().tipoEnumerado()) {
+					case ARRAY:
+						TipoArray tipoArray = (TipoArray)instruccionDeclaracion.getTipo();
+						//distinguir casos dependiendo del tipo de array
+						switch(tipoArray.getTipoBase().tipoEnumerado()) {
+						case ARRAY:
+							break;
+						case PUNTERO:
+							break;
+						case STRUCT:
+							break;
+						default://casos básicos
+							
+							break;
+						
+						}
+						break;
+					case STRUCT:
+						instruccionDeclaracion.setConstant(false); // entra en el else if luego aunque haya fallo en el semántico
+						generaCodigoInstruccion(instruccionDeclaracion);
+						//si no he guardado ya los valores tengo que asignarlos ya
+						break;
+					case PUNTERO:
+						if(instruccionDeclaracion.getValor().get(0).tipoExpresion() == TipoE.NEW) {
+							generaCodigoDireccionIdentificador(instruccionDeclaracion.getIden());
+							generaCodigoExpresion(instruccionDeclaracion.getValor().get(0));
+						}
+						break;
+
+					default:
+						generaCodigoDireccionIdentificador(instruccionDeclaracion.getIden());
+						generaCodigoExpresion(instruccionDeclaracion.getValor().get(0));
+						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.STO, -2));
+
+						break;
+					
+					}
+				}else if(instruccionDeclaracion.getTipo().tipoEnumerado() == EnumeradoTipos.STRUCT) {
+					//tengo que generar el código de dentro del struct
+					TipoStruct tipoStruct = (TipoStruct) instruccionDeclaracion.getTipo();
+						for(I instruccionDentroStruct : ((InstStruct)tipoStruct.getReferencia()).getDeclaraciones()) {
+								//tengo que generar el código para guardar los valores dentro de las regiones de memoria de esas variables
+							
+							
+						}
+				}
 				
 				break;
 			case DECLFUN:
@@ -260,34 +308,80 @@ public class GeneradorCodigo {
 				
 				maxAmbitos++;
 				ambitoActual = maxAmbitos;
-				
+				int momentoSaltoIf = codigoGenerado.size();
 				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.FJP, -1));
 				generaCodigoCuerpo(instruccionIf.getCuerpoIf());
-				
+				ambitoActual = getBloqueNivelActual().getBloquePadre().getPosicionBloque(); // no entiendo bien porque llamar al padre
 				if(instruccionIf.getCuerpoElse() != null) {
 					maxAmbitos++;
 					ambitoActual = maxAmbitos;
-					
+					int momentoSaltoElse= codigoGenerado.size();
 					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.UJP, 0));
+					codigoGenerado.get(momentoSaltoIf).setArgumento1(Integer.toString(codigoGenerado.size())); // si tiene else salta aquí
+					generaCodigoCuerpo(instruccionIf.getCuerpoElse());
+					codigoGenerado.get(momentoSaltoElse).setArgumento1(Integer.toString(codigoGenerado.size()));
+					//se vuelve a modifical el ámbito actual
+					ambitoActual = getBloqueNivelActual().getBloquePadre().getPosicionBloque();
+				}else {
+					//tengo que saltar al final del códgio
+					codigoGenerado.get(momentoSaltoIf).setArgumento1(Integer.toString(codigoGenerado.size()));
 				}
 				
 				break;
-			case STRUCT:
-				
-				break;
 			case SWITCH:
-				
+				//ixj para los cases creo
+				InstSwitch instruccionSwitch = (InstSwitch) instruccion;
+				E condicion = instruccionSwitch.getCondicion();
+				List<Integer> listaPosicionesSalto = new ArrayList<>();
+				for(Pair<E,List<I>> caso : instruccionSwitch.getCases()) {
+					//para cada caso tenemos que comprobar si coincide con la condición del switch
+					//hay que comprobar si  la condicion == caso.getKey()
+					generaCodigoExpresion(new Equal(condicion,caso.getKey()));
+					maxAmbitos++;
+					ambitoActual = maxAmbitos;
+					
+					int momentoSaltoDefault = codigoGenerado.size();
+					listaPosicionesSalto.add(momentoSaltoDefault);
+					//esta es la instrucción a la que hay que añadirle la dirección
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.FJP, -1));
+					
+					generaCodigoCuerpo(caso.getValue());
+					
+					int momentoSaltoFinal = codigoGenerado.size();
+					listaPosicionesSalto.add(momentoSaltoFinal);
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.UJP, 0));
+					
+					ambitoActual = getBloqueNivelActual().getBloquePadre().getPosicionBloque();
+
+				}
+				String finalSwitch = Integer.toString(codigoGenerado.size());
+				for(int posicion: listaPosicionesSalto) {
+					codigoGenerado.get(posicion).setArgumento1(finalSwitch); // tanto los condicionales como los no condicionales saltan al final de switch
+				}
 				break;
 			case WHILE:
+				InstWhile instruccionWhile = (InstWhile) instruccion;
+				maxAmbitos++;
+				ambitoActual = maxAmbitos;
+				int posicionCodigoSalto = codigoGenerado.size();
+				generaCodigoExpresion(instruccionWhile.getCondicion());
+				int posicionFJP = codigoGenerado.size();
+				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.FJP, -1));
+				generaCodigoCuerpo(instruccionWhile.getCuerpo());
+				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.UJP, 0,Integer.toString(posicionCodigoSalto)));
+				codigoGenerado.get(posicionFJP).setArgumento1(Integer.toString(codigoGenerado.size()));
 				
+				//actualizamos otra vez el ámbito actual
+				ambitoActual = getBloqueNivelActual().getBloquePadre().getPosicionBloque();
 				break;
 			default:
-				
+				//el struct creo que no tienes que hacer nada
 				break;
 		}
 	}
 
 	//Genera el codigo para una expresion concreta
+	//codeR del pdf de Generación de código
 	private void generaCodigoExpresion(E expresion) {
 		if(expresion.tipoSentencia() == EnumeradoTipoGeneral.EXPRESION_BINARIA) {
 			EBin expresionBinaria = (EBin)expresion;
@@ -432,11 +526,11 @@ public class GeneradorCodigo {
 					//las locales también entran aquí y no se distinguir entre locales y globales solo por instDeclaracion
 					//Si x es una variable
 					/*si es global
-					 * 	Apila la dirección de iden (ldc)
+					 * 	Apila la dirección de iden (ldc) // guarda en la cima lo que le pases / puedes usar ldo y coger lo que hay en la pila en esa posición  para guardarlo en la cima
 					*/
 					
 					/*si es local o parámetro por valor
-						Apila con indirecciones (ldo)
+						Apila con indirecciones (ldo) // lo que coges es lo que hay en la pila en esa posición y lo guardas en la cima
 						Apila la dirección de iden (ldc)
 						suma
 						
@@ -470,12 +564,18 @@ public class GeneradorCodigo {
 				SquareBracket accesoVector = (SquareBracket) expresion;
 				E array = accesoVector.opnd1();
 				E elemento= accesoVector.opnd2();
+				//REVISAAR
 				//buscas la dirección del array
 				//código para elemento
 				//si elemento es un puntero tienes que usar el (ind)
 				//apilas el tamaño del tipo del array
 				//multiplicas
 				//sumas
+				
+				
+				//chk 0 longitudArray
+				//por lo que necesitamos guardar el tamaño de los elementos en SP y la dirección del inicio del array en SP-1.
+				//ixa posicionArray (STORE[SP-1] = STORE[SP-1] + STORE[SP]*posicionArray)
 				break;
 			case DOT:
 				Dot dot = (Dot) expresion;

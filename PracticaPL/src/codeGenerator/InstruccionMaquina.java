@@ -39,7 +39,12 @@ public class InstruccionMaquina {
 		this.primerArgumento = primerArgumento;
 		this.segundoArgumento = segundoArgumento;
 	}
-
+	public void setArgumento1(String argumento1) {
+		primerArgumento=argumento1;
+	}
+	public void setArgumento2(String argumento2) {
+		primerArgumento=argumento2;
+	}
 	@Override
 	public String toString() {
 		String aux = tipoInstruccionMaquina.toString() + " ";
