@@ -5,13 +5,16 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ast.SentenciaAbstracta;
 import ast.I.*;
 import ast.T.EnumeradoTipoGeneral;
 import ast.T.EnumeradoTipos;
 import ast.T.Tipo;
+import ast.T.TipoArray;
 import ast.T.TipoStruct;
 import javafx.util.Pair;
 import ast.E.*;
@@ -136,24 +139,36 @@ public class GeneradorCodigo {
 			
 		case DECL:
 			InstDeclaracion instruccionDeclaracion = (InstDeclaracion) instruccion;
+			String idenDeclaracion = ((Iden) instruccionDeclaracion.getIden()).getNombre();
 			
 			//Diferenciamos dependiendo de el tipo de la declaracion
 			switch(instruccionDeclaracion.getTipo().tipoEnumerado()) {
 			case INT: case BOOLEAN:
 				//Por el asin, siempre es un iden
-				String iden = ((Iden) instruccionDeclaracion.getIden()).getNombre();
-				insertaIdentificadorBloqueActual(iden, 1);
+				insertaIdentificadorBloqueActual(idenDeclaracion, 1);
 				break;
 			case STRUCT:
-				String idenStruct = ((Iden) instruccionDeclaracion.getIden()).getNombre();
-				int tamano = bloqueActual.getTipo(idenStruct);
-				insertaIdentificadorBloqueActual(idenStruct, tamano);
+				//Cuando declaramos una instancia de un tipo struct, guardamos en la lista de identificadores su nombre y con su tamano
+				String tipoStruct = ((TipoStruct) instruccionDeclaracion.getTipo()).getNombreStruct();
+				int tamano = bloqueActual.getTamanoTipo(tipoStruct);
+				
+				insertaIdentificadorBloqueActual(idenDeclaracion, tamano);
 				break;
 			case PUNTERO:
+				//Cuando declaramos un puntero, guardamos su identificador de tamano 1 y gestionamos la memoria dinamica
+				insertaIdentificadorBloqueActual(idenDeclaracion, 1);
+				
+				//PENDIENTE: Gestionar memoria dinamica!
 				
 				break;
 			case ARRAY:
+				//Cuando declaramos un array, tenemos que almacenar su identificador con el tamano y su lista de dimensiones
+				Pair<Integer, List<Integer>> informacionArray = obtenerInformacionArray(instruccionDeclaracion);
+				int tamanoArray = informacionArray.getKey();
+				List<Integer> dimensionesArray = informacionArray.getValue();
 				
+				insertaIdentificadorBloqueActual(idenDeclaracion, tamanoArray);
+				bloqueActual.insertaDimensionesArray(idenDeclaracion, dimensionesArray);
 				break;		
 			default:
 				
@@ -163,10 +178,15 @@ public class GeneradorCodigo {
 			break;
 			
 		case STRUCT:
+			//Cuando declaramos un nuevo tipo struct debemos meter su nombre con su tamano en la lista de tipos y guardar las direcciones relativas de los campos
 			InstStruct instruccionStruct = (InstStruct) instruccion;
 			String nombreStruct = ((Iden) instruccionStruct.getIden()).getNombre();
-			int tamanoStruct = calcularTamanoStruct(instruccionStruct);
-			bloqueActual.insertaTipo(nombreStruct, tamanoStruct);
+			Pair<Integer, Map<String, Integer>> informacionStruct = obtenerInformacionStruct(instruccionStruct);
+			int tamanoStruct = informacionStruct.getKey();
+			Map<String, Integer> tamanoCamposStruct = informacionStruct.getValue();
+			
+			bloqueActual.insertaTamanoTipo(nombreStruct, tamanoStruct);
+			bloqueActual.insertaCamposStruct(nombreStruct, tamanoCamposStruct);
 			break;
 			
 		case DECLFUN:
@@ -480,21 +500,12 @@ public class GeneradorCodigo {
 	}
 	
 	
-	//3) FUNCIONES AUXILIARES PARA EL MANEJO DE BLOQUES Y AMBITOS
+	//3) FUNCIONES AUXILIARES PARA EL MANEJO DE BLOQUES
 	
 	private Bloque getBloqueNivelActual() {
 		return listaBloques.get(ambitoActual); //Esto no deberia ser bloqueActual?
 	}
-	
-	private void insertaIdentificadorBloqueActual(String nombreIdentificador, int tamanoIdentificador) {
-		this.bloqueActual.insertaIdentificador(nombreIdentificador, tamanoIdentificador);
-		this.proximaDireccion += tamanoIdentificador;
-	}
-	
-	private void insertaTipoBloqueActual(String nombreTipo, int tamanoTipo) {
-		this.bloqueActual.insertaTipo(nombreTipo, tamanoTipo);
-	}
-	
+
 	private void crearNuevoBloque(boolean ambitoFuncion) {
 		Bloque bloque = new Bloque(bloqueActual, listaBloques.size(), ambitoFuncion);
 		listaBloques.add(bloque);
@@ -506,32 +517,87 @@ public class GeneradorCodigo {
 		bloqueActual = bloqueActual.getBloquePadre();
 	}
 	
-	private int calcularTamanoStruct(InstStruct struct) {
+	private void insertaIdentificadorBloqueActual(String nombreIdentificador, int tamanoIdentificador) {
+		this.bloqueActual.insertaIdentificador(nombreIdentificador, tamanoIdentificador);
+		this.proximaDireccion += tamanoIdentificador;
+	}
+	
+	//Para un struct dado, calcula el tamano en memoria que ocupan todos sus campos
+	private Pair<Integer, Map<String, Integer>> obtenerInformacionStruct(InstStruct struct) {
 		int tamanoStruct = 0;
-		for(I declaracion : struct.getDeclaraciones()) { //Para cada declaracion del struct, sumamos su tamano
-			InstDeclaracion declaracionStruct = (InstDeclaracion) declaracion;
-			switch(declaracionStruct.getTipo().tipoEnumerado()) {
+		Map<String, Integer> tamanoCamposStruct = new HashMap<>();
+		
+		for(I instruccion : struct.getDeclaraciones()) { //Para cada declaracion del struct, sumamos su tamano
+			InstDeclaracion declaracion = (InstDeclaracion) instruccion;
+			String idenDeclaracion = ((Iden) declaracion.getIden()).getNombre();
+			int tamanoCampo = 0;
+			
+			switch(declaracion.getTipo().tipoEnumerado()) {
 			case INT: case BOOLEAN:
 				//Sumamos 1 (lo que ocupan int y boolean)
-				tamanoStruct++;
+				tamanoCampo = 1;
 				break;
 			case STRUCT:
 				//Sumamos el tamano del tipo struct, que lo tendremos almacenado en un bloque previo
-				TipoStruct tipoStruct = (TipoStruct) declaracionStruct.getTipo();
-				tamanoStruct += bloqueActual.getTipo(tipoStruct.getNombreStruct());
+				TipoStruct tipoStruct = (TipoStruct) declaracion.getTipo();
+				tamanoCampo = bloqueActual.getTamanoTipo(tipoStruct.getNombreStruct());
 				break;
 			case PUNTERO:
+				tamanoCampo = 1;
+				//GESTIONAR MEMORIA DINAMICA!
 				
 				break;
 			case ARRAY:
-				
+				//Sumamos el tamano del tipo array y almacenamos sus dimensiones
+				Pair<Integer, List<Integer>> informacionArray = obtenerInformacionArray(declaracion);
+				tamanoCampo = informacionArray.getKey();
+				List<Integer> dimensionesArray = informacionArray.getValue();
+				this.bloqueActual.insertaDimensionesArray(idenDeclaracion, dimensionesArray);
 				break;		
 			default:
-				
 				break;
 			}
+			tamanoCamposStruct.put(idenDeclaracion, tamanoCampo);
+			tamanoStruct += tamanoCampo;
 		}
-		return tamanoStruct;
+		return new Pair(tamanoStruct, tamanoCamposStruct);
+	}
+	
+	//Dada la declaracion de un array, devuelve su lista de dimensiones y el tamano total que este ocupa en memoria
+	private Pair<Integer, List<Integer>> obtenerInformacionArray(InstDeclaracion declaracionArray) {
+		//Si la declaracion pasada no es de tipo array => ERROR
+		if(declaracionArray.getTipo().tipoEnumerado() != EnumeradoTipos.ARRAY) return null;
+		else {
+			List<Integer> dimensiones = new ArrayList<Integer>();
+			int tamanoArray = 1; //El tamano total sera el multiplicatorio de sus dimensiones por el tipo base
+			TipoArray t = (TipoArray) declaracionArray.getTipo();
+
+			int dimension = Integer.parseInt(((Num) t.getDimension()).num());
+			dimensiones.add(dimension);
+			tamanoArray *= dimension;
+			while(t.getTipoBase().tipoEnumerado() == EnumeradoTipos.ARRAY) { //Mientras sigan habiendo dimensiones
+				t = (TipoArray) t.getTipoBase();
+				
+				dimension = Integer.parseInt(((Num) t.getDimension()).num());
+				dimensiones.add(dimension);
+				tamanoArray *= dimension;
+			}
+
+			//Una vez fuera del bucle, habremos llegado al tipo base
+			Tipo tipoBase = t.getTipoBase();
+			switch(tipoBase.tipoEnumerado()) {
+			case STRUCT:
+				TipoStruct tipoStruct = (TipoStruct) tipoBase;
+				tamanoArray *= this.bloqueActual.getTamanoTipo(tipoStruct.getNombreStruct());
+				break;
+			case PUNTERO:
+				//GESTIONAR MEMORIA DINAMICA PARA UN ARRAY DE PUNTEROS!
+				break;
+			default:
+				break;
+			}
+			return new Pair(tamanoArray, dimensiones);
+		}
 	}
 	
 }

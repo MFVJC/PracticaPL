@@ -24,3 +24,6 @@ proc definicion1(int x){
 	x=4;
 }
 definicion2(5);
+
+#Asegurar que el E de la dimension del array es de tipo Num, y que todo E identificador es de tipo iden
+#Resolver fallos vectores multidimensionales
