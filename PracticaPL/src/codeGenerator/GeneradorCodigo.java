@@ -203,6 +203,9 @@ public class GeneradorCodigo {
 			
 			InstDeclFun instruccionDeclFun = (InstDeclFun) instruccion;
 			instruccionDeclFun.setProfundidadAnidamiento(bloqueActual.getProfundidadAnidamiento());
+			String nombreFuncion = ((Iden) instruccionDeclFun.getIden()).getNombre();
+			
+			bloqueActual.insertaIdentificador(nombreFuncion, 1);
 			
 			//Asignamos direccion a cada parametro
 			for(Pair<Tipo, E> argumento : instruccionDeclFun.getArgs()) {

@@ -30,6 +30,7 @@ public class InstDeclFun extends I {
 	}
  
  public TipoI tipoInstruccion() {return TipoI.DECLFUN;}
+ 
  public String toString() {
 	   String aux;
 	   if(tipo != null) aux = "{{_DeclF_}{" + tipo + "}" + nombreFuncion + "{{_Args__}";
