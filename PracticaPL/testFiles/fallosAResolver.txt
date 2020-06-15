@@ -7,7 +7,7 @@ struct{
 }struct1
 
 
-
+#No reconoce campos no declarados dentro de structs
 #Esto falla la sintaxis no se porque
 #switch(y){
 #	case 1 {arg = 1};

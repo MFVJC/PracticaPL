@@ -190,13 +190,16 @@ public class AnalizadorSemantico {
 					break;
 				case IDEN:
 					Iden identificador = (Iden) expresion;
-					if(identificador.vieneAsignacion() && identificador.esConstante()) {
-						GestionErroresTiny.errorSemantico("El identificador " + identificador.getNombre() +"es constante por lo que no es asignable.", expresion.getFila(), expresion.getColumna());
+					//System.out.println("Identificador  " + identificador.getNombre() + identificador.esConstante());
+					SentenciaAbstracta dec = tabla.getSentenciaDeclaracion(identificador.getNombre());
+					if((dec instanceof InstDeclaracion) && ((InstDeclaracion)dec).isConstant() && identificador.vieneAsignacion()) {
+						identificador.setTipo(((InstDeclaracion)dec).getTipo());
+						GestionErroresTiny.errorSemantico("El identificador " + identificador.getNombre() +" es constante por lo que no es asignable.", sentencia.getFila(), sentencia.getColumna());
 					}else {
 						//System.out.println("Guardando el identificador: " + identificador.getNombre());
 						SentenciaAbstracta refIdentificador = tabla.getSentenciaDeclaracion(identificador.getNombre());
 						if(refIdentificador == null) {
-							//GestionErroresTiny.errorSemantico("El identificador " + identificador.getNombre() + " no ha sido declarado.");
+							GestionErroresTiny.errorSemantico("El identificador " + identificador.getNombre() + " no ha sido declarado.",sentencia.getFila(),sentencia.getColumna());
 							//esto no debería mirarse en las expresiones
 						}else {
 							if(refIdentificador instanceof InstDeclaracion) {
@@ -293,7 +296,9 @@ public class AnalizadorSemantico {
 					Tipo tipoAsignar = tiposExpresion(instruccionAsignacion.getValor());
 					//hay que recoger los errores aquí
 					
-					//System.out.println("Explorando asignacion de" + instruccionAsignacion.getIden() + " " + instruccionAsignacion.getValor() );
+//					System.out.println("Explorando asignacion de" + instruccionAsignacion.getIden() + " " + instruccionAsignacion.getValor() );
+//					System.out.println(tipoOriginal);
+//					System.out.println(tipoAsignar);
 					if(tipoOriginal.tipoEnumerado() == tipoAsignar.tipoEnumerado()) {
 						//System.out.println("En serio se puede hacer así de facil?");
 						return true;
