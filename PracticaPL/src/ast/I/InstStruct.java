@@ -7,10 +7,13 @@ import ast.E.E;
 public class InstStruct extends I {
 	private E iden;
 	private List<I> declaraciones;
-
-   public InstStruct(E iden, List<I> declaraciones) {
+	private int fila;
+	private int columna;
+   public InstStruct(E iden, List<I> declaraciones,int fila,int columna) {
 	    this.iden = iden;
 	    this.declaraciones = declaraciones;
+	     this.fila = fila;
+	     this.columna = columna;
 	}
    
    public TipoI tipoInstruccion() {return TipoI.STRUCT;}

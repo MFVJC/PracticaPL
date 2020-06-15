@@ -8,10 +8,13 @@ public class InstWhile extends I {
 	
 	private E condicion;
 	private List<I> cuerpo;
-	
-	public InstWhile(E condicion, List<I> cuerpo) {
+	private int fila;
+	private int columna;
+	public InstWhile(E condicion, List<I> cuerpo,int fila,int columna) {
 			this.condicion = condicion;
 			this.cuerpo = cuerpo;
+		    this.fila = fila;
+		    this.columna = columna;
 	}
 	 
 	public TipoI tipoInstruccion() {return TipoI.WHILE;}

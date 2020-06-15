@@ -5,9 +5,12 @@ import ast.SentenciaAbstracta;
 public class TipoStruct extends Tipo{
 	private String nombreStruct;
 	private SentenciaAbstracta referenciaDeclaracion;
-	
-	public TipoStruct(String nombreStruct) {
+	private int fila;
+	private int columna;
+	public TipoStruct(String nombreStruct,int fila,int columna) {
 		this.nombreStruct = nombreStruct;
+	     this.fila = fila;
+	     this.columna = columna;
 	}
 	public String getNombreStruct() {
 		return nombreStruct;

@@ -10,12 +10,15 @@ public class InstDeclaracion extends I {
 	private Tipo tipoVariable;
 	private E iden;
 	private List<E> valor;
-	
-   public InstDeclaracion(boolean constant, Tipo tipo, E iden, List<E> valor) {
+	private int fila;
+	private int columna;
+   public InstDeclaracion(boolean constant, Tipo tipo, E iden, List<E> valor,int fila,int columna) {
 	    this.constant = constant;
 		this.tipoVariable = tipo;
 	    this.iden = iden;
 	    this.valor = valor;
+	     this.fila = fila;
+	     this.columna = columna;
 	}
    
    public TipoI tipoInstruccion() {return TipoI.DECL;}

@@ -2,9 +2,12 @@ package ast.T;
 
 public class TipoPuntero extends Tipo{
 	private Tipo tipoApuntado;
-
-	public TipoPuntero(Tipo tipoApuntado) {
+	private int fila;
+	private int columna;
+	public TipoPuntero(Tipo tipoApuntado,int fila,int columna) {
 		this.tipoApuntado = tipoApuntado;
+	     this.fila = fila;
+	     this.columna = columna;
 	}
 	@Override
 	public EnumeradoTipos tipoEnumerado() {

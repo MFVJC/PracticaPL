@@ -207,7 +207,7 @@ public class GeneradorCodigo {
 			//Asignamos direccion a cada parametro
 			for(Pair<Tipo, E> argumento : instruccionDeclFun.getArgs()) {
 				//Transformamos cada argumento en una declaracion (REVISAR)
-				InstDeclaracion argumentoDeclaracion = new InstDeclaracion(false, argumento.getKey(), argumento.getValue(), null);	
+				InstDeclaracion argumentoDeclaracion = new InstDeclaracion(false, argumento.getKey(), argumento.getValue(), null,((Iden)argumento.getValue()).getFila(),((Iden)argumento.getValue()).getColumna());	
 				generaDireccionesInstruccion(argumentoDeclaracion);
 			}
 			
@@ -727,6 +727,7 @@ public class GeneradorCodigo {
 				List<Integer> indices = new ArrayList<>();
 				
 				E op1 = accesoArray.opnd1();
+				//eso no funciona brother
 				int indice = Integer.parseInt(((Num) accesoArray.opnd2()).num()); //Doy por hecho que lo que va dentro de los corchetes es un num (COMPROBACION DE TIPOS)
 				indices.add(indice);
 				

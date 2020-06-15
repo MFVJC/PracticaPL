@@ -5,10 +5,13 @@ import ast.E.E;
 public class TipoArray extends Tipo{
 	private Tipo tipoBase;
 	private E dimension;
-	
-	public TipoArray(Tipo tipoBase, E dimension) {
+	private int fila;
+	private int columna;
+	public TipoArray(Tipo tipoBase, E dimension,int fila,int columna) {
 		this.tipoBase = tipoBase;
 		this.dimension = dimension;
+	     this.fila = fila;
+	     this.columna = columna;
 	}
 	@Override
 	public EnumeradoTipos tipoEnumerado() {

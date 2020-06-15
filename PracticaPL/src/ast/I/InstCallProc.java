@@ -10,9 +10,13 @@ public class InstCallProc extends I {
 	private E nombre_funcion;
 	private List<E> argumentos;
 	private SentenciaAbstracta referencia;
-	public InstCallProc(E nombre_funcion, List<E> argumentos) {
+	private int fila;
+	private int columna;
+	public InstCallProc(E nombre_funcion, List<E> argumentos,int fila,int columna) {
 	       nombre_funcion = nombre_funcion;
 	       argumentos = argumentos;
+		     this.fila = fila;
+		     this.columna = columna;
 	}     
 	
 	public TipoI tipoInstruccion() {return TipoI.CALLPROC;}

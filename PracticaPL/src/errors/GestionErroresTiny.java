@@ -7,11 +7,11 @@ public class GestionErroresTiny {
 		System.out.println("ERROR lexico fila "+fila+": Caracter inesperado: "+lexema); 
 		System.exit(1);
 	}  
-   public void errorSintactico(UnidadLexica unidadLexica) {
+   public void errorSintactico(UnidadLexica unidadLexica) { //pasar fila y columna
 	   System.out.print("ERROR sintactico fila "+unidadLexica.fila()+": Elemento inesperado "+unidadLexica.value);
     // System.exit(1);
    }
-   public static void errorSemantico(String mensaje) {
+   public static void errorSemantico(String mensaje) { // pasar fila y columna
 	   numeroErroresSemanticos++;
 	   System.out.println("ERROR semantico número " + numeroErroresSemanticos + ": " + mensaje);
    }

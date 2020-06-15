@@ -9,12 +9,15 @@ public class Iden extends E {
 	private Tipo tipoVariable;
 	private SentenciaAbstracta referencia;
 	private boolean constante =false; //true si es procedimiento
-	
+	private int fila;
+	private int columna;
 	private int profundidadAnidamiento = 0;
 	private int direccionMemoria;
 	
-	public Iden(String opnd1) {
+	public Iden(String opnd1,int fila,int columna) {
      this.nombre = opnd1;  
+     this.fila = fila;
+     this.columna = columna;
    }    
 	public void setConstante(boolean constante) {
 		this.constante = constante;
@@ -53,5 +56,18 @@ public class Iden extends E {
 	public void setDireccionMemoria(int direccionMemoria) {
 		this.direccionMemoria = direccionMemoria;
 	}
+	public int getFila() {
+		return fila;
+	}
+	public void setFila(int fila) {
+		this.fila = fila;
+	}
+	public int getColumna() {
+		return columna;
+	}
+	public void setColumna(int columna) {
+		this.columna = columna;
+	}
+	
 	
 }

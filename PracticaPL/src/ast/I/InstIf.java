@@ -8,11 +8,14 @@ public class InstIf extends I {
 	private E condicion;
 	private List<I> cuerpo_if;
 	private List<I> cuerpo_else;
-
-   public InstIf(E condicion, List<I> cuerpo_if, List<I> cuerpo_else) {
+	private int fila;
+	private int columna;
+   public InstIf(E condicion, List<I> cuerpo_if, List<I> cuerpo_else,int fila,int columna) {
 		this.condicion = condicion;
 		this.cuerpo_if = cuerpo_if;
 		this.cuerpo_else = cuerpo_else;
+	     this.fila = fila;
+	     this.columna = columna;
 	}
    
    public TipoI tipoInstruccion() {return TipoI.IF;}
