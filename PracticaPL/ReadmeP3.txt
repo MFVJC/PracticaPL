@@ -1,2 +1,2 @@
-En la primera seccion del pdf PL_practica_3 reflejamos todos los cambios de implementacion que hemos tomado con respecto
+En la primera seccion de PL_Practica3_Memoria.pdf reflejamos todos los cambios de implementacion que hemos tomado con respecto
 a la primera entrega y segunda entrega.
