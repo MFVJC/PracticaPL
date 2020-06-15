@@ -17,8 +17,6 @@ public class InstDeclFun extends I {
 
 	private int profundidadAnidamiento = 0;
 	private int tamanoArgumentos = 0;
-	private int fila;
-	private int columna;
 	//la dirección inicial de la función deberíamos poder sacarla de los bloques.
 	
  public InstDeclFun(Tipo tipo, E nombreFuncion, List<Pair<Tipo, E>> args, List<I> cuerpo, E ret,int fila,int columna) {

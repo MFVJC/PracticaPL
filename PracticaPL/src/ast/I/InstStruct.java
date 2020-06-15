@@ -12,8 +12,6 @@ public class InstStruct extends I {
    public InstStruct(E iden, List<I> declaraciones,int fila,int columna) {
 	    this.iden = iden;
 	    this.declaraciones = declaraciones;
-	     this.fila = fila;
-	     this.columna = columna;
 	}
    
    public TipoI tipoInstruccion() {return TipoI.STRUCT;}

@@ -14,8 +14,6 @@ public class InstIf extends I {
 		this.condicion = condicion;
 		this.cuerpo_if = cuerpo_if;
 		this.cuerpo_else = cuerpo_else;
-	     this.fila = fila;
-	     this.columna = columna;
 	}
    
    public TipoI tipoInstruccion() {return TipoI.IF;}

@@ -52,7 +52,7 @@ public class AnalizadorSemantico {
 							//habría que guardar la referenciaDeclaracion dentro del objeto InstCallProc
 							llamadaProcedimiento.getArgumentos().forEach(x -> vincula(x));
 						}else {
-							GestionErroresTiny.errorSemantico("El procedimiento " + llamadaProcedimiento.getNombre_funcion() + " no ha sido declarado. Solo se puede llamar a funciones declaradas anteriormente");
+							GestionErroresTiny.errorSemantico("El procedimiento " + llamadaProcedimiento.getNombre_funcion() + " no ha sido declarado. Solo se puede llamar a funciones declaradas anteriormente",sentencia.getFila(),sentencia.getColumna());
 						}
 						break;
 					case DECL:
@@ -128,7 +128,7 @@ public class AnalizadorSemantico {
 						SentenciaAbstracta referenciaVariableSwitch = tabla.getSentenciaDeclaracion(((Iden)instSwitch.getCondicion()).getNombre());
 						vincula((Iden)instSwitch.getCondicion());
 						if(referenciaVariableSwitch == null) {
-							GestionErroresTiny.errorSemantico("La variable " + ((Iden)instSwitch.getCondicion()).getNombre() + " no ha sido declarada");
+							GestionErroresTiny.errorSemantico("La variable " + ((Iden)instSwitch.getCondicion()).getNombre() + " no ha sido declarada",sentencia.getFila(),sentencia.getColumna());
 						}else {
 							instSwitch.setReferencia(referenciaVariableSwitch);
 							
@@ -173,7 +173,7 @@ public class AnalizadorSemantico {
 					LlamadaFuncion llamada = (LlamadaFuncion) expresion;
 					SentenciaAbstracta referenciaFuncion = tabla.getSentenciaDeclaracion(((Iden) llamada.getNombreFuncion()).getNombre());
 					if(referenciaFuncion == null) {
-						GestionErroresTiny.errorSemantico("Llamada a función " + ((Iden) llamada.getNombreFuncion()).getNombre() + " no existente.");
+						GestionErroresTiny.errorSemantico("Llamada a función " + ((Iden) llamada.getNombreFuncion()).getNombre() + " no existente.",sentencia.getFila(),sentencia.getColumna());
 					}else {
 						//guardamos para luego poder comprobar los tipos
 						llamada.setReferencia(referenciaFuncion);
@@ -186,7 +186,9 @@ public class AnalizadorSemantico {
 					//System.out.println("Guardando el identificador: " + identificador.getNombre());
 					SentenciaAbstracta refIdentificador = tabla.getSentenciaDeclaracion(identificador.getNombre());
 					if(refIdentificador == null) {
-						GestionErroresTiny.errorSemantico("El identificador " + identificador.getNombre() + " no ha sido declarado.");
+						
+						//GestionErroresTiny.errorSemantico("El identificador " + identificador.getNombre() + " no ha sido declarado.");
+						//esto no debería mirarse en las expresiones
 					}else {
 						if(refIdentificador instanceof InstDeclaracion) {
 							//System.out.println("Guardando el tipo de la variable " + identificador.getNombre());
@@ -242,7 +244,7 @@ public class AnalizadorSemantico {
 					TipoStruct tipoStruct = (TipoStruct) tipo;
 					SentenciaAbstracta referenciaSentencia = tabla.getSentenciaDeclaracion(tipoStruct.getNombreStruct());
 					if(referenciaSentencia == null) {
-						GestionErroresTiny.errorSemantico("Struct " + tipoStruct.getNombreStruct() + " no declarado.");
+						GestionErroresTiny.errorSemantico("Struct " + tipoStruct.getNombreStruct() + " no declarado.",sentencia.getFila(),sentencia.getColumna());
 					}else {
 						tipoStruct.setReferencia(referenciaSentencia);
 						//guardo la referencia a la sentencia en la que se declaró dentro del nodo
@@ -272,7 +274,7 @@ public class AnalizadorSemantico {
 					if(instruccionAsignacion.getIden() instanceof Iden) {
 						Iden identificador = (Iden) instruccionAsignacion.getIden();
 						if(identificador.esConstante()) {
-							GestionErroresTiny.errorSemantico("Error de tipos. El identificador " + identificador.getNombre() + " corresponde con una constante o una función por lo que no es modificable.");
+							GestionErroresTiny.errorSemantico("Error de tipos. El identificador " + identificador.getNombre() + " corresponde con una constante o una función por lo que no es modificable.",sentencia.getFila(),sentencia.getColumna());
 						}
 					}
 					E iden = instruccionAsignacion.getIden();
@@ -286,7 +288,7 @@ public class AnalizadorSemantico {
 						return true;
 						
 					}else {
-						GestionErroresTiny.errorSemantico("Error de tipos en la asignación. Los tipos no coinciden. Intentando asignar a " + instruccionAsignacion.getIden().toString() + " el valor " + instruccionAsignacion.getValor().toString()+ ".Tipos: " + tipoOriginal + " " + tipoAsignar);
+						GestionErroresTiny.errorSemantico("Error de tipos en la asignación. Los tipos no coinciden. Intentando asignar a " + instruccionAsignacion.getIden().toString() + " el valor " + instruccionAsignacion.getValor().toString()+ ".Tipos: " + tipoOriginal + " " + tipoAsignar,sentencia.getFila(),sentencia.getColumna());
 
 					}
 //						if(tipoAsignar.tipoEnumerado() == EnumeradoTipos.STRUCT) {
@@ -321,7 +323,7 @@ public class AnalizadorSemantico {
 					if(tiposExpresion(argumentos.get(i)).tipoEnumerado() != atributo.getKey().tipoEnumerado()) {
 						correctArguments = false;
 					} else {
-						GestionErroresTiny.errorSemantico("Error tipos. El parámetro número " + i + " no concuerda con el tipo del atributo de la función. Atributo: " + ((Iden)atributo.getValue()).getNombre());
+						GestionErroresTiny.errorSemantico("Error tipos. El parámetro número " + i + " no concuerda con el tipo del atributo de la función. Atributo: " + ((Iden)atributo.getValue()).getNombre(),sentencia.getFila(),sentencia.getColumna());
 					}
 					i++;
 				}
@@ -338,13 +340,13 @@ public class AnalizadorSemantico {
 						if(tipoDeclaracion.tipoEnumerado() == EnumeradoTipos.ARRAY) {
 							TipoArray tipo = (TipoArray)tipoDeclaracion;
 							if(tipo.getDimension().tipoExpresion() != TipoE.NUM) {
-								GestionErroresTiny.errorSemantico("Error tipos. En la declaración de un vector, su dimensión debe ser un número");
+								GestionErroresTiny.errorSemantico("Error tipos. En la declaración de un vector, su dimensión debe ser un número",sentencia.getFila(),sentencia.getColumna());
 							}else {
 								Num dimension = (Num)tipo.getDimension();
 								numDimension = Integer.parseInt(dimension.num());
 						
 								if(numDimension != instruccionDeclaracion.getValor().size()) {
-									GestionErroresTiny.errorSemantico("El número de valores debe coincidir con el tamaño del vector");
+									GestionErroresTiny.errorSemantico("El número de valores debe coincidir con el tamaño del vector",sentencia.getFila(),sentencia.getColumna());
 								}
 								Tipo tipoValores = ((TipoArray)tipoDeclaracion).getTipoBase();
 								for(E valor : instruccionDeclaracion.getValor()) {
@@ -352,7 +354,7 @@ public class AnalizadorSemantico {
 									if(aux.tipoEnumerado() != ((TipoArray)tipoDeclaracion).getTipoBase().tipoEnumerado()) {
 										//System.out.println("El tipo de la instruccion de declaracion es " +((TipoArray)tipoDeclaracion).getTipoBase().tipoEnumerado().toString()+ " y el del valor es " + aux.tipoEnumerado().toString());
 										correct = false;
-										GestionErroresTiny.errorSemantico("Error tipos. El tipo de la declaración no concuerda con su valor inicial. Intentando asignar al tipo " + tipoValores + " el tipo " + aux );
+										GestionErroresTiny.errorSemantico("Error tipos. El tipo de la declaración no concuerda con su valor inicial. Intentando asignar al tipo " + tipoValores + " el tipo " + aux ,sentencia.getFila(),sentencia.getColumna());
 										break;
 									}
 								}
@@ -363,13 +365,13 @@ public class AnalizadorSemantico {
 							if(aux.tipoEnumerado() != tipoDeclaracion.tipoEnumerado()) {
 								//System.out.println("El tipo de la instruccion de declaracion es " +tipoDeclaracion.tipoEnumerado().toString()+ " y el del valor es " + aux.tipoEnumerado().toString());
 								correct = false;
-								GestionErroresTiny.errorSemantico("Error tipos. El tipo de la declaración no concuerda con su valor inicial. Asignando a " + instruccionDeclaracion.getIden().toString() + " el valor " + valor.toString() + ". Con tipos " + tipoDeclaracion + " y " + aux);
+								GestionErroresTiny.errorSemantico("Error tipos. El tipo de la declaración no concuerda con su valor inicial. Asignando a " + instruccionDeclaracion.getIden().toString() + " el valor " + valor.toString() + ". Con tipos " + tipoDeclaracion + " y " + aux,sentencia.getFila(),sentencia.getColumna());
 							}
 					}
 					}
 					return correct;
 				}else {
-					GestionErroresTiny.errorSemantico("Error de tipos. La variable tiene que ser necesariamente un identificador.");
+					GestionErroresTiny.errorSemantico("Error de tipos. La variable tiene que ser necesariamente un identificador.",sentencia.getFila(),sentencia.getColumna());
 				}
 				break;
 			case DECLFUN:
@@ -386,14 +388,14 @@ public class AnalizadorSemantico {
 					//System.out.println("Con tipo " + tipoRealReturn);
 					
 					if(tipoRealReturn != null && tipoRealReturn.tipoEnumerado() != instruccionDeclaracionFuncion.getTipo().tipoEnumerado()){
-						GestionErroresTiny.errorSemantico("Error de tipos. El tipo del return no coincide con el de la función.");
+						GestionErroresTiny.errorSemantico("Error de tipos. El tipo del return no coincide con el de la función.",sentencia.getFila(),sentencia.getColumna());
 					}
 					//esto peta a veces y llega null
 					instruccionDeclaracionFuncion.getCuerpo().forEach(x -> {correcto.set(compruebaTipos(x) && correcto.get());});
 					if(instruccionDeclaracionFuncion.getTipo() != null) correcto.set(correcto.get() && tipoRealReturn == instruccionDeclaracionFuncion.getTipo());
 					return correcto.get();
 				} else {
-					GestionErroresTiny.errorSemantico("Error de tipos. El nombre de la funcion tiene que ser necesariamente un identificador.");
+					GestionErroresTiny.errorSemantico("Error de tipos. El nombre de la funcion tiene que ser necesariamente un identificador.",sentencia.getFila(),sentencia.getColumna());
 				}
 				
 				break;
@@ -408,7 +410,7 @@ public class AnalizadorSemantico {
 				}
 				return correcto.get();
 				}else {
-					GestionErroresTiny.errorSemantico("Error de tipos. La condición del if debe ser booleana");
+					GestionErroresTiny.errorSemantico("Error de tipos. La condición del if debe ser booleana",sentencia.getFila(),sentencia.getColumna());
 				}
 				break;
 			case STRUCT:
@@ -427,7 +429,7 @@ public class AnalizadorSemantico {
 						if(caso.getKey()!=null) {
 							if(tipoCondicion.tipoEnumerado() != tiposExpresion(caso.getKey()).tipoEnumerado()) {
 								correct.set(false);
-								GestionErroresTiny.errorSemantico("Error de tipos. Los tipos de los case deben coincidir con la expresión del switch.");
+								GestionErroresTiny.errorSemantico("Error de tipos. Los tipos de los case deben coincidir con la expresión del switch.",sentencia.getFila(),sentencia.getColumna());
 							
 							}
 						}
@@ -443,7 +445,7 @@ public class AnalizadorSemantico {
 					instruccionWhile.getCuerpo().forEach(x -> {correctWhile.set(compruebaTipos(x) && correctWhile.get());});
 					return correctWhile.get();
 				}else {
-					GestionErroresTiny.errorSemantico("Error de tipos. La condición del while debe ser booleana.");
+					GestionErroresTiny.errorSemantico("Error de tipos. La condición del while debe ser booleana.",sentencia.getFila(),sentencia.getColumna());
 				}
 				break;
 			default:
@@ -484,13 +486,13 @@ public class AnalizadorSemantico {
 						//los dos operandos son booleanos entonces devolvemos un booleano
 						return new TipoBoolean();
 					}
-					GestionErroresTiny.errorSemantico("Error de tipos. Uno de los operandos del AND no es booleano. Operandos: " + operando1.toString() + " y " + operando2.toString());
+					GestionErroresTiny.errorSemantico("Error de tipos. Uno de los operandos del AND no es booleano. Operandos: " + operando1.toString() + " y " + operando2.toString(),sentencia.getFila(),sentencia.getColumna());
 					break;
 				case DIV:
 					if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
 						return new TipoInt();
 					}
-					GestionErroresTiny.errorSemantico("Error de tipos. Uno de los operandos de la división no es entero. Operandos: " + operando1.toString() + " y " + operando2.toString());
+					GestionErroresTiny.errorSemantico("Error de tipos. Uno de los operandos de la división no es entero. Operandos: " + operando1.toString() + " y " + operando2.toString(),sentencia.getFila(),sentencia.getColumna());
 		
 					break;
 				case DOT:
@@ -505,7 +507,7 @@ public class AnalizadorSemantico {
 						TipoStruct tipoStruct = (TipoStruct) tipoOperando1;
 						InstStruct sentenciaStruct = (InstStruct) tipoStruct.getReferencia(); // esto es null
 						if(sentenciaStruct == null) {
-							GestionErroresTiny.errorSemantico("Debes especificar un struct definido y no un struct general. Struct: " + operando1);
+							GestionErroresTiny.errorSemantico("Debes especificar un struct definido y no un struct general. Struct: " + operando1,sentencia.getFila(),sentencia.getColumna());
 						}
 						else{
 							
@@ -521,7 +523,7 @@ public class AnalizadorSemantico {
 						}	
 						}
 					}
-						GestionErroresTiny.errorSemantico("Error de tipos. Tipo de operandos inválido para el . Operandos: " + operando1.toString() + " y " + operando2.toString());
+						GestionErroresTiny.errorSemantico("Error de tipos. Tipo de operandos inválido para el . Operandos: " + operando1.toString() + " y " + operando2.toString(),sentencia.getFila(),sentencia.getColumna());
 					
 					
 					break;
@@ -529,7 +531,7 @@ public class AnalizadorSemantico {
 					if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
 						return new TipoInt();
 					}
-					GestionErroresTiny.errorSemantico("Error de tipos. Tipo de operandos inválido para el operador **. Operandos: " + operando1.toString() + " y " + operando2.toString());
+					GestionErroresTiny.errorSemantico("Error de tipos. Tipo de operandos inválido para el operador **. Operandos: " + operando1.toString() + " y " + operando2.toString(),sentencia.getFila(),sentencia.getColumna());
 		
 					break;
 				case EQUAL:
@@ -537,70 +539,70 @@ public class AnalizadorSemantico {
 					if((tipoOperando1.tipoEnumerado() == EnumeradoTipos.BOOLEAN || tipoOperando1.tipoEnumerado() == EnumeradoTipos.INT) && tipoOperando1.tipoEnumerado() == tipoOperando2.tipoEnumerado() ) {
 						return new TipoBoolean();
 					}
-					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de igualdad no coinciden o no son válidos. Operandos: " + operando1.toString() + " y " + operando2.toString());
+					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de igualdad no coinciden o no son válidos. Operandos: " + operando1.toString() + " y " + operando2.toString(),sentencia.getFila(),sentencia.getColumna());
 					break;
 				case GREATEREQUAL:
 					if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
 						return new TipoBoolean();
 					}
-					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de mayor-igual no son enteros. Operandos: " + operando1.toString() + " y " + operando2.toString());
+					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de mayor-igual no son enteros. Operandos: " + operando1.toString() + " y " + operando2.toString(),sentencia.getFila(),sentencia.getColumna());
 					break;
 				case GREATERTHAN:
 					if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
 						return new TipoBoolean();
 					}
-					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de mayor no son enteros. Operandos: " + operando1.toString() + " y " + operando2.toString());
+					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de mayor no son enteros. Operandos: " + operando1.toString() + " y " + operando2.toString(),sentencia.getFila(),sentencia.getColumna());
 		
 					break;
 				case LESSEQUAL:
 					if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
 						return new TipoBoolean();
 					}
-					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de menor-igual no son enteros. Operandos: " + operando1.toString() + " y " + operando2.toString());
+					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de menor-igual no son enteros. Operandos: " + operando1.toString() + " y " + operando2.toString(),sentencia.getFila(),sentencia.getColumna());
 					break;
 				case LESSTHAN:
 					if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
 						return new TipoBoolean();
 					}
-					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de menor no son enteros. Operandos: " + operando1.toString() + " y " + operando2.toString());
+					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de menor no son enteros. Operandos: " + operando1.toString() + " y " + operando2.toString(),sentencia.getFila(),sentencia.getColumna());
 					break;
 				case MUL:
 					if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
 						return new TipoInt();
 					}
-					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la multiplicación no son enteros. Operandos: " + operando1.toString() + " y " + operando2.toString());
+					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la multiplicación no son enteros. Operandos: " + operando1.toString() + " y " + operando2.toString(),sentencia.getFila(),sentencia.getColumna());
 					break;
 				case NOTEQUAL:
 					if((tipoOperando1.tipoEnumerado() == EnumeradoTipos.BOOLEAN || tipoOperando1.tipoEnumerado() == EnumeradoTipos.INT) && tipoOperando1.tipoEnumerado() == tipoOperando2.tipoEnumerado() ) {
 						return new TipoBoolean();
 					}
-					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de desigualdad no coinciden o no son válidos. Operandos: " + operando1.toString() + " y " + operando2.toString());
+					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la comparación de desigualdad no coinciden o no son válidos. Operandos: " + operando1.toString() + " y " + operando2.toString(),sentencia.getFila(),sentencia.getColumna());
 					break;
 				case OR:
 					if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.BOOLEAN && tipoOperando2.tipoEnumerado()==EnumeradoTipos.BOOLEAN) {
 						//los dos operandos son booleanos entonces devolvemos un booleano
 						return new TipoBoolean();
 					}
-					GestionErroresTiny.errorSemantico("Error de tipos. Uno de los operandos del OR no es booleano. Operandos: " + operando1.toString() + " y " + operando2.toString());
+					GestionErroresTiny.errorSemantico("Error de tipos. Uno de los operandos del OR no es booleano. Operandos: " + operando1.toString() + " y " + operando2.toString(),sentencia.getFila(),sentencia.getColumna());
 					break;
 				case RESTA:
 					if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
 						return new TipoInt();
 					}
-					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la resta no son enteros. Operandos: " + operando1.toString() + " y " + operando2.toString());
+					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la resta no son enteros. Operandos: " + operando1.toString() + " y " + operando2.toString(),sentencia.getFila(),sentencia.getColumna());
 					break;
 				case SQUAREBRACKET:
 					if(tipoOperando1.tipoEnumerado() == EnumeradoTipos.ARRAY && tipoOperando2.tipoEnumerado() == EnumeradoTipos.INT) {
 						return (((TipoArray) tipoOperando1).getTipoBase());
 					}
-					GestionErroresTiny.errorSemantico("Error de tipos. Se esta accediendo a un array erroneamente. Operandos: " + operando1.toString() + " y " + operando2.toString());
+					GestionErroresTiny.errorSemantico("Error de tipos. Se esta accediendo a un array erroneamente. Operandos: " + operando1.toString() + " y " + operando2.toString(),sentencia.getFila(),sentencia.getColumna());
 					break;
 				case SUMA:
 					//hay alguno que es null
 					if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.INT && tipoOperando2.tipoEnumerado()==EnumeradoTipos.INT){
 						return new TipoInt();
 					}
-					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la suma no son enteros. Operandos: " + operando1.toString() + " y " + operando2.toString());
+					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la suma no son enteros. Operandos: " + operando1.toString() + " y " + operando2.toString(),sentencia.getFila(),sentencia.getColumna());
 					break;
 				default:
 					break;
@@ -643,7 +645,7 @@ public class AnalizadorSemantico {
 					for(Pair<Tipo,E> atributo : declaracionFuncion.getArgs()) {
 						if(atributo.getKey().tipoEnumerado() != tiposLlamada.get(i).tipoEnumerado()){
 							coincidenTipos = false;
-							GestionErroresTiny.errorSemantico("Error de tipos. El tipo del parámetro " + i + " no coincide con el del respectivo argumento " + ((Iden)atributo.getValue()).getNombre());
+							GestionErroresTiny.errorSemantico("Error de tipos. El tipo del parámetro " + i + " no coincide con el del respectivo argumento " + ((Iden)atributo.getValue()).getNombre(),sentencia.getFila(),sentencia.getColumna());
 						}
 						i++;
 					}
@@ -660,7 +662,7 @@ public class AnalizadorSemantico {
 					if(tiposExpresion(not.opnd1()).tipoEnumerado() == EnumeradoTipos.BOOLEAN) {
 						return new TipoBoolean();
 					}
-					GestionErroresTiny.errorSemantico("El operando de un NOT debe ser booleano");
+					GestionErroresTiny.errorSemantico("El operando de un NOT debe ser booleano",sentencia.getFila(),sentencia.getColumna());
 					break;
 				default:
 					break;

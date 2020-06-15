@@ -10,8 +10,6 @@ public class InstCallProc extends I {
 	private E nombre_funcion;
 	private List<E> argumentos;
 	private SentenciaAbstracta referencia;
-	private int fila;
-	private int columna;
 	public InstCallProc(E nombre_funcion, List<E> argumentos,int fila,int columna) {
 	       nombre_funcion = nombre_funcion;
 	       argumentos = argumentos;

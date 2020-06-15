@@ -16,8 +16,6 @@ public class InstSwitch extends I {
    public InstSwitch(E condicion, List<Pair<E, List<I>>> cases,int fila,int columna) {
 		this.condicion = condicion;
 		this.cases = cases;
-	     this.fila = fila;
-	     this.columna = columna;
 	}
    
    public TipoI tipoInstruccion() {return TipoI.SWITCH;}

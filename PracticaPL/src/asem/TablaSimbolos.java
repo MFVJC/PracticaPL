@@ -31,7 +31,7 @@ public class TablaSimbolos {
 	public void insertaId(String identificador, SentenciaAbstracta sentencia) {
 		HashMap<String,SentenciaAbstracta> ultimoBloque = bloques.get(bloques.size()-1);
 		if(ultimoBloque.containsKey(identificador)) {
-			GestionErroresTiny.errorSemantico("ERROR. La variable " + identificador + " ya ha sido declarada.");
+			GestionErroresTiny.errorSemantico("ERROR. La variable " + identificador + " ya ha sido declarada.",sentencia.getFila(),sentencia.getColumna());
 			//Falta lanzar excepción o algo
 		}else {
 			ultimoBloque.put(identificador,sentencia);

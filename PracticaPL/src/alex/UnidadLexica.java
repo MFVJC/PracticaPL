@@ -13,6 +13,6 @@ public class UnidadLexica extends Symbol {
    }
    public int clase () {return sym;}
    public String lexema() {return (String)value;}
-   public int fila() {return fila;}
-   public int columna() {return columna;}
+   public int getFila() {return fila;}
+   public int getColumna() {return columna;}
 }
