@@ -1,1 +1,11 @@
--En las declaraciones solo les puedes pasar un valor si no son arrays.
+struct{
+	int declaracion1;
+	const boolean declaracion2 = true;
+	int declaracion3 = 1;
+}nombreDelStruct;
+nombreDelStruct persona;
+persona.declaracion1=7;
+persona.declaracion3=10;
+boolean esPrimo(int a){
+	return true;
+}

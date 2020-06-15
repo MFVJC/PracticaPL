@@ -14,7 +14,7 @@ public class InstDeclFun extends I {
 	private List<Pair<Tipo, E>> args;
 	private List<I> cuerpo;
 	private E valorReturn; //La expresion que se devuelve
-
+	private int lineaCodigoInicial =0;
 	private int profundidadAnidamiento = 0;
 	private int tamanoArgumentos = 0;
 	//la dirección inicial de la función deberíamos poder sacarla de los bloques.
@@ -86,6 +86,14 @@ public class InstDeclFun extends I {
 
 	public void setTamanoArgumentos(int tamanoArgumentos) {
 		this.tamanoArgumentos = tamanoArgumentos;
+	}
+
+	public int getLineaCodigoInicial() {
+		return lineaCodigoInicial;
+	}
+
+	public void setLineaCodigoInicial(int lineaCodigoInicial) {
+		this.lineaCodigoInicial = lineaCodigoInicial;
 	}
 	
 }

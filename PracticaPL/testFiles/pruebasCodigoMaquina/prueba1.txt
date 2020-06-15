@@ -5,8 +5,4 @@ struct{
 }nombreDelStruct;
 nombreDelStruct persona;
 persona.declaracion1=7;
-#persona.declaracion2 = false; #No se si no lo cambia por casualidad
-persona.declaracion3=10; #No guarda bien este valor
-boolean esPrimo(int a){
-	return true;
-}
+persona.declaracion3=10;

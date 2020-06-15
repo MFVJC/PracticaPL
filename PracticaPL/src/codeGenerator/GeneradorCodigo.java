@@ -291,7 +291,7 @@ public class GeneradorCodigo {
 				}
 
 				Iden identificadorFuncion2 = (Iden)declaracionFuncion2.getIdentificador();
-				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.CUP,0,Integer.toString(declaracionFuncion2.getTamanoArgumentos()),Integer.toString(getBloqueNivelActual().getDireccionIdentificador(identificadorFuncion2.getNombre()))));
+				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.CUP,0,Integer.toString(declaracionFuncion2.getTamanoArgumentos()),Integer.toString(declaracionFuncion2.getLineaCodigoInicial())));
 				
 				break;
 			case DECL:
@@ -388,6 +388,9 @@ public class GeneradorCodigo {
 					maxAmbitos++;
 					ambitoActual = maxAmbitos;
 					
+					int posicionUJP =codigoGenerado.size();
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.UJP,0));
+					declaracionFuncion.setLineaCodigoInicial(posicionUJP+1);
 					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.SSP,0,Integer.toString(getBloqueNivelActual().getSsp())));
 					int posicionSEP = codigoGenerado.size();
 					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.SEP,0));
@@ -395,15 +398,19 @@ public class GeneradorCodigo {
 					int tamanoPilaFuncion = tamanoPilaEvaluacion(posicionSEP);
 					codigoGenerado.get(posicionSEP).setArgumento1(Integer.toString(tamanoPilaFuncion));
 					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.RETP,0));
+					codigoGenerado.get(posicionUJP).setArgumento1(Integer.toString(codigoGenerado.size()));
 					ambitoActual = getBloqueNivelActual().getBloquePadre().getPosicionBloque();
 					
 				}else {
 					maxAmbitos++;
 					ambitoActual = maxAmbitos;
-					
+					int posicionUJP = codigoGenerado.size();
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.UJP,0));
+					declaracionFuncion.setLineaCodigoInicial(posicionUJP+1);
 					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.SSP,0,Integer.toString(getBloqueNivelActual().getSsp())));
 					int posicionSEP = codigoGenerado.size();
 					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.SEP,0));
+
 					generaCodigoCuerpo(declaracionFuncion.getCuerpo());
 					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDA,1,"0","0"));//guardo la dirección del return (primera del bloque) en la pila
 					generaCodigoExpresion(declaracionFuncion.getReturn());//guardo el valor de la expresión del return
@@ -411,6 +418,8 @@ public class GeneradorCodigo {
 					int tamanoPilaFuncion = tamanoPilaEvaluacion(posicionSEP);
 					codigoGenerado.get(posicionSEP).setArgumento1(Integer.toString(tamanoPilaFuncion));
 					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.RETF,0));
+					codigoGenerado.get(posicionUJP).setArgumento1(Integer.toString(codigoGenerado.size()));
+
 					ambitoActual = getBloqueNivelActual().getBloquePadre().getPosicionBloque();
 					
 				}
@@ -594,7 +603,7 @@ public class GeneradorCodigo {
 						}
 	
 						Iden identificadorFuncion2 = (Iden)declaracionFuncion.getIdentificador();
-						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.CUP,0,Integer.toString(declaracionFuncion.getTamanoArgumentos()),Integer.toString(getBloqueNivelActual().getDireccionIdentificador(identificadorFuncion2.getNombre()))));
+						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.CUP,0,Integer.toString(declaracionFuncion.getTamanoArgumentos()),Integer.toString(declaracionFuncion.getLineaCodigoInicial())));
 						
 						
 						
