@@ -137,7 +137,7 @@ E7  ::= PUNTERO E9:op1
 E7	::= NEW TIPO:tipo CA E0:tam CC
 {:RESULT = as.nnew(tipo, tam);:};
 E7	::= NEW TIPO:tipo CA CC
-{:RESULT = as.nnew(tipo, null);:};
+{:RESULT = as.nnew(tipo, as.num("1"));:};
 E7  ::= E8:op1
 {:RESULT=op1;:};
 	

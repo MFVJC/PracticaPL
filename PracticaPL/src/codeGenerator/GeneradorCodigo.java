@@ -154,7 +154,7 @@ public class GeneradorCodigo {
 			
 			//Diferenciamos dependiendo de el tipo de la declaracion
 			switch(instruccionDeclaracion.getTipo().tipoEnumerado()) {
-			case INT: case BOOLEAN:
+			case INT: case BOOLEAN: case PUNTERO:
 				//Por el asin, siempre es un iden
 				insertaIdentificadorBloqueActual(idenDeclaracion, 1);
 				break;
@@ -164,14 +164,6 @@ public class GeneradorCodigo {
 				int tamano = bloqueActual.getTamanoTipo(tipoStruct);
 				
 				insertaIdentificadorBloqueActual(idenDeclaracion, tamano);
-				break;
-			case PUNTERO:
-				//Cuando declaramos un puntero, guardamos su identificador de tamano 1 y gestionamos la memoria dinamica
-				//Tipo tipoApuntado = ((TipoPuntero) instruccionDeclaracion.getTipo());
-				
-				insertaIdentificadorBloqueActual(idenDeclaracion, 1);
-				//bloqueActual.insertaTamanoTipo(idenDeclaracion, tamanoBasePuntero);
-				
 				break;
 			case ARRAY:
 				//Cuando declaramos un array, tenemos que almacenar su identificador con el tamano y su lista de dimensiones
@@ -537,6 +529,7 @@ public class GeneradorCodigo {
 					break;
 				case DOLLAR:
 					//hay que generar el código del array
+					//generaCodigoLeft(((Dollar) expresion).opnd1());
 					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
 					break;
 				case DOT:
@@ -603,7 +596,19 @@ public class GeneradorCodigo {
 					break;
 				case NEW:
 					New nuevo = (New) expresion;
-					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,((Num)nuevo.getTam()).num()));
+					int nuevoTamano = Integer.parseInt(((Num) nuevo.getTam()).num()); //Aqui tenemos el tamano del new entre corchetes
+					Tipo nuevoTipo = nuevo.getTipo();
+					//Nos queda multiplicarlo por el tamano base, que solo es distinto de uno si es de tipo struct
+					switch(nuevoTipo.tipoEnumerado()) {
+					case STRUCT:
+						String nuevoTipoNombre = ((TipoStruct) nuevoTipo).getNombreStruct();
+						nuevoTamano *= getBloqueNivelActual().getTamanoTipo(nuevoTipoNombre);
+						break;
+					default:
+						break;
+					}
+					
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1, Integer.toString(nuevoTamano)));
 					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.NEW,-2));
 					break;
 				case NOT:
@@ -747,6 +752,7 @@ public class GeneradorCodigo {
 	private Pair<Integer, Map<String, Integer>> obtenerInformacionStruct(InstStruct struct) {
 		int tamanoStruct = 0;
 		Map<String, Integer> tamanoCamposStruct = new HashMap<>();
+		//String idenStruct = ((Iden) struct.getIden()).getNombre();
 		
 		for(I instruccion : struct.getDeclaraciones()) { //Para cada declaracion del struct, sumamos su tamano
 			InstDeclaracion declaracion = (InstDeclaracion) instruccion;
@@ -754,7 +760,7 @@ public class GeneradorCodigo {
 			int tamanoCampo = 0;
 			
 			switch(declaracion.getTipo().tipoEnumerado()) {
-			case INT: case BOOLEAN:
+			case INT: case BOOLEAN: case PUNTERO:
 				//Sumamos 1 (lo que ocupan int y boolean)
 				tamanoCampo = 1;
 				break;
@@ -763,19 +769,14 @@ public class GeneradorCodigo {
 				TipoStruct tipoStruct = (TipoStruct) declaracion.getTipo();
 				tamanoCampo = bloqueActual.getTamanoTipo(tipoStruct.getNombreStruct());
 				break;
-			case PUNTERO:
-				tamanoCampo = 1;
-				//GESTIONAR MEMORIA DINAMICA!
-				
-				break;
 			case ARRAY:
 				//Sumamos el tamano del tipo array y almacenamos sus dimensiones y tamano del tipo base
 				Pair<Integer, Pair<Integer, List<Integer>>> informacionArray = obtenerInformacionArray(declaracion);
 				tamanoCampo = informacionArray.getKey();
 				
 				List<Integer> dimensionesArray = informacionArray.getValue().getValue();
-				this.bloqueActual.insertaDimensionesArray(idenDeclaracion, dimensionesArray);
-				
+				this.bloqueActual.insertaDimensionesArray(idenDeclaracion, dimensionesArray); //OJO! POSIBLE ERROR, QUIZAS DEBERIA SER idenStruct + "." + idenDeclaracion
+				//PERO ESO NO NOS SIRVE PARA EL SQUAREBRACKET :/, HAY QUE PENSARLO
 				int tamanoBaseArray = informacionArray.getValue().getKey();
 				this.bloqueActual.insertaTamanoTipo(idenDeclaracion, tamanoBaseArray);
 				break;		
@@ -817,16 +818,13 @@ public class GeneradorCodigo {
 				tamanoTipoBase = this.bloqueActual.getTamanoTipo(tipoStruct.getNombreStruct());
 				tamanoArray *= tamanoTipoBase;
 				break;
-			case PUNTERO:
-				//GESTIONAR MEMORIA DINAMICA PARA UN ARRAY DE PUNTEROS!
-				
-				break;
 			default:
 				break;
 			}
 			return new Pair(tamanoArray, new Pair(tamanoTipoBase, dimensiones));
 		}
 	}
+	
 	private int tamanoPilaEvaluacion(int posicionInicial) {
 		int maxPila = 0;
 		int bloquesPasados = 0;
