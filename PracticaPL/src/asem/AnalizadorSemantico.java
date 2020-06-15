@@ -41,7 +41,7 @@ public class AnalizadorSemantico {
 				switch(instruccion.tipoInstruccion()) {
 					case ASIG:
 						InstAsignacion asignacion = (InstAsignacion) sentencia;
-						E iden = asignacion.getIden();
+						E iden = asignacion.getIdentificador();
 						iden.setVieneDeAsignacion(true);
 						//cuando llegue a un identificador comprobaré si viene de asignación
 						vincula(iden);
@@ -50,51 +50,40 @@ public class AnalizadorSemantico {
 					case CALLPROC:
 						InstCallProc llamadaProcedimiento = (InstCallProc) sentencia;
 						Iden id  =(Iden)llamadaProcedimiento.getNombre_funcion();
-						if(id == null)
-							System.out.println("Que pasa aquí");
 						SentenciaAbstracta referenciaDeclaracion = tabla.getSentenciaDeclaracion(((Iden)llamadaProcedimiento.getNombre_funcion()).getNombre());
 						if(referenciaDeclaracion!=null) {
 							llamadaProcedimiento.setReferencia(referenciaDeclaracion);
-							//habría que guardar la referenciaDeclaracion dentro del objeto InstCallProc
 							llamadaProcedimiento.getArgumentos().forEach(x -> vincula(x));
 						}else {
 							GestionErroresTiny.errorSemantico("El procedimiento " + llamadaProcedimiento.getNombre_funcion() + " no ha sido declarado. Solo se puede llamar a funciones declaradas anteriormente",sentencia.getFila(),sentencia.getColumna());
 						}
 						break;
 					case DECL:
-						//no se realmente que es esa clase. Supongo que para declarar cualquier variable incluso vectores (yo creo que sería mejor separar)
 						InstDeclaracion declaracion = (InstDeclaracion) sentencia;
-						//System.out.println("Entramos en declaracion con " +  declaracion.getIden());
-						//System.out.println(declaracion.getTipo().tipoEnumerado());
-						Iden identificadorV = (Iden)declaracion.getIden();
+						Iden identificadorV = (Iden)declaracion.getIdentificador();
 						identificadorV.setConstante(declaracion.isConstant());
 						identificadorV.setReferencia(declaracion);
 						identificadorV.setTipo(declaracion.getTipo());
 						vincula(declaracion.getTipo());
 						tabla.insertaId(identificadorV.getNombre(), declaracion);
-						//System.out.println(identificadorV.getTipo());
-						List<E> valorInicial = declaracion.getValor(); //esto va haber que cambiarlo cuando se refactorice
+						List<E> valorInicial = declaracion.getValor();
 						if(valorInicial != null) valorInicial.forEach(x -> vincula(x));
-						//aquí falta comprobar que pasa si es un vector
 						break;
 					case DECLFUN:
-						//System.out.println("Vinculando funcion");
 						InstDeclFun declaracionFuncion = (InstDeclFun) sentencia;
 						
 						Tipo tipoFuncion = declaracionFuncion.getTipo(); //no vale si es proc
 						if(tipoFuncion != null) vincula(tipoFuncion);
-						Iden identificadorFuncion = (Iden)declaracionFuncion.getIden();
+						Iden identificadorFuncion = (Iden)declaracionFuncion.getIdentificador();
 						tabla.insertaId(identificadorFuncion.getNombre(), declaracionFuncion);
 						identificadorFuncion.setConstante(true);
 
 						tabla.abreBloque();
 						List<Pair<Tipo, E>> listaParametros = declaracionFuncion.getArgs();
 						for(Pair<Tipo, E> parametro : listaParametros) {
-							//System.out.println("Se vincula el parámetro: " + ((Iden)parametro.getValue()).getNombre() + " con tipo " + parametro.getKey().toString());
-							//esto no hay que vincularlo
+
 							tabla.insertaId(((Iden)parametro.getValue()).getNombre(), declaracionFuncion);
 							Iden identificadorParametro = (Iden)parametro.getValue();
-							//System.out.println("Guardando en el iden "+ identificadorParametro + " el tipo " + parametro.getKey());
 							identificadorParametro.setTipo(parametro.getKey());
 							tabla.anadeTipoVariable(identificadorParametro.getNombre(), parametro.getKey());
 							vincula(parametro.getKey());
@@ -102,7 +91,6 @@ public class AnalizadorSemantico {
 						
 						List<I> cuerpoFuncion = declaracionFuncion.getCuerpo();
 						cuerpoFuncion.forEach(x -> vincula(x));
-						//esto estaba mal pra procedimientos
 						if(tipoFuncion!= null)vincula(declaracionFuncion.getReturn());
 						tabla.cierraBloque();
 						break;
@@ -121,16 +109,13 @@ public class AnalizadorSemantico {
 						break;
 					case STRUCT:
 						InstStruct instStruct = (InstStruct) sentencia;
-
-						//faltaría meter la referencia a la sentencia abstracta
-						tabla.insertaId(((Iden) instStruct.getIden()).getNombre(), instStruct);
+						tabla.insertaId(((Iden) instStruct.getIdentificador()).getNombre(), instStruct);
 						tabla.abreBloque();
 						instStruct.getDeclaraciones().forEach(x->vincula(x));
 						tabla.cierraBloque();
 						break;
 					case SWITCH:
 						InstSwitch instSwitch = (InstSwitch) sentencia;
-						//aquí con la condicion cogemos la referencia de la tabla de símbolos
 				
 						SentenciaAbstracta referenciaVariableSwitch = tabla.getSentenciaDeclaracion(((Iden)instSwitch.getCondicion()).getNombre());
 						vincula((Iden)instSwitch.getCondicion());
@@ -147,7 +132,6 @@ public class AnalizadorSemantico {
 								tabla.cierraBloque();
 							}
 						}
-						//Si no hacemos los cases vamos a perder la información de la SentenciaAbstracta correspondiente al case.
 						break;
 					case WHILE:
 						InstWhile instWhile = (InstWhile) sentencia;
@@ -162,19 +146,16 @@ public class AnalizadorSemantico {
 				}
 			
 			break;
-			//Expresiones Binarias
 			case EXPRESION_BINARIA:
 				EBin expresionBinaria = (EBin) sentencia;
 				expresionBinaria.opnd1().setVieneDeAsignacion(expresionBinaria.vieneAsignacion());
 				expresionBinaria.opnd2().setVieneDeAsignacion(expresionBinaria.vieneAsignacion());
 	
-				//en el caso de que sea un punto solo tengo que vincular el primer operando
 					vincula(expresionBinaria.opnd1());
 					if(expresionBinaria.tipoExpresion() != TipoE.DOT) {
 						vincula(expresionBinaria.opnd2());
 					}
 			break;
-			//Expresiones
 			case EXPRESION:
 			E expresion = (E) sentencia;
 				
@@ -185,7 +166,6 @@ public class AnalizadorSemantico {
 					if(referenciaFuncion == null) {
 						GestionErroresTiny.errorSemantico("Llamada a función " + ((Iden) llamada.getNombreFuncion()).getNombre() + " no existente.",sentencia.getFila(),sentencia.getColumna());
 					}else {
-						//guardamos para luego poder comprobar los tipos
 						llamada.setReferencia(referenciaFuncion);
 						llamada.setTipoReturn(((InstDeclFun)referenciaFuncion).getTipo());
 						llamada.getArgumentos().forEach(x->vincula(x));
@@ -193,43 +173,31 @@ public class AnalizadorSemantico {
 					break;
 				case IDEN:
 					Iden identificador = (Iden) expresion;
-					//System.out.println("Identificador  " + identificador.getNombre() + identificador.esConstante());
 					SentenciaAbstracta dec = tabla.getSentenciaDeclaracion(identificador.getNombre());
 					if((dec instanceof InstDeclaracion) && ((InstDeclaracion)dec).isConstant() && identificador.vieneAsignacion()) {
 						identificador.setTipo(((InstDeclaracion)dec).getTipo());
 						GestionErroresTiny.errorSemantico("El identificador " + identificador.getNombre() +" es constante por lo que no es asignable.", sentencia.getFila(), sentencia.getColumna());
 					}else {
-						//System.out.println("Guardando el identificador: " + identificador.getNombre());
 						SentenciaAbstracta refIdentificador = tabla.getSentenciaDeclaracion(identificador.getNombre());
 						if(refIdentificador == null) {
 							GestionErroresTiny.errorSemantico("El identificador " + identificador.getNombre() + " no ha sido declarado.",sentencia.getFila(),sentencia.getColumna());
-							//esto no debería mirarse en las expresiones
 						}else {
 							if(refIdentificador instanceof InstDeclaracion) {
-								//System.out.println("Guardando el tipo de la variable " + identificador.getNombre());
-								//en realidad esto lo estás haciendo cada vez que aparece uno
-								//guardo el tipo de la variable en el identificador para la comprobación de tipos posterior
 								tabla.anadeTipoVariable(identificador.getNombre(), ((InstDeclaracion)refIdentificador).getTipo());
 								identificador.setTipo(((InstDeclaracion)refIdentificador).getTipo());
 							}else if(refIdentificador instanceof InstDeclFun) { //instancia de InstDeclFun
-								//identificador.
 								InstDeclFun declaracionFuncion = (InstDeclFun) refIdentificador;
 								for(Pair<Tipo,E> argumento: declaracionFuncion.getArgs()) {
 									Iden identificadorArgumento = (Iden)argumento.getValue();
 									if(identificadorArgumento.getNombre() .equals(identificador.getNombre())) {
-										//System.out.println("Guardando el tipo correctamente");
 										identificador.setTipo(argumento.getKey());
 									}
 								}
-								//GestionErroresTiny.errorSemantico("ERROR INESPERADO EN EL PROGRAMA.");
 								
 							}else if(refIdentificador instanceof InstStruct){
-								//System.out.println(identificador.getNombre());
 								TipoStruct tipoVariable = new TipoStruct(identificador.getNombre(),identificador.getFila(),identificador.getColumna());
 								tabla.anadeTipoVariable(identificador.getNombre(), tipoVariable);
 								identificador.setTipo(tipoVariable);
-								//System.out.println("Nos sigue faltando el caso de ");
-								//System.out.println(refIdentificador);
 							}else {
 								System.out.println("nuevo caso");
 							}
@@ -264,12 +232,11 @@ public class AnalizadorSemantico {
 						GestionErroresTiny.errorSemantico("Struct " + tipoStruct.getNombreStruct() + " no declarado.",sentencia.getFila(),sentencia.getColumna());
 					}else {
 						tipoStruct.setReferencia(referenciaSentencia);
-						//guardo la referencia a la sentencia en la que se declaró dentro del nodo
 					}	
 					break;
 				case ARRAY:
 					vincula(((TipoArray)tipo).getTipoBase());
-					vincula(((TipoArray) tipo).getDimension()); //No estoy seguro de si hay que vincular la dimension (JC)
+					vincula(((TipoArray) tipo).getDimension());
 					
 					break;
 				default:
@@ -281,58 +248,31 @@ public class AnalizadorSemantico {
 		}
 	}
 	
-	//hay que añadir tipo como atributo de InstDeclaracion InstDeclFun y demás para guardar la referencia del tipo
 	public boolean compruebaTipos(SentenciaAbstracta sentencia) {
-		if(sentencia.tipoSentencia() == EnumeradoTipoGeneral.INSTRUCCION) { //se comprueban instrucciones en esta función
+		if(sentencia.tipoSentencia() == EnumeradoTipoGeneral.INSTRUCCION) {
 			I instruccion = (I) sentencia;
 			switch(instruccion.tipoInstruccion()) {
 			case ASIG:
 				InstAsignacion instruccionAsignacion = (InstAsignacion) instruccion;
-					if(instruccionAsignacion.getIden() instanceof Iden) {
-						Iden identificador = (Iden) instruccionAsignacion.getIden();
+					if(instruccionAsignacion.getIdentificador() instanceof Iden) {
+						Iden identificador = (Iden) instruccionAsignacion.getIdentificador();
 						if(identificador.esConstante()) {
 							GestionErroresTiny.errorSemantico("Error de tipos. El identificador " + identificador.getNombre() + " corresponde con una constante o una función por lo que no es modificable.",sentencia.getFila(),sentencia.getColumna());
 						}
 					}
-					E iden = instruccionAsignacion.getIden();
-					Tipo tipoOriginal = tiposExpresion(instruccionAsignacion.getIden());
+					E iden = instruccionAsignacion.getIdentificador();
+					Tipo tipoOriginal = tiposExpresion(instruccionAsignacion.getIdentificador());
 					Tipo tipoAsignar = tiposExpresion(instruccionAsignacion.getValor());
-					//hay que recoger los errores aquí
-					
-//					System.out.println("Explorando asignacion de" + instruccionAsignacion.getIden() + " " + instruccionAsignacion.getValor() );
-//					System.out.println(tipoOriginal);
-//					System.out.println(tipoAsignar);
 					if(tipoOriginal.tipoEnumerado() == tipoAsignar.tipoEnumerado()) {
-						//System.out.println("En serio se puede hacer así de facil?");
 						return true;
 						
 					}else {
-						GestionErroresTiny.errorSemantico("Error de tipos en la asignación. Los tipos no coinciden. Intentando asignar a " + instruccionAsignacion.getIden().toString() + " el valor " + instruccionAsignacion.getValor().toString()+ ".Tipos: " + tipoOriginal + " " + tipoAsignar,sentencia.getFila(),sentencia.getColumna());
+						GestionErroresTiny.errorSemantico("Error de tipos en la asignación. Los tipos no coinciden. Intentando asignar a " + instruccionAsignacion.getIdentificador().toString() + " el valor " + instruccionAsignacion.getValor().toString()+ ".Tipos: " + tipoOriginal + " " + tipoAsignar,sentencia.getFila(),sentencia.getColumna());
 
 					}
-//						if(tipoAsignar.tipoEnumerado() == EnumeradoTipos.STRUCT) {
-//							GestionErroresTiny.errorSemantico("Error de tipos. Operación no soportada: no se pueden asignar structs o punteros a una variable");
-//						}else if (tipoAsignar.tipoEnumerado() == EnumeradoTipos.PUNTERO){
-//							New pointer = (New) instruccionAsignacion.getValor();
-//							TipoPuntero tipoPuntero = (TipoPuntero) tipoAsignar;
-//							if(tipoPuntero.getTipoApuntado().tipoEnumerado() == pointer.getTipo().tipoEnumerado()) {
-//								//entonces los dos punteros son del mismo tipo y no hay problema
-//								//Esto creo que esta mal, puede ser que ambos apunten a otro tipo puntero que apunte a su vez a tipos distintos (JC)
-//								//Ciertoo
-//								return true;
-//							}else {
-//							//esto cuando sea iden
-//								Iden identificador = (Iden) instruccionAsignacion.getIden();
-//								if(tipoAsignar.tipoEnumerado() == identificador.getTipo().tipoEnumerado()){
-//								return true;
-//								}
-//							GestionErroresTiny.errorSemantico("Error de tipos en la asignación. Los tipos no coinciden.");
-//							}
-//						}
 				break;
 			case CALLPROC:
 				InstCallProc intruccionLlamadaFuncion  = (InstCallProc) instruccion;
-				//System.out.println("Llega hasta llamada a función");
 				SentenciaAbstracta declaracion = intruccionLlamadaFuncion.getReferencia();
 				InstDeclFun declaracionFuncion = (InstDeclFun) declaracion;
 				List<E> argumentos = intruccionLlamadaFuncion.getArgumentos();
@@ -352,8 +292,7 @@ public class AnalizadorSemantico {
 				break;
 			case DECL:
 				InstDeclaracion instruccionDeclaracion = (InstDeclaracion) instruccion;
-				if(instruccionDeclaracion.getIden().tipoExpresion() == TipoE.IDEN) {
-					//System.out.println("Explorando identificador " + ((Iden)instruccionDeclaracion.getIden()).getNombre());
+				if(instruccionDeclaracion.getIdentificador().tipoExpresion() == TipoE.IDEN) {
 					Tipo tipoDeclaracion = instruccionDeclaracion.getTipo();
 					boolean correct = true;
 					if(instruccionDeclaracion.getValor() != null) {//Esta inicializada
@@ -368,7 +307,6 @@ public class AnalizadorSemantico {
 								for(E valor : instruccionDeclaracion.getValor()) {
 									Tipo aux = tiposExpresion(valor);
 									if(!(((TipoArray)tipoDeclaracion).getTipoBase() instanceof TipoArray) && aux.tipoEnumerado() != ((TipoArray)tipoDeclaracion).getTipoBase().tipoEnumerado()) {
-										//System.out.println("El tipo de la instruccion de declaracion es " +((TipoArray)tipoDeclaracion).getTipoBase().tipoEnumerado().toString()+ " y el del valor es " + aux.tipoEnumerado().toString());
 										correct = false;
 										GestionErroresTiny.errorSemantico("Error tipos. El tipo de la declaración no concuerda con su valor inicial. Intentando asignar al tipo " + tipoValores + " el tipo " + aux ,sentencia.getFila(),sentencia.getColumna());
 										break;
@@ -378,9 +316,8 @@ public class AnalizadorSemantico {
 							E valor = instruccionDeclaracion.getValor().get(0);
 							Tipo aux = tiposExpresion(valor);
 							if(aux.tipoEnumerado() != tipoDeclaracion.tipoEnumerado()) {
-								//System.out.println("El tipo de la instruccion de declaracion es " +tipoDeclaracion.tipoEnumerado().toString()+ " y el del valor es " + aux.tipoEnumerado().toString());
 								correct = false;
-								GestionErroresTiny.errorSemantico("Error tipos. El tipo de la declaración no concuerda con su valor inicial. Asignando a " + instruccionDeclaracion.getIden().toString() + " el valor " + valor.toString() + ". Con tipos " + tipoDeclaracion + " y " + aux,sentencia.getFila(),sentencia.getColumna());
+								GestionErroresTiny.errorSemantico("Error tipos. El tipo de la declaración no concuerda con su valor inicial. Asignando a " + instruccionDeclaracion.getIdentificador().toString() + " el valor " + valor.toString() + ". Con tipos " + tipoDeclaracion + " y " + aux,sentencia.getFila(),sentencia.getColumna());
 							}
 					}
 					}
@@ -391,25 +328,19 @@ public class AnalizadorSemantico {
 				break;
 			case DECLFUN:
 				InstDeclFun instruccionDeclaracionFuncion = (InstDeclFun) instruccion;
-				//System.out.println("Checkeando los tipos de la funcion " + ((Iden)instruccionDeclaracionFuncion.getIden()).getNombre());
-				//la x o la y no tiene tipo
 				Tipo tipoRealReturn = null;
-				if(!(instruccionDeclaracionFuncion.getIden() instanceof Iden)) {
+				if(!(instruccionDeclaracionFuncion.getIdentificador() instanceof Iden)) {
 					GestionErroresTiny.errorSemantico("Error de tipos. El identificador de una función tiene que ser de tipo iden",sentencia.getFila(),sentencia.getColumna());
 				}
 				if(instruccionDeclaracionFuncion.getTipo() != null)
 					tipoRealReturn = tiposExpresion(instruccionDeclaracionFuncion.getReturn());
 				
-				//System.out.println("Checkeando el tipo de la función " + instruccionDeclaracionFuncion.toString());
-				if(instruccionDeclaracionFuncion.getIden().tipoExpresion() == TipoE.IDEN) {
+				if(instruccionDeclaracionFuncion.getIdentificador().tipoExpresion() == TipoE.IDEN) {
 					AtomicBoolean correcto = new AtomicBoolean(true);
-					//System.out.println("El valor del return es" + instruccionDeclaracionFuncion.getReturn() );
-					//System.out.println("Con tipo " + tipoRealReturn);
 					
 					if(!(tipoRealReturn instanceof TipoArray) && tipoRealReturn != null && tipoRealReturn.tipoEnumerado() != instruccionDeclaracionFuncion.getTipo().tipoEnumerado()){
 						GestionErroresTiny.errorSemantico("Error de tipos. El tipo del return no coincide con el de la función.",sentencia.getFila(),sentencia.getColumna());
 					}
-					//esto peta a veces y llega null
 					instruccionDeclaracionFuncion.getCuerpo().forEach(x -> {correcto.set(compruebaTipos(x) && correcto.get());});
 					if(instruccionDeclaracionFuncion.getTipo() != null) correcto.set(correcto.get() && tipoRealReturn == instruccionDeclaracionFuncion.getTipo());
 					return correcto.get();
@@ -434,7 +365,7 @@ public class AnalizadorSemantico {
 				break;
 			case STRUCT:
 				InstStruct instruccionStruct = (InstStruct) instruccion;
-				if(!(instruccionStruct.getIden() instanceof Iden)) {
+				if(!(instruccionStruct.getIdentificador() instanceof Iden)) {
 					GestionErroresTiny.errorSemantico("Error de tipos. El identificador del struct debe ser de tipo Iden",sentencia.getFila(),sentencia.getColumna());
 				}
 				AtomicBoolean correcto = new AtomicBoolean(true);
@@ -445,7 +376,6 @@ public class AnalizadorSemantico {
 				E condicion = instruccionSwitch.getCondicion();
 				Tipo tipoCondicion = tiposExpresion(condicion);
 				AtomicBoolean correct = new AtomicBoolean(true);
-				//el tipo de la condicion llega null
 				for(Pair<E,List<I>> caso : instruccionSwitch.getCases()) {
 					if(!caso.getValue().isEmpty()) {
 						if(caso.getKey()!=null) {
@@ -486,8 +416,6 @@ public class AnalizadorSemantico {
 				EBin ebin = (EBin) sentencia;
 				E operando1= ebin.opnd1();
 				E operando2 = ebin.opnd2();
-				//System.out.println("Va a calcular el tipo de " + operando1.toString());
-				//System.out.println(operando1.tipoExpresion());
 				Tipo tipoOperando1 = tiposExpresion(operando1);
 				Tipo tipoOperando2 = null;
 				if(ebin.tipoExpresion() != TipoE.DOT) {
@@ -500,12 +428,10 @@ public class AnalizadorSemantico {
 				}
 				else {
 				if (tipoOperando1.tipoEnumerado() != EnumeradoTipos.ERROR || (ebin.tipoExpresion() != TipoE.DOT && tipoOperando2.tipoEnumerado() != EnumeradoTipos.ERROR)) {
-				//System.out.println("Analizando expresión binaria con " + operando1.toString() + " " + operando2.toString() + " con tipos " + tipoOperando1.toString() + " y " + tipoOperando2.toString());
 				
 				switch(ebin.tipoExpresion()) {
 				case AND:
 					if(tipoOperando1.tipoEnumerado()==EnumeradoTipos.BOOLEAN && tipoOperando2.tipoEnumerado()==EnumeradoTipos.BOOLEAN) {
-						//los dos operandos son booleanos entonces devolvemos un booleano
 						return new TipoBoolean();
 					}
 					GestionErroresTiny.errorSemantico("Error de tipos. Uno de los operandos del AND no es booleano. Operandos: " + operando1.toString() + " y " + operando2.toString(),sentencia.getFila(),sentencia.getColumna());
@@ -518,14 +444,9 @@ public class AnalizadorSemantico {
 		
 					break;
 				case DOT:
-					//tenemos que comprobar que operando1 es un struct
 					//
 					if(tipoOperando1.tipoEnumerado() == EnumeradoTipos.STRUCT) {
-						//falta comprobar que el punto corresponde con un campo del struct
 						Iden atributo = (Iden) ebin.opnd2();
-						//System.out.println("Guardando atributo " + atributo.getNombre());
-						//podemos coger la referencia al struct del TipoStruct
-						 //nos hace falta meter las referencias para esto
 						TipoStruct tipoStruct = (TipoStruct) tipoOperando1;
 						InstStruct sentenciaStruct = (InstStruct) tipoStruct.getReferencia(); // esto es null
 						if(sentenciaStruct == null) {
@@ -536,7 +457,7 @@ public class AnalizadorSemantico {
 						
 						for(I instruccion : sentenciaStruct.getDeclaraciones()) {
 							if(instruccion instanceof InstDeclaracion) {
-								Iden atributoStruct = (Iden)((InstDeclaracion) instruccion).getIden();
+								Iden atributoStruct = (Iden)((InstDeclaracion) instruccion).getIdentificador();
 								if(atributoStruct.getNombre() .equals(atributo.getNombre())) {
 									//Entonces si que existe la variable
 									return atributoStruct.getTipo();
@@ -638,14 +559,11 @@ public class AnalizadorSemantico {
 				E expresion = (E) sentencia;
 				switch(expresion.tipoExpresion()) {
 				case DOLLAR:
-					//lo de la derecha tiene que ser un vector
 					Dollar asteriscoExp = (Dollar) expresion;
 					Tipo tipoPuntero = tiposExpresion(asteriscoExp.opnd1());
 					if(tipoPuntero.tipoEnumerado() == EnumeradoTipos.PUNTERO) {
 						return new TipoPuntero(((TipoPuntero)tipoPuntero).getTipoApuntado(),sentencia.getFila(),sentencia.getColumna());
 					}
-					//necesitamos vector
-					//if(tiposExpresion(asteriscoExp.opnd1()).tipoEnumerado() == EnumeradoTipos.)
 					break;
 				case NEW:
 					New newExp = (New)expresion;
@@ -661,9 +579,8 @@ public class AnalizadorSemantico {
 					return new TipoInt();
 				case FUNCION:
 					LlamadaFuncion llamada = (LlamadaFuncion) expresion;
-					List<E> argumentos = llamada.getArgumentos(); //esto no siempre es así
+					List<E> argumentos = llamada.getArgumentos(); 
 					List<Tipo> tiposLlamada = new ArrayList<>();
-					//System.out.println("Entra en la llamada a función a " + ((Iden)llamada.getNombreFuncion()).getNombre());
 					if(!(llamada.getNombreFuncion() instanceof Iden)) {
 						GestionErroresTiny.errorSemantico("El nombre de la función ha de ser un identificador", sentencia.getFila(), sentencia.getColumna());
 					}
@@ -673,7 +590,6 @@ public class AnalizadorSemantico {
 					InstDeclFun declaracionFuncion = (InstDeclFun) llamada.getReferencia();
 					int i = 0;
 					boolean coincidenTipos = true;
-					//aquí saltaría una excepción si es no estaba declarada y se pararía el programa
 					for(Pair<Tipo,E> atributo : declaracionFuncion.getArgs()) {
 						if(atributo.getKey().tipoEnumerado() != tiposLlamada.get(i).tipoEnumerado()){
 							coincidenTipos = false;
@@ -687,7 +603,6 @@ public class AnalizadorSemantico {
 					break;
 				case IDEN:
 					Iden identificador = (Iden) expresion;
-					//System.out.println("Devolviendo tipo " + identificador.getTipo().toString() + " correspondiente a " + identificador.getNombre());
 					return identificador.getTipo();
 				case NOT:
 					Not not  = (Not) expresion;
@@ -700,7 +615,6 @@ public class AnalizadorSemantico {
 					break;
 				
 				}
-				//aquí hay que añadir las expresiones que representan a los tipos, identificadores y llamadas a funciones
 				break;
 			default:
 				break;

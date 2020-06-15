@@ -5,12 +5,12 @@ import java.util.List;
 import ast.E.E;
 
 public class InstStruct extends I {
-	private E iden;
+	private E identificador;
 	private List<I> declaraciones;
 	private int fila;
 	private int columna;
    public InstStruct(E iden, List<I> declaraciones,int fila,int columna) {
-	    this.iden = iden;
+	    this.identificador = iden;
 	    this.declaraciones = declaraciones;
 	}
    
@@ -27,8 +27,8 @@ public class InstStruct extends I {
 	   return aux;
    }
 
-	public E getIden() {
-		return iden;
+	public E getIdentificador() {
+		return identificador;
 	}
 	
 	public List<I> getDeclaraciones() {

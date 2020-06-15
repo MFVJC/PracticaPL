@@ -153,7 +153,7 @@ public class GeneradorCodigo {
 			
 		case DECL:
 			InstDeclaracion instruccionDeclaracion = (InstDeclaracion) instruccion;
-			String idenDeclaracion = ((Iden) instruccionDeclaracion.getIden()).getNombre();
+			String idenDeclaracion = ((Iden) instruccionDeclaracion.getIdentificador()).getNombre();
 			
 			//Diferenciamos dependiendo de el tipo de la declaracion
 			switch(instruccionDeclaracion.getTipo().tipoEnumerado()) {
@@ -188,7 +188,7 @@ public class GeneradorCodigo {
 		case STRUCT:
 			//Cuando declaramos un nuevo tipo struct debemos meter su nombre con su tamano en la lista de tipos y guardar las direcciones relativas de los campos
 			InstStruct instruccionStruct = (InstStruct) instruccion;
-			String nombreStruct = ((Iden) instruccionStruct.getIden()).getNombre();
+			String nombreStruct = ((Iden) instruccionStruct.getIdentificador()).getNombre();
 			Pair<Integer, Map<String, Integer>> informacionStruct = obtenerInformacionStruct(instruccionStruct);
 			int tamanoStruct = informacionStruct.getKey();
 			Map<String, Integer> tamanoCamposStruct = informacionStruct.getValue();
@@ -200,7 +200,7 @@ public class GeneradorCodigo {
 		case DECLFUN:
 			InstDeclFun instruccionDeclFun = (InstDeclFun) instruccion;
 			instruccionDeclFun.setProfundidadAnidamiento(bloqueActual.getProfundidadAnidamiento());
-			String nombreFuncion = ((Iden) instruccionDeclFun.getIden()).getNombre();		
+			String nombreFuncion = ((Iden) instruccionDeclFun.getIdentificador()).getNombre();		
 			bloqueActual.insertaIdentificador(nombreFuncion, 1);
 			
 			//Abrimos ambito
@@ -251,7 +251,7 @@ public class GeneradorCodigo {
 			case ASIG:
 				InstAsignacion instruccionAsignacion = (InstAsignacion) instruccion;
 				//voy a ver el caso de vectores en otra funcion
-				generaCodigoLeft(instruccionAsignacion.getIden());
+				generaCodigoLeft(instruccionAsignacion.getIdentificador());
 				generaCodigoExpresion(instruccionAsignacion.getValor());
 				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.STO,-2));
 				break;
@@ -290,58 +290,48 @@ public class GeneradorCodigo {
 					i++;
 				}
 
-				Iden identificadorFuncion2 = (Iden)declaracionFuncion2.getIden();
+				Iden identificadorFuncion2 = (Iden)declaracionFuncion2.getIdentificador();
 				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.CUP,0,Integer.toString(declaracionFuncion2.getTamanoArgumentos()),Integer.toString(getBloqueNivelActual().getDireccionIdentificador(identificadorFuncion2.getNombre()))));
 				
 				break;
 			case DECL:
 				InstDeclaracion instruccionDeclaracion = (InstDeclaracion) instruccion;
-				Iden identificadorVariable = (Iden) instruccionDeclaracion.getIden();
-				if(instruccionDeclaracion.getValor() != null) { //está inicializada por lo que no tendremos que generar código a menos que sea un struct
+				Iden identificadorVariable = (Iden) instruccionDeclaracion.getIdentificador();
+				if(instruccionDeclaracion.getValor() != null) { 
 					switch(instruccionDeclaracion.getTipo().tipoEnumerado()) {
 					case ARRAY:
 						TipoArray tipoArray = (TipoArray)instruccionDeclaracion.getTipo();
-						//CREO QUE NO NECESITAMOS DISTINGUIR CASOS
 						if(tipoArray.getTipoBase().tipoEnumerado() == EnumeradoTipos.PUNTERO || tipoArray.getTipoBase().tipoEnumerado() == EnumeradoTipos.STRUCT) {
-							//SI PASA ESO QUE SE VAYA A TOMAR POR CULO
-							// VA A CREAR ARRAY DE PUNTEROS INICIALIZADOS SU PUTA MADRE
-							// PA LOS STRUCTS IIGUAL
 							System.out.println("Operación no soportada.");
 						}else{
 						
 							int tamanoTipo = getBloqueNivelActual().getTamanoTipo(identificadorVariable.getNombre());
 							int direccion = getBloqueNivelActual().getDireccionIdentificador(identificadorVariable.getNombre());
-							//inicializamos solo la primera dimensión o no en realizad?
 							List<E> valoresIniciales = instruccionDeclaracion.getValor();
 							for(E valor: valoresIniciales) {
-								//FALTA CHECKEAR RANGO
 								codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(direccion)));
 								generaCodigoExpresion(valor);
-								//Esto guarda el valor de la expresión en la pila
 								codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.STO, -2));
-								//guardamos el valor de la variable
 								direccion+=tamanoTipo;
 								
 							}
 						}
 						break;
 					case STRUCT:
-						instruccionDeclaracion.setConstant(false); // entra en el else if luego aunque haya fallo en el semántico
+						instruccionDeclaracion.setConstant(false);
 						instruccionDeclaracion.setValor(null);
-						//falta asignarle los campos inicializados
 						
 						generaCodigoInstruccion(instruccionDeclaracion);
-						//si no he guardado ya los valores tengo que asignarlos ya
 						break;
 					case PUNTERO:
 						if(instruccionDeclaracion.getValor().get(0).tipoExpresion() == TipoE.NEW) {
-							generaCodigoDireccionIdentificador(instruccionDeclaracion.getIden());
+							generaCodigoDireccionIdentificador(instruccionDeclaracion.getIdentificador());
 							generaCodigoExpresion(instruccionDeclaracion.getValor().get(0));
 						}
 						break;
 
 					default:
-						generaCodigoDireccionIdentificador(instruccionDeclaracion.getIden());
+						generaCodigoDireccionIdentificador(instruccionDeclaracion.getIdentificador());
 						generaCodigoExpresion(instruccionDeclaracion.getValor().get(0));
 						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.STO, -2));
 
@@ -349,50 +339,40 @@ public class GeneradorCodigo {
 					
 					}
 				}else if(instruccionDeclaracion.getTipo().tipoEnumerado() == EnumeradoTipos.STRUCT) {
-					//tengo que generar el código de dentro del struct
 					TipoStruct tipoStruct = (TipoStruct) instruccionDeclaracion.getTipo();
 					String nombreTipoStruct = tipoStruct.getNombreStruct();
-					Iden nombreStruct = (Iden) instruccionDeclaracion.getIden();
+					Iden nombreStruct = (Iden) instruccionDeclaracion.getIdentificador();
 						for(I instruccionDentroStruct : ((InstStruct)tipoStruct.getReferencia()).getDeclaraciones()) {							
-							//tengo que generar el código para guardar los valores dentro de las regiones de memoria de esas variables
 							if(instruccionDentroStruct instanceof InstDeclaracion && ((InstDeclaracion)instruccionDentroStruct).getValor()!=null) {
 								InstDeclaracion declaracionVariableStruct = (InstDeclaracion)instruccionDentroStruct;
-								Iden nombreCampo= (Iden)declaracionVariableStruct.getIden();
+								Iden nombreCampo= (Iden)declaracionVariableStruct.getIdentificador();
 								int direccionStruct = getBloqueNivelActual().getDireccionIdentificador(nombreStruct.getNombre());
 								int direccionRelativaCampo = getBloqueNivelActual().getCampoStruct(nombreTipoStruct, nombreCampo.getNombre());
 								if(declaracionVariableStruct.getTipo().tipoEnumerado() == EnumeradoTipos.ARRAY) {
-									//inicializamos solo la primera dimensión o no en realizad?
 									List<E> valoresIniciales = declaracionVariableStruct.getValor();
 									TipoArray array = (TipoArray)declaracionVariableStruct.getTipo();
 									
 									if(array.getTipoBase().tipoEnumerado() == EnumeradoTipos.ARRAY || array.getTipoBase().tipoEnumerado() == EnumeradoTipos.STRUCT || array.getTipoBase().tipoEnumerado() == EnumeradoTipos.PUNTERO ) { //matrices dentro de struct no
 										
-										//arrays de punteros, structs y matrices nada
 										System.out.println("Operación no soportada");
 									}else {
 										int direccionCampo = direccionStruct + direccionRelativaCampo;
 										int tamanoTipo = 1;
 										for(E valor: valoresIniciales) {
-											//FALTA CHECKEAR RANGO
 											
 											codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(direccionCampo)));
 											
 											generaCodigoExpresion(valor);
-											//Esto guarda el valor de la expresión en la pila
 											codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.STO, -2));
-											//guardamos el valor de la variable
 											direccionCampo+=tamanoTipo;
 										
 										}
 									}
 								}else {
-									//tengo que guardar primero la dirección de memoria de la variable correspondiente al campo del struct
 									codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(direccionStruct)));
 									codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(direccionRelativaCampo)));
 									codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.ADD,-1));
 									generaCodigoExpresion(declaracionVariableStruct.getValor().get(0));
-									//guardo el valor en la cima junto con la dirección del campo
-									
 									codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.STO,-2));
 								}
 							}
@@ -403,7 +383,7 @@ public class GeneradorCodigo {
 				break;
 			case DECLFUN:
 				InstDeclFun declaracionFuncion = (InstDeclFun) instruccion;
-				Iden identificadorFuncion= (Iden)declaracionFuncion.getIden();
+				Iden identificadorFuncion= (Iden)declaracionFuncion.getIdentificador();
 				if(declaracionFuncion.getTipo() == null ) { //entonces es un procedimiento
 					maxAmbitos++;
 					ambitoActual = maxAmbitos;
@@ -470,15 +450,10 @@ public class GeneradorCodigo {
 				ambitoActual = maxAmbitos;
 				for(Pair<E,List<I>> caso : instruccionSwitch.getCases()) {
 					if(caso.getKey()!=null) {
-					//para cada caso tenemos que comprobar si coincide con la condición del switch
-					//hay que comprobar si  la condicion == caso.getKey()
 					generaCodigoExpresion(new Equal(condicion,caso.getKey(),caso.getKey().getFila(),caso.getKey().getColumna()));
-					//maxAmbitos++;
-					//ambitoActual = maxAmbitos;
 					
 					int momentoSaltoDefault = codigoGenerado.size();
 					listaPosicionesSalto.add(momentoSaltoDefault);
-					//esta es la instrucción a la que hay que añadirle la dirección
 					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.FJP, -1));
 					}
 					generaCodigoCuerpo(caso.getValue());
@@ -486,8 +461,6 @@ public class GeneradorCodigo {
 					int momentoSaltoFinal = codigoGenerado.size();
 					listaPosicionesSalto.add(momentoSaltoFinal);
 					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.UJP, 0));
-					
-					//ambitoActual = getBloqueNivelActual().getBloquePadre().getPosicionBloque();
 
 				}
 				String finalSwitch = Integer.toString(codigoGenerado.size());
@@ -512,7 +485,7 @@ public class GeneradorCodigo {
 				ambitoActual = getBloqueNivelActual().getBloquePadre().getPosicionBloque();
 				break;
 			default:
-				//el struct creo que no tienes que hacer nada
+				
 				break;
 		}
 	}
@@ -579,13 +552,10 @@ public class GeneradorCodigo {
 						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,"true"));
 						break;
 					case DOLLAR:
-						//hay que generar el código del array
-						//generaCodigoLeft(((Dollar) expresion).opnd1());
 						generaCodigoLeft(((Dollar) expresion).opnd1());
 						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0)); //cojo el valor de esa dirección
 						break;
 					case DOT:
-						//generar código para el struct de la izquierda
 						generaCodigoLeft(expresion);
 						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
 						break;
@@ -595,7 +565,6 @@ public class GeneradorCodigo {
 						List<E> listaArgumentos = llamada.getArgumentos();
 						List<Pair<Tipo,E>> parametros = new ArrayList<>();
 						parametros = declaracionFuncion.getArgs();
-						//declaracionFuncion2.getArgs().forEach(x->parametros.add(x.getValue())); esto si quisiesemos solo los parametros
 						int diferenciaPA = declaracionFuncion.getProfundidadAnidamiento() - getBloqueNivelActual().getProfundidadAnidamiento()+1 ;
 						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.MST,5,Integer.toString(diferenciaPA)));
 						int i=0;
@@ -624,7 +593,7 @@ public class GeneradorCodigo {
 							i++;
 						}
 	
-						Iden identificadorFuncion2 = (Iden)declaracionFuncion.getIden();
+						Iden identificadorFuncion2 = (Iden)declaracionFuncion.getIdentificador();
 						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.CUP,0,Integer.toString(declaracionFuncion.getTamanoArgumentos()),Integer.toString(getBloqueNivelActual().getDireccionIdentificador(identificadorFuncion2.getNombre()))));
 						
 						
@@ -637,7 +606,7 @@ public class GeneradorCodigo {
 							InstStruct referenciaIdentificador = (InstStruct)identificador.getReferencia();
 							for(I instruccion: referenciaIdentificador.getDeclaraciones()) {
 								InstDeclaracion declaracionAtributo = (InstDeclaracion) instruccion;
-								Iden identificadorCampo = new Iden(identificador.getNombre() + "." + ((Iden)declaracionAtributo.getIden()).getNombre(),identificador.getFila(),identificador.getColumna());
+								Iden identificadorCampo = new Iden(identificador.getNombre() + "." + ((Iden)declaracionAtributo.getIdentificador()).getNombre(),identificador.getFila(),identificador.getColumna());
 								identificadorCampo.setTipo(declaracionAtributo.getTipo());
 								generaCodigoDireccionIdentificador(identificadorCampo);
 								codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
@@ -652,7 +621,6 @@ public class GeneradorCodigo {
 						New nuevo = (New) expresion;
 						int nuevoTamano = Integer.parseInt(((Num) nuevo.getTam()).num()); //Aqui tenemos el tamano del new entre corchetes
 						Tipo nuevoTipo = nuevo.getTipo();
-						//Nos queda multiplicarlo por el tamano base, que solo es distinto de uno si es de tipo struct
 						switch(nuevoTipo.tipoEnumerado()) {
 						case STRUCT:
 							String nuevoTipoNombre = ((TipoStruct) nuevoTipo).getNombreStruct();
@@ -707,7 +675,6 @@ public class GeneradorCodigo {
 				Iden iden = (Iden) expresion;
 				SentenciaAbstracta refIdentificador = iden.getReferencia();
 					InstDeclaracion declaracionVariable = (InstDeclaracion) refIdentificador;
-					//si la dirección esta bien guardada debería bastar con esto
 					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(getBloqueNivelActual().getDireccionIdentificador(iden.getNombre()))));
 					
 				break;
@@ -727,7 +694,6 @@ public class GeneradorCodigo {
 				E struct = dot.opnd1();
 				E atributo= dot.opnd2();
 				
-				//esto no funciona (no está guardado en la tabla)ç
 				Iden nombreStruct = (Iden)struct;
 				String nombreGeneralStruct = ((TipoStruct)nombreStruct.getTipo()).getNombreStruct();
 				int direccionRelativaCampo= getBloqueNivelActual().getCampoStruct(nombreGeneralStruct,((Iden)atributo).getNombre());
@@ -775,11 +741,10 @@ public class GeneradorCodigo {
 	private Pair<Integer, Map<String, Integer>> obtenerInformacionStruct(InstStruct struct) {
 		int tamanoStruct = 0;
 		Map<String, Integer> tamanoCamposStruct = new HashMap<>();
-		//String idenStruct = ((Iden) struct.getIden()).getNombre();
 		
 		for(I instruccion : struct.getDeclaraciones()) { //Para cada declaracion del struct, sumamos su tamano
 			InstDeclaracion declaracion = (InstDeclaracion) instruccion;
-			String idenDeclaracion = ((Iden) declaracion.getIden()).getNombre();
+			String idenDeclaracion = ((Iden) declaracion.getIdentificador()).getNombre();
 			int tamanoCampo = 0;
 			
 			switch(declaracion.getTipo().tipoEnumerado()) {

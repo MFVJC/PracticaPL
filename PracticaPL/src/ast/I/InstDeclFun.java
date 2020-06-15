@@ -52,7 +52,7 @@ public class InstDeclFun extends I {
 	   return aux;
  	}
 
-	public E getIden() {
+	public E getIdentificador() {
 		return nombreFuncion;
 	}
 	

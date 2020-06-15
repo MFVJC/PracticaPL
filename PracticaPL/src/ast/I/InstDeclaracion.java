@@ -8,12 +8,12 @@ public class InstDeclaracion extends I {
 	private boolean constant;
 	//este tipo debería ser de la clase Tipo
 	private Tipo tipoVariable;
-	private E iden;
+	private E identificador;
 	private List<E> valor;
    public InstDeclaracion(boolean constant, Tipo tipo, E iden, List<E> valor,int fila,int columna) {
 	    this.constant = constant;
 		this.tipoVariable = tipo;
-	    this.iden = iden;
+	    this.identificador = iden;
 	    this.valor = valor;
 	     this.fila = fila;
 	     this.columna = columna;
@@ -24,7 +24,7 @@ public class InstDeclaracion extends I {
     public String toString() {
 	   String aux = "{{_Decl__}";
 	   if(constant) aux += "{Const}";
-	   aux += "{" + tipoVariable.toString() + "}" + iden.toString();
+	   aux += "{" + tipoVariable.toString() + "}" + identificador.toString();
 	   
 	   if(valor != null) { //Esta inicializada
 		   aux += "{{__Ini__}";
@@ -48,8 +48,8 @@ public class InstDeclaracion extends I {
 		return tipoVariable;
 	}
 	
-	public E getIden() {
-		return iden;
+	public E getIdentificador() {
+		return identificador;
 	}
 	
 	public List<E> getValor() {
