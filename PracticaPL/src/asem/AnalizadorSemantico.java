@@ -334,15 +334,27 @@ public class AnalizadorSemantico {
 					Tipo tipoDeclaracion = instruccionDeclaracion.getTipo();
 					boolean correct = true;
 					if(instruccionDeclaracion.getValor() != null) {//Esta inicializada
+						int numDimension = 0;
 						if(tipoDeclaracion.tipoEnumerado() == EnumeradoTipos.ARRAY) {
-							Tipo tipoValores = ((TipoArray)tipoDeclaracion).getTipoBase();
-							for(E valor : instruccionDeclaracion.getValor()) {
-								Tipo aux = tiposExpresion(valor);
-								if(aux.tipoEnumerado() != ((TipoArray)tipoDeclaracion).getTipoBase().tipoEnumerado()) {
-									//System.out.println("El tipo de la instruccion de declaracion es " +((TipoArray)tipoDeclaracion).getTipoBase().tipoEnumerado().toString()+ " y el del valor es " + aux.tipoEnumerado().toString());
-									correct = false;
-									GestionErroresTiny.errorSemantico("Error tipos. El tipo de la declaración no concuerda con su valor inicial. Intentando asignar al tipo " + tipoValores + " el tipo " + aux );
-									break;
+							TipoArray tipo = (TipoArray)tipoDeclaracion;
+							if(tipo.getDimension().tipoExpresion() != TipoE.NUM) {
+								GestionErroresTiny.errorSemantico("Error tipos. En la declaración de un vector, su dimensión debe ser un número");
+							}else {
+								Num dimension = (Num)tipo.getDimension();
+								numDimension = Integer.parseInt(dimension.num());
+						
+								if(numDimension != instruccionDeclaracion.getValor().size()) {
+									GestionErroresTiny.errorSemantico("El número de valores debe coincidir con el tamaño del vector");
+								}
+								Tipo tipoValores = ((TipoArray)tipoDeclaracion).getTipoBase();
+								for(E valor : instruccionDeclaracion.getValor()) {
+									Tipo aux = tiposExpresion(valor);
+									if(aux.tipoEnumerado() != ((TipoArray)tipoDeclaracion).getTipoBase().tipoEnumerado()) {
+										//System.out.println("El tipo de la instruccion de declaracion es " +((TipoArray)tipoDeclaracion).getTipoBase().tipoEnumerado().toString()+ " y el del valor es " + aux.tipoEnumerado().toString());
+										correct = false;
+										GestionErroresTiny.errorSemantico("Error tipos. El tipo de la declaración no concuerda con su valor inicial. Intentando asignar al tipo " + tipoValores + " el tipo " + aux );
+										break;
+									}
 								}
 							}
 						}else {
