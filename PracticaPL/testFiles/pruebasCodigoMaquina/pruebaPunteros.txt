@@ -1,0 +1,3 @@
+int$ v = new int [3];
+
+($v)[0] = true;

@@ -365,7 +365,7 @@ public class AnalizadorSemantico {
 								Tipo tipoValores = ((TipoArray)tipoDeclaracion).getTipoBase();
 								for(E valor : instruccionDeclaracion.getValor()) {
 									Tipo aux = tiposExpresion(valor);
-									if(aux.tipoEnumerado() != ((TipoArray)tipoDeclaracion).getTipoBase().tipoEnumerado()) {
+									if(!(((TipoArray)tipoDeclaracion).getTipoBase() instanceof TipoArray) && aux.tipoEnumerado() != ((TipoArray)tipoDeclaracion).getTipoBase().tipoEnumerado()) {
 										//System.out.println("El tipo de la instruccion de declaracion es " +((TipoArray)tipoDeclaracion).getTipoBase().tipoEnumerado().toString()+ " y el del valor es " + aux.tipoEnumerado().toString());
 										correct = false;
 										GestionErroresTiny.errorSemantico("Error tipos. El tipo de la declaración no concuerda con su valor inicial. Intentando asignar al tipo " + tipoValores + " el tipo " + aux ,sentencia.getFila(),sentencia.getColumna());
@@ -397,13 +397,14 @@ public class AnalizadorSemantico {
 				}
 				if(instruccionDeclaracionFuncion.getTipo() != null)
 					tipoRealReturn = tiposExpresion(instruccionDeclaracionFuncion.getReturn());
+				
 				//System.out.println("Checkeando el tipo de la función " + instruccionDeclaracionFuncion.toString());
 				if(instruccionDeclaracionFuncion.getIden().tipoExpresion() == TipoE.IDEN) {
 					AtomicBoolean correcto = new AtomicBoolean(true);
 					//System.out.println("El valor del return es" + instruccionDeclaracionFuncion.getReturn() );
 					//System.out.println("Con tipo " + tipoRealReturn);
 					
-					if(tipoRealReturn != null && tipoRealReturn.tipoEnumerado() != instruccionDeclaracionFuncion.getTipo().tipoEnumerado()){
+					if(!(tipoRealReturn instanceof TipoArray) && tipoRealReturn != null && tipoRealReturn.tipoEnumerado() != instruccionDeclaracionFuncion.getTipo().tipoEnumerado()){
 						GestionErroresTiny.errorSemantico("Error de tipos. El tipo del return no coincide con el de la función.",sentencia.getFila(),sentencia.getColumna());
 					}
 					//esto peta a veces y llega null
@@ -611,8 +612,9 @@ public class AnalizadorSemantico {
 					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la resta no son enteros. Operandos: " + operando1.toString() + " y " + operando2.toString(),sentencia.getFila(),sentencia.getColumna());
 					break;
 				case SQUAREBRACKET:
-					if(tipoOperando1.tipoEnumerado() == EnumeradoTipos.ARRAY && tipoOperando2.tipoEnumerado() == EnumeradoTipos.INT) {
-						return (((TipoArray) tipoOperando1).getTipoBase());
+					if((tipoOperando1.tipoEnumerado() == EnumeradoTipos.ARRAY || tipoOperando1.tipoEnumerado() == EnumeradoTipos.PUNTERO) && tipoOperando2.tipoEnumerado() == EnumeradoTipos.INT) {
+						if (tipoOperando1 instanceof TipoArray)return (((TipoArray) tipoOperando1).getTipoBase());
+						else return ((TipoPuntero)tipoOperando1).getTipoApuntado();
 					}
 					GestionErroresTiny.errorSemantico("Error de tipos. Se esta accediendo a un array erroneamente. Operandos: " + operando1.toString() + " y " + operando2.toString(),sentencia.getFila(),sentencia.getColumna());
 					break;
@@ -636,8 +638,18 @@ public class AnalizadorSemantico {
 				case DOLLAR:
 					//lo de la derecha tiene que ser un vector
 					Dollar asteriscoExp = (Dollar) expresion;
+					Tipo tipoPuntero = tiposExpresion(asteriscoExp.opnd1());
+					if(tipoPuntero.tipoEnumerado() == EnumeradoTipos.PUNTERO) {
+						return new TipoPuntero(((TipoPuntero)tipoPuntero).getTipoApuntado(),sentencia.getFila(),sentencia.getColumna());
+					}
 					//necesitamos vector
 					//if(tiposExpresion(asteriscoExp.opnd1()).tipoEnumerado() == EnumeradoTipos.)
+					break;
+				case NEW:
+					New newExp = (New)expresion;
+					if(tiposExpresion(newExp.getTam()).tipoEnumerado() == EnumeradoTipos.INT && newExp.getTipo().tipoEnumerado() != EnumeradoTipos.STRUCT  ) {
+						return new TipoPuntero(newExp.getTipo(),sentencia.getFila(),sentencia.getColumna());
+					}
 					break;
 				case BASICFALSE:
 					return new TipoBoolean();
