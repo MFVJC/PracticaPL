@@ -68,9 +68,9 @@ public class InstruccionMaquina {
 				aux += primerArgumento;
 			}
 		}
-		else { //Sin argumentos -> Imprimimos cambioPila
-			aux += Integer.toString(cambioPila);
-		}
+//		else { //Sin argumentos -> Imprimimos cambioPila
+//			aux += Integer.toString(cambioPila);
+//		}
 		aux += ";\n";
 		return aux;
 	}
