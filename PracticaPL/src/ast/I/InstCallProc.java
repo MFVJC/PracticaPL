@@ -11,8 +11,8 @@ public class InstCallProc extends I {
 	private List<E> argumentos;
 	private SentenciaAbstracta referencia;
 	public InstCallProc(E nombre_funcion, List<E> argumentos,int fila,int columna) {
-	       nombre_funcion = nombre_funcion;
-	       argumentos = argumentos;
+	         this.nombre_funcion = nombre_funcion;
+	         this.argumentos = argumentos;
 		     this.fila = fila;
 		     this.columna = columna;
 	}     

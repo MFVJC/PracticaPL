@@ -36,9 +36,6 @@ public class AS {
 	  public E dollar(E opnd1,int fila,int columna) {return new Dollar(opnd1,fila,columna);}
 	  public E nnew(Tipo tipo, E tam,int fila,int columna) {return new New(tipo, tam,fila,columna);} //nnew para que no coincida con la palabra reservada
 	  public E not(E opnd1,int fila,int columna) {return new Not(opnd1,fila,columna);}
-	  
-	  // esta función yo la quitaría
-	  public E menos(E opnd1,int fila,int columna) {return new Menos(opnd1,fila,columna);}
 
 	  //Metodos para la creacion de clases de instrucciones
 	  public I instIf(E condicion, List<I> cuerpo_if, List<I> cuerpo_else,int fila,int columna) {return new InstIf(condicion, cuerpo_if, cuerpo_else,fila,columna);}

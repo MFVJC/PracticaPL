@@ -141,8 +141,8 @@ E7  ::= E8:op1
 {:RESULT=op1;:};
 	
 	//3.6) Operador menos
-E8  ::= MENOS:menos E9:op1
-{:RESULT=as.menos(op1, menos.getFila(), menos.getColumna());:};
+//E8  ::= MENOS:menos E9:op1
+//{:RESULT=as.menos(op1, menos.getFila(), menos.getColumna());:};
 E8  ::= E9:op1
 {:RESULT=op1;:};
 
