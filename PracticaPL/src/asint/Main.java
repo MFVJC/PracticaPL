@@ -90,8 +90,8 @@ public class Main {
 		 
 	
 			  if(GestionErroresTiny.numeroErroresSemanticos==0) { //Si no hemos tenido errores en el alex, asint y asem, procedemos a generar el codigo
-				  //3) Generacion de Codigo
-				  GeneradorCodigo codeGenerator = new GeneradorCodigo(programa);
+				 //3) Generacion de Codigo
+				 GeneradorCodigo codeGenerator = new GeneradorCodigo(programa);
 				 codeGenerator.generaCodigo(); 
 			  }
 		 }
