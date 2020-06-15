@@ -12,6 +12,7 @@ import ast.SentenciaAbstracta;
 import ast.E.E;
 import ast.I.I;
 import codeGenerator.GeneradorCodigo;
+import errors.GestionErroresTiny;
 
 public class Main {
 	public static String FILE_NAME;
@@ -92,6 +93,6 @@ public class Main {
 			 GeneradorCodigo codeGenerator = new GeneradorCodigo(programa);
 			 codeGenerator.generaCodigo(); 
 		  }
-	   }
+	}
 	
 }
