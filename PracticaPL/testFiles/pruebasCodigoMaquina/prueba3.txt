@@ -1,6 +1,6 @@
 int resultado =1;
 proc controlador (int decision){
-	int vect[4] = {100, 7, 13, 4};
+	int vect[4] = {103, 7, 13, 4};
 	switch(decision){
 		case 1{
 		vect[1] = 6;

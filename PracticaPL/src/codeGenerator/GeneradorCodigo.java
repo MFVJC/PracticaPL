@@ -255,6 +255,7 @@ public class GeneradorCodigo {
 				generaCodigoExpresion(instruccionAsignacion.getValor());
 				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.STO,-2));
 				break;
+		
 			case CALLPROC:
 				InstCallProc llamadaFuncion = (InstCallProc) instruccion;
 				List<E> listaArgumentos = llamadaFuncion.getArgumentos();
@@ -468,6 +469,7 @@ public class GeneradorCodigo {
 				maxAmbitos++;
 				ambitoActual = maxAmbitos;
 				for(Pair<E,List<I>> caso : instruccionSwitch.getCases()) {
+					if(caso.getKey()!=null) {
 					//para cada caso tenemos que comprobar si coincide con la condición del switch
 					//hay que comprobar si  la condicion == caso.getKey()
 					generaCodigoExpresion(new Equal(condicion,caso.getKey(),caso.getKey().getFila(),caso.getKey().getColumna()));
@@ -478,7 +480,7 @@ public class GeneradorCodigo {
 					listaPosicionesSalto.add(momentoSaltoDefault);
 					//esta es la instrucción a la que hay que añadirle la dirección
 					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.FJP, -1));
-					
+					}
 					generaCodigoCuerpo(caso.getValue());
 					
 					int momentoSaltoFinal = codigoGenerado.size();
@@ -519,7 +521,7 @@ public class GeneradorCodigo {
 	//codeR del pdf de Generación de código
 	private void generaCodigoExpresion(E expresion) throws Exception {
 		if(expresion!=null) {
-		if(expresion.tipoSentencia() == EnumeradoTipoGeneral.EXPRESION_BINARIA) {
+		if(expresion.tipoSentencia() == EnumeradoTipoGeneral.EXPRESION_BINARIA && expresion.tipoExpresion() != TipoE.SQUAREBRACKET) {
 			EBin expresionBinaria = (EBin)expresion;
 			generaCodigoExpresion(expresionBinaria.opnd1());
 			generaCodigoExpresion(expresionBinaria.opnd2());
@@ -579,10 +581,12 @@ public class GeneradorCodigo {
 					case DOLLAR:
 						//hay que generar el código del array
 						//generaCodigoLeft(((Dollar) expresion).opnd1());
-						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
+						generaCodigoLeft(((Dollar) expresion).opnd1());
+						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0)); //cojo el valor de esa dirección
 						break;
 					case DOT:
 						//generar código para el struct de la izquierda
+						generaCodigoLeft(expresion);
 						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
 						break;
 					case FUNCION:
@@ -608,6 +612,7 @@ public class GeneradorCodigo {
 									tamanoTipo = getBloqueNivelActual().getTamanoTipo(tipoStruct2.getNombreStruct());
 								}else {
 									// no se como hacerlo bien con el array
+									System.out.println(((Iden)parametro.getValue()).getNombre());
 									tamanoTipo = getBloqueNivelActual().getTamanoTipo(((Iden)parametro.getValue()).getNombre());
 									
 								}
@@ -672,6 +677,8 @@ public class GeneradorCodigo {
 						break;
 					case SQUAREBRACKET:
 						generaCodigoLeft(expresion);
+						generaCodigoExpresion(expresion.opnd2());
+						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.ADD,-1));
 						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
 						break;
 					default:
@@ -703,52 +710,16 @@ public class GeneradorCodigo {
 					//si la dirección esta bien guardada debería bastar con esto
 					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(getBloqueNivelActual().getDireccionIdentificador(iden.getNombre()))));
 					
-					
-
-
-					//las locales también entran aquí y no se distinguir entre locales y globales solo por instDeclaracion
-					//Si x es una variable
-					/*si es global
-					 * 	Apila la dirección de iden (ldc) // guarda en la cima lo que le pases / puedes usar ldo y coger lo que hay en la pila en esa posición  para guardarlo en la cima
-					*/
-					
-					/*si es local o parámetro por valor
-						Apila con indirecciones (ldo) // lo que coges es lo que hay en la pila en esa posición y lo guardas en la cima
-						
-						Apila la dirección de iden (ldc)
-						suma
-						
-						//apilaind (ind) esto sería para parámetros por referencia
-						
-						Si es p
-						*/ 
 				break;
 
 			case SQUAREBRACKET:
 				SquareBracket accesoArray = (SquareBracket) expresion;
-//				List<Integer> indices = new ArrayList<>();
-				
+
 				E op1 = accesoArray.opnd1();
-				//eso no funciona brother
-//				int indice = Integer.parseInt(((Num) accesoArray.opnd2()).num()); //Doy por hecho que lo que va dentro de los corchetes es un num (COMPROBACION DE TIPOS)
-//				indices.add(indice);
-//				
-//				while(op1.tipoExpresion() == TipoE.SQUAREBRACKET) {
-//					E operando2 = op1.opnd2();
-//					if(operando2 instanceof Num) {
-//						indice = Integer.parseInt(((Num) op1.opnd2()).num());
-//						indices.add(indice);
-//						op1 = ((SquareBracket) op1).opnd1();
-//					}else if (operando2 instanceof Iden) {
-//						Iden identificadorVar = (Iden)operando2;
-//						
-//						//aplicamos indirección para tenerlo 
-//						
-//					}
-//				}
+
 				generaCodigoLeft(op1);
 				generaCodigoExpresion(accesoArray.opnd2());
-				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.ADD,1));
+				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.ADD,-1));
 				
 				break;
 			case DOT:

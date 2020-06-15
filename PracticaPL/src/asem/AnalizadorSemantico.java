@@ -49,6 +49,9 @@ public class AnalizadorSemantico {
 						break;
 					case CALLPROC:
 						InstCallProc llamadaProcedimiento = (InstCallProc) sentencia;
+						Iden id  =(Iden)llamadaProcedimiento.getNombre_funcion();
+						if(id == null)
+							System.out.println("Que pasa aquí");
 						SentenciaAbstracta referenciaDeclaracion = tabla.getSentenciaDeclaracion(((Iden)llamadaProcedimiento.getNombre_funcion()).getNombre());
 						if(referenciaDeclaracion!=null) {
 							llamadaProcedimiento.setReferencia(referenciaDeclaracion);
@@ -341,7 +344,6 @@ public class AnalizadorSemantico {
 				for(Pair<Tipo,E> atributo : declaracionFuncion.getArgs()) {
 					if(tiposExpresion(argumentos.get(i)).tipoEnumerado() != atributo.getKey().tipoEnumerado()) {
 						correctArguments = false;
-					} else {
 						GestionErroresTiny.errorSemantico("Error tipos. El parámetro número " + i + " no concuerda con el tipo del atributo de la función. Atributo: " + ((Iden)atributo.getValue()).getNombre(),sentencia.getFila(),sentencia.getColumna());
 					}
 					i++;
@@ -666,11 +668,7 @@ public class AnalizadorSemantico {
 						GestionErroresTiny.errorSemantico("El nombre de la función ha de ser un identificador", sentencia.getFila(), sentencia.getColumna());
 					}
 					for(E argumento: argumentos) {
-						if(argumento instanceof Iden) {
-							tiposLlamada.add(((Iden)argumento).getTipo());
-						}else if(argumento instanceof SquareBracket) {
-							tiposLlamada.add(tiposExpresion(argumento));
-						}
+						tiposLlamada.add(tiposExpresion(argumento));
 					}
 					InstDeclFun declaracionFuncion = (InstDeclFun) llamada.getReferencia();
 					int i = 0;
