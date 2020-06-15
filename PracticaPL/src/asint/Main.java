@@ -79,20 +79,22 @@ public class Main {
 		 asint.setScanner(alex);
 		 List<I> programa = (List<I>) asint.parse().value;
 		 
-		 if(correcto) {
+		 if(GestionErroresTiny.numeroErroresSintacticos ==0) {
 			 	//1.1) Mostramos el AST resultante del analisis sintactico 
 			 String tree = programa.toString().substring(1, programa.toString().length()-1);
 			 System.out.println(printTree("_PROGR_", splitFromParent(tree), "", true));
 			 
 			//2) Analisis Semantico	 
 			 AnalizadorSemantico asem = new AnalizadorSemantico(programa);
-			 correcto = asem.analizaSemantica(); 
+			 asem.analizaSemantica(); 
+		 
+	
+			  if(GestionErroresTiny.numeroErroresSemanticos==0) { //Si no hemos tenido errores en el alex, asint y asem, procedemos a generar el codigo
+				 GeneradorCodigo codeGenerator = new GeneradorCodigo(programa);
+				 codeGenerator.generaCodigo(); 
+			  }
 		 }
-
-		  if(correcto) { //Si no hemos tenido errores en el alex, asint y asem, procedemos a generar el codigo
-			 GeneradorCodigo codeGenerator = new GeneradorCodigo(programa);
-			 codeGenerator.generaCodigo(); 
-		  }
+		  
 	}
 	
 }
