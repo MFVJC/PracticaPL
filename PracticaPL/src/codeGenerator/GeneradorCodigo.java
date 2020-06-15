@@ -274,14 +274,17 @@ public class GeneradorCodigo {
 					}else if(tipoParametro.tipoEnumerado() == EnumeradoTipos.STRUCT || tipoParametro.tipoEnumerado() == EnumeradoTipos.ARRAY) {
 						generaCodigoLeft(listaArgumentos.get(i)); //guardas la direccion
 						int tamanoTipo =0;
+						int direccion = 0;
 						if(tipoParametro instanceof TipoStruct) {
 							TipoStruct tipoStruct2 = (TipoStruct)tipoParametro;
+							direccion =getBloqueNivelActual().getDireccionIdentificador(tipoStruct2.getNombreStruct());
 							tamanoTipo = getBloqueNivelActual().getTamanoTipo(tipoStruct2.getNombreStruct());
 						}else {
 							// no se como hacerlo bien con el array
 							tamanoTipo = getBloqueNivelActual().getTamanoTipo(((Iden)parametro.getValue()).getNombre());
 							
 						}
+						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(direccion)));
 						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.MOVS,tamanoTipo-1,Integer.toString(tamanoTipo)));
 					}else {
 						//es un parámetro simple

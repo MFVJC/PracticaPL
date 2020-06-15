@@ -1,3 +1,12 @@
+struct{
+	int declaracion1;
+	const boolean declaracion2 = true;
+	int declaracion3 = 1;
+}nombreDelStruct;
+nombreDelStruct persona;
+persona.declaracion1=7;
+persona.declaracion3=10;
+
 int resultado =1;
 proc controlador (int decision){
 	int vect[4] = {103, 7, 13, 4};
