@@ -8,6 +8,7 @@ import ast.*;
 import ast.E.*;
 import ast.I.*;
 import ast.T.*;
+import alex.TokenValue;
 import java.util.List;
 import java.util.ArrayList;
 import javafx.util.Pair;
@@ -33,11 +34,9 @@ init with {:
 //1) Lista de terminales y no terminales con sus tipos correspondientes
 
 	//1.1) Terminales
-terminal IGUAL, COMA, PCOMA, PUNTO, MAS, MENOS, POR, DIV, MOD, AND, OR, NOT, 
+terminal TokenValue IGUAL, COMA, PCOMA, PUNTO, MAS, MENOS, POR, DIV, MOD, AND, OR, NOT, 
  LT, GT, LE, GE, LA, LC, CA, CC, PA, PC, SL, IF, DO, ELEV, EQUAL, INT, THEN,
- TRUE, FALSE, ELSE, PROC, CONST, WHILE, SWITCH, RETURN, BOOLEAN, DEFAULT, CASE, STRUCT, NEW, PUNTERO;
-
-terminal String IDEN, ENT;
+ TRUE, FALSE, ELSE, PROC, CONST, WHILE, SWITCH, RETURN, BOOLEAN, DEFAULT, CASE, STRUCT, NEW, PUNTERO, IDEN, ENT;
 
 
 	//1.2) No terminales
@@ -70,97 +69,97 @@ S   ::=
 //3) Gramatica de Expresiones (ordenada respecto a la precedencia de los distintos operadores)
 
 	//3.1) Operadores Logicos
-E0  ::= E1:op1 OR E0:op2
-{:RESULT=as.or(op1, op2);:};
+E0  ::= E1:op1 OR:or E0:op2
+{:RESULT=as.or(op1, op2, or.getFila(), or.getColumna());:};
 E0  ::= E1:op1
 {:RESULT=op1;:};
 
-E1  ::= E2:op1 AND E1:op2
-{:RESULT=as.and(op1, op2);:};
+E1  ::= E2:op1 AND:and E1:op2
+{:RESULT=as.and(op1, op2, and.getFila(), and.getColumna());:};
 E1  ::= E2:op1
 {:RESULT=op1;:};
 
 	//3.2) Operadores comparativos
-E2  ::= E3:op1 NOT IGUAL E3:op2
-{:RESULT=as.notEqual(op1, op2);:};
-E2  ::= E3:op1 GT E3:op2
-{:RESULT=as.greaterThan(op1, op2);:};
-E2  ::= E3:op1 LT E3:op2
-{:RESULT=as.lessThan(op1, op2);:};
-E2  ::= E3:op1 LE E3:op2
-{:RESULT=as.lessEqual(op1, op2);:};
-E2  ::= E3:op1 GE E3:op2
-{:RESULT=as.greaterEqual(op1, op2);:};
-E2  ::= E3:op1 EQUAL E3:op2
-{:RESULT=as.equal(op1, op2);:};
+E2  ::= E3:op1 NOT:not IGUAL E3:op2
+{:RESULT=as.notEqual(op1, op2, not.getFila(), not.getColumna());:};
+E2  ::= E3:op1 GT:gt E3:op2
+{:RESULT=as.greaterThan(op1, op2, gt.getFila(), gt.getColumna());:};
+E2  ::= E3:op1 LT:lt E3:op2
+{:RESULT=as.lessThan(op1, op2, lt.getFila(), lt.getColumna());:};
+E2  ::= E3:op1 LE:le E3:op2
+{:RESULT=as.lessEqual(op1, op2, le.getFila(), le.getColumna());:};
+E2  ::= E3:op1 GE:ge E3:op2
+{:RESULT=as.greaterEqual(op1, op2, ge.getFila(), ge.getColumna());:};
+E2  ::= E3:op1 EQUAL:eq E3:op2
+{:RESULT=as.equal(op1, op2, eq.getFila(), eq.getColumna());:};
 E2  ::= E3:op1
 {:RESULT=op1;:};
 
 	//3.3) Operadores aritmeticos
 		//3.3.1) Suma y Resta
-E3  ::= E3:op1 MAS E4:op2
-{:RESULT=as.suma(op1, op2);:};
-E3  ::= E3:op1 MENOS E4:op2
-{:RESULT=as.resta(op1, op2);:};
+E3  ::= E3:op1 MAS:mas E4:op2
+{:RESULT=as.suma(op1, op2, mas.getFila(), mas.getColumna());:};
+E3  ::= E3:op1 MENOS:menos E4:op2
+{:RESULT=as.resta(op1, op2, menos.getFila(), menos.getColumna());:};
 E3  ::= E4:op1
 {:RESULT=op1;:};
 
 		//3.3.2) Multiplicacion, Division y Modulo
-E4  ::= E4:op1 POR E5:op2
-{:RESULT=as.mul(op1, op2);:};
-E4  ::= E4:op1 DIV E5:op2
-{:RESULT=as.div(op1, op2);:};
-E4  ::= E4:op1 MOD E5:op2
-{:RESULT = as.mod(op1, op2);:};
+E4  ::= E4:op1 POR:por E5:op2
+{:RESULT=as.mul(op1, op2, por.getFila(), por.getColumna());:};
+E4  ::= E4:op1 DIV:div E5:op2
+{:RESULT=as.div(op1, op2, div.getFila(), div.getColumna());:};
+E4  ::= E4:op1 MOD:mod E5:op2
+{:RESULT = as.mod(op1, op2, mod.getFila(), mod.getColumna());:};
 E4  ::= E5:op1
 {:RESULT=op1;:};
 
 		//3.3.3) Elevado
-E5  ::= E5:op1 ELEV E6:op2
-{:RESULT=as.elev(op1, op2);:};
+E5  ::= E5:op1 ELEV:elev E6:op2
+{:RESULT=as.elev(op1, op2, elev.getFila(), elev.getColumna());:};
 E5  ::= E6:op1
 {:RESULT = op1;:};
 
 	//3.4) Operador negacion
-E6  ::= NOT E6:op1
-{:RESULT=as.not(op1);:};
+E6  ::= NOT:not E6:op1
+{:RESULT=as.not(op1, not.getFila(), not.getColumna());:};
 E6  ::= E7:op1
 {:RESULT=op1;:};
 
 	//3.5) Operadores corchete, punto, asterisco y new
-E7  ::= E7:op1 CA E0:op2 CC
-{:RESULT=as.squareBracket(op1, op2);:};
-E7  ::= E7:op1 PUNTO E9:op2 
-{:RESULT = as.dot(op1, op2);:}; //ESTO ALOMEJOR HAY QUE CAMBIARLO PARA QUE PASARLE UN OBJETO IDEN (FRANKY)
-E7  ::= PUNTERO E9:op1
-{:RESULT = as.dollar(op1);:};
-E7	::= NEW TIPO:tipo CA E0:tam CC
-{:RESULT = as.nnew(tipo, tam);:};
-E7	::= NEW TIPO:tipo CA CC
-{:RESULT = as.nnew(tipo, as.num("1"));:};
+E7  ::= E7:op1 CA:ca E0:op2 CC
+{:RESULT=as.squareBracket(op1, op2, ca.getFila(), ca.getColumna());:};
+E7  ::= E7:op1 PUNTO:dot E9:op2 
+{:RESULT = as.dot(op1, op2, dot.getFila(), dot.getColumna());:}; //ESTO ALOMEJOR HAY QUE CAMBIARLO PARA QUE PASARLE UN OBJETO IDEN (FRANKY)
+E7  ::= PUNTERO:puntero E9:op1
+{:RESULT = as.dollar(op1, puntero.getFila(), puntero.getColumna());:};
+E7	::= NEW:nnew TIPO:tipo CA E0:tam CC
+{:RESULT = as.nnew(tipo, tam, nnew.getFila(), nnew.getColumna());:};
+E7	::= NEW:nnew TIPO:tipo CA CC
+{:RESULT = as.nnew(tipo, as.num("1", nnew.getFila(), nnew.getColumna()), nnew.getFila(), nnew.getColumna());:};
 E7  ::= E8:op1
 {:RESULT=op1;:};
 	
 	//3.6) Operador menos
-E8  ::= MENOS E9:op1
-{:RESULT=as.menos(op1);:};
+E8  ::= MENOS:menos E9:op1
+{:RESULT=as.menos(op1, menos.getFila(), menos.getColumna());:};
 E8  ::= E9:op1
 {:RESULT=op1;:};
 
 
 	//3.7) Terminales y llamada a funcion como expresion
 E9  ::= ENT:op1
-{:RESULT=as.num(op1);:};
+{:RESULT=as.num(op1.getLexema(), op1.getFila(), op1.getColumna());:};
 E9  ::= IDEN:op1
-{:RESULT=as.iden(op1);:};
+{:RESULT=as.iden(op1.getLexema(), op1.getFila(), op1.getColumna());:};
 E9  ::= PA E0:op1 PC
 {:RESULT=op1;:};
-E9  ::= TRUE
-{:RESULT=as.basicTrue();:};
-E9  ::= FALSE
-{:RESULT=as.basicFalse();:};
-E9  ::= IDEN:id PA LIST_ARG:args PC
-{:RESULT=as.llamadaFuncion(as.iden(id),args);:};
+E9  ::= TRUE:tru
+{:RESULT=as.basicTrue(tru.getFila(), tru.getColumna());:};
+E9  ::= FALSE:fal
+{:RESULT=as.basicFalse(fal.getFila(), fal.getColumna());:};
+E9  ::= IDEN:id PA LIST_ARG:args PC:pc
+{:RESULT=as.llamadaFuncion(as.iden(id.getLexema(), id.getFila(), id.getColumna()), args, pc.getFila(), pc.getColumna());:};
 
 		//3.7.1) No terminales auxiliares para la llamada a funcion como expresion
 //Sin argumentos
@@ -199,19 +198,34 @@ INST ::= INST_CALL_PROC:op1
 {:RESULT = op1;:};
 
 	//4.2) Instruccion If
-INST_IF ::= IF PA E0:condicion PC LA S:cuerpo LC
-{:RESULT = as.instIf(condicion, cuerpo, null);:};
-INST_IF ::= IF PA E0:condicion PC LA S:cuerpo_if LC ELSE LA S:cuerpo_else LC
-{:RESULT = as.instIf(condicion, cuerpo_if, cuerpo_else);:};
+INST_IF ::= IF:iff PA E0:condicion PC LA S:cuerpo LC
+{:RESULT = as.instIf(condicion, cuerpo, null, iff.getFila(), iff.getColumna());:};
+INST_IF ::= IF:iff PA E0:condicion PC LA S:cuerpo_if LC ELSE LA S:cuerpo_else LC
+{:RESULT = as.instIf(condicion, cuerpo_if, cuerpo_else, iff.getFila(), iff.getColumna());:};
+
+INST_IF ::= IF error LC
+{:System.err.println("Error en la condicion del if\n");:};
+INST_IF ::= IF E0 error LC
+{:System.err.println("Error en el cuerpo del if o del else\n");:};
+
 
 	//4.3) Instruccion while
-INST_WHILE ::= WHILE PA E0:condicion PC LA S:cuerpo LC
-{:RESULT = as.instWhile(condicion, cuerpo);:};
+INST_WHILE ::= WHILE:whilee PA E0:condicion PC LA S:cuerpo LC
+{:RESULT = as.instWhile(condicion, cuerpo, whilee.getFila(), whilee.getColumna());:};
+
+INST_WHILE ::= WHILE error LC
+{:System.err.println("Error en la condicion del while\n");:};
+INST_WHILE ::= WHILE E0 error LC
+{:System.err.println("Error en el cuerpo del while\n");:};
+
 
 	//4.4) Instruccion switch
-INST_SWITCH ::= SWITCH PA IDEN:condicion PC LA LIST_CASE:list_cases LC
-{:RESULT = as.instSwitch(as.iden(condicion), list_cases);:};
+INST_SWITCH ::= SWITCH:switchh PA IDEN:condicion PC LA LIST_CASE:list_cases LC
+{:RESULT = as.instSwitch(as.iden(condicion.getLexema(), condicion.getFila(), condicion.getColumna()), list_cases, switchh.getFila(), switchh.getColumna());:};
 		
+INST_SWITCH ::= SWITCH error LC
+{:System.err.println("Error en el selector del switch\n");:};
+
 		//4.4.1) No terminales auxiliares para la instruccion switch
 //Lista de Cases
 LIST_CASE ::= 
@@ -225,14 +239,22 @@ LIST_CASE ::= SINGLE_DEFAULT:defa
 SINGLE_CASE ::= CASE E0:selector LA S:cuerpo LC
 {:RESULT = new Pair<E, List<I>>(selector, cuerpo);:};
 
+SINGLE_CASE ::= CASE error LC
+{:System.err.println("Error en la expresion del case del switch\n");:};
+SINGLE_CASE ::= CASE E0 error LC
+{:System.err.println("Error en el cuerpo del case del switch\n");:};
+
+
 //Default
 SINGLE_DEFAULT ::= DEFAULT LA S:cuerpo LC
 {:RESULT = new Pair<E, List<I>>(null, cuerpo);:};
 
+SINGLE_DEFAULT ::= DEFAULT error LC
+{:System.err.println("Error en el cuerpo del default del switch\n");:};
 
 	//4.5) Instruccion asignacion
-INST_ASIG ::= E0:id IGUAL E0:valor PCOMA
-{:RESULT = as.instAsignacion(id, valor);:};
+INST_ASIG ::= E0:id IGUAL:igual E0:valor PCOMA
+{:RESULT = as.instAsignacion(id, valor, igual.getFila(), igual.getColumna());:};
 
 	//4.6) Instruccion declaracion
 	
@@ -246,7 +268,7 @@ INST_DECL ::= TIPO:tipoBase IDEN:id TIPO_ARRAY:tipoArray PCOMA
 	  t.setTipoBase(tipoBase);
 	  tipoDeclaracion = tipoArray;
   }
-  RESULT = as.instDeclaracion(false, tipoDeclaracion, as.iden(id), null);
+  RESULT = as.instDeclaracion(false, tipoDeclaracion, as.iden(id.getLexema(), id.getFila(), id.getColumna()), null, id.getFila(), id.getColumna());
 :};
 
 		//4.6.2) Declaracion con valores inicializados
@@ -259,7 +281,7 @@ INST_DECL ::= TIPO:tipoBase IDEN:id TIPO_ARRAY:tipoArray IGUAL INIT_LIST_VAL:val
 	  t.setTipoBase(tipoBase);
 	  tipoDeclaracion = tipoArray;
   }
-  RESULT = as.instDeclaracion(false, tipoDeclaracion, as.iden(id), valor);
+  RESULT = as.instDeclaracion(false, tipoDeclaracion, as.iden(id.getLexema(), id.getFila(), id.getColumna()), valor, id.getFila(), id.getColumna());
 :};
 
 		//4.6.3) Declaracion constante (inicializacion forzosa)
@@ -272,8 +294,18 @@ INST_DECL ::= CONST TIPO:tipoBase IDEN:id TIPO_ARRAY:tipoArray IGUAL INIT_LIST_V
 	  t.setTipoBase(tipoBase);
 	  tipoDeclaracion = tipoArray;
   }
-  RESULT = as.instDeclaracion(true, tipoDeclaracion, as.iden(id), valor);
+  RESULT = as.instDeclaracion(true, tipoDeclaracion, as.iden(id.getLexema(), id.getFila(), id.getColumna()), valor, id.getFila(), id.getColumna());
 :};
+
+INST_DECL ::= TIPO error PCOMA
+{:System.err.println("Error en la declaracion. Identificador erroneo\n");:};
+INST_DECL ::= TIPO IDEN error PCOMA
+{:System.err.println("Error la declaracion. Valor inicial erroneo\n");:};
+INST_DECL ::= CONST TIPO error PCOMA
+{:System.err.println("Error en la declaracion. Identificado erroneo\n");:};
+INST_DECL ::= CONST TIPO IDEN error PCOMA
+{:System.err.println("Error en la declaracion. Valor inicial erroneo\n");:};
+
 	
 		//4.6.4) No terminales auxiliares para la instruccion declaracion
 //Lista de valores iniciales
@@ -299,7 +331,7 @@ TIPO_BASICO ::= INT:tipoBasico
 TIPO_BASICO ::= BOOLEAN:tipoBasico
 {:RESULT = new TipoBoolean();:};
 TIPO_BASICO ::= IDEN:tipoPropio
-{:RESULT = new TipoStruct(tipoPropio);:}; //REALMENTE NO? REVISAR (JC)
+{:RESULT = new TipoStruct(tipoPropio.getLexema(), tipoPropio.getFila(), tipoPropio.getColumna());:}; //REALMENTE NO? REVISAR (JC)
 
 //Tipos punteros
 TIPO ::= TIPO_BASICO:tipoBasico TIPO_PUNTERO:tipoPuntero
@@ -309,21 +341,27 @@ TIPO ::= TIPO_BASICO:tipoBasico TIPO_PUNTERO:tipoPuntero
   RESULT = tipoPuntero;
 :};
 
-TIPO_PUNTERO ::= PUNTERO
-{:RESULT = new TipoPuntero(null);:};
-TIPO_PUNTERO ::= PUNTERO TIPO_PUNTERO:tipoPuntero
-{:RESULT = new TipoPuntero(tipoPuntero);:};
+TIPO_PUNTERO ::= PUNTERO:puntero
+{:RESULT = new TipoPuntero(null, puntero.getFila(), puntero.getColumna());:};
+TIPO_PUNTERO ::= PUNTERO:puntero TIPO_PUNTERO:tipoPuntero
+{:RESULT = new TipoPuntero(tipoPuntero, puntero.getFila(), puntero.getColumna());:};
 
 //Tipos Arrays
 TIPO_ARRAY ::= 
 {:RESULT = null;:};
-TIPO_ARRAY ::= CA E0:dimension CC TIPO_ARRAY:tipoArray
-{:RESULT = new TipoArray(tipoArray, dimension);:};
+TIPO_ARRAY ::= CA:ca E0:dimension CC TIPO_ARRAY:tipoArray
+{:RESULT = new TipoArray(tipoArray, dimension, ca.getFila(), ca.getColumna());:};
 
 
 	//4.7) Instruccion struct
-INST_STRUCT ::= STRUCT LA LIST_DECL:lista LC IDEN:nombre PCOMA
-{:RESULT = as.instStruct(as.iden(nombre), lista);:};
+INST_STRUCT ::= STRUCT:struct LA LIST_DECL:lista LC IDEN:nombre PCOMA
+{:RESULT = as.instStruct(as.iden(nombre.getLexema(), nombre.getFila(), nombre.getColumna()), lista, struct.getFila(), struct.getColumna());:};
+
+INST_STRUCT ::= STRUCT error PCOMA
+{:System.err.println("Error en la declaracion del struct. Campo erroneo.\n");:};
+INST_STRUCT ::= STRUCT LA LIST_DECL LC error PCOMA
+{:System.err.println("Error en la declaracion del struct. Identificador erroneo.\n");:};
+
 		
 //No terminales auxiliares para la declaracion de struct: implementamos la lista de declaraciones
 LIST_DECL ::= INST_DECL:decl LIST_DECL:lista
@@ -335,9 +373,17 @@ LIST_DECL ::=
 	//4.8) Instruccion declaracion de funcion
 //para diferenciar entre proc y fun necesitamos cambiar el tipo.
 INST_DECL_FUN ::= TIPO:tipo IDEN:id PA LIST_TIPO_ARG:argumentos PC LA S:cuerpo RETURN E0:ret PCOMA LC
-{:RESULT = as.instDeclFun(tipo, as.iden(id), argumentos, cuerpo, ret);:};
+{:RESULT = as.instDeclFun(tipo, as.iden(id.getLexema(), id.getFila(), id.getColumna()), argumentos, cuerpo, ret, id.getFila(), id.getColumna());:};
 INST_DECL_FUN ::= PROC IDEN:id PA LIST_TIPO_ARG:argumentos PC LA S:cuerpo LC
-{:RESULT = as.instDeclFun(null, as.iden(id), argumentos, cuerpo, null);:};
+{:RESULT = as.instDeclFun(null, as.iden(id.getLexema(), id.getFila(), id.getColumna()), argumentos, cuerpo, null, id.getFila(), id.getColumna());:};
+
+INST_DECL_FUN ::= TIPO error LC
+{:System.err.println("Error en la declaracion de la funcion. Identificador erroneo\n");:};
+INST_DECL_FUN ::= TIPO IDEN error LC
+{:System.err.println("Error en la declaracion de la funcion. Parametros erroneos\n");:};
+INST_DECL_FUN ::= TIPO IDEN PA LIST_TIPO_ARG PC error LC
+{:System.err.println("Error en la declaracion de la funcion. Cuerpo erroneo\n");:};
+
 
 //No terminales auxiliares para la instruccion de declaracion de funcion 
 //Implementamos una lista de argumentos con sus respectivos tipos
@@ -355,7 +401,7 @@ CON_TIPO_ARG  ::= TIPO:tipoBase IDEN:nombreArgumento TIPO_ARRAY:tipoArray TIPO_A
 	  t.setTipoBase(tipoBase);
 	  tipoArgumento = tipoArray;
   }
-  argumentos.add(0, new Pair<Tipo, E>(tipoArgumento, as.iden(nombreArgumento))); 
+  argumentos.add(0, new Pair<Tipo, E>(tipoArgumento, as.iden(nombreArgumento.getLexema(), nombreArgumento.getFila(), nombreArgumento.getColumna()))); 
   RESULT=argumentos;
 :};
 
@@ -369,7 +415,7 @@ TIPO_ARG      ::= COMA TIPO:tipoBase IDEN:nombreArgumento TIPO_ARRAY:tipoArray T
 	  t.setTipoBase(tipoBase);
 	  tipoArgumento = tipoArray;
   }
-  argumentos.add(0, new Pair<Tipo, E>(tipoArgumento, as.iden(nombreArgumento))); 
+  argumentos.add(0, new Pair<Tipo, E>(tipoArgumento, as.iden(nombreArgumento.getLexema(), nombreArgumento.getFila(), nombreArgumento.getColumna()))); 
   RESULT=argumentos;
 :};
 
@@ -378,4 +424,4 @@ TIPO_ARG	  ::=
 
 	//4.9) Instruccion llamada a procedimiento
 INST_CALL_PROC ::= IDEN:id PA LIST_ARG:args PC PCOMA
-{:RESULT = as.instCallProc(as.iden(id), args);:};
+{:RESULT = as.instCallProc(as.iden(id.getLexema(), id.getFila(), id.getColumna()), args, id.getFila(), id.getColumna());:};

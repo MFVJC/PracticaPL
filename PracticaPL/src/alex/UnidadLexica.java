@@ -11,8 +11,9 @@ public class UnidadLexica extends Symbol {
 	 this.fila = fila;
 	 this.columna = columna;
    }
+   
    public int clase () {return sym;}
-   public String lexema() {return (String)value;}
+   public String obtenerLexema() {return ((TokenValue) value).getLexema();}
    public int getFila() {return fila;}
    public int getColumna() {return columna;}
 }

@@ -1,5 +1,6 @@
 package alex;
 import asint.ClaseLexica;
+import errors.GestionErroresTiny;
 
 public class ALexOperations {
   private AnalizadorLexicoTiny alex;
@@ -147,6 +148,6 @@ public class ALexOperations {
   
   
   public void error() {
-    System.out.println("Error Lexico: Caracter inesperado: " + alex.lexema() + " encontrado en la fila " + alex.fila());
+    GestionErroresTiny.errorLexico(alex.fila(), alex.columna(), alex.lexema());
   }
 }

@@ -8,12 +8,14 @@ import errors.GestionErroresTiny;
 %class AnalizadorLexicoTiny
 %unicode
 %public
+%char
 
 %{
   private ALexOperations ops;
   private GestionErroresTiny errores;
   public String lexema() {return yytext();}
   public int fila() {return yyline+1;}
+  public int columna() {return yychar+1;}
   public void fijaGestionErrores(GestionErroresTiny errores) {
    this.errores = errores;
   }
@@ -33,7 +35,7 @@ digitoPositivo = [1-9]
 digito = ({digitoPositivo}|0)
 parteEntera = {digitoPositivo}{digito}*
 parteDecimal = {digito}* {digitoPositivo}
-separador = [ \t\r\b\n]
+separador = [ \t\r\b]
 comentario = #[^\n]* 
 int = int
 boolean = boolean
@@ -83,10 +85,12 @@ coma  = \,
 puntoComa = \;
 punto = \.
 puntero = \$
+salto = \n
 
 %%
 {separador}               {}
 {comentario}              {}
+{salto}					  {yychar=-1;}
 
 {int}                     {return ops.unidadInt();}
 {boolean}                 {return ops.unidadBoolean();}

@@ -15,6 +15,7 @@ import codeGenerator.GeneradorCodigo;
 
 public class Main {
 	public static String FILE_NAME;
+	public static boolean correcto = true;
 	//Funcion auxiliar encargada de separar obtener los hijos de un nodo del arbol
 	public static List<String> splitFromParent(String parent){
 		List<String> children = new ArrayList<String>();
@@ -68,31 +69,29 @@ public class Main {
 	//Introducir el codigo de prueba en el archivo input.txt
 	//Al ejecutar el programa, el AST se imprimira por pantalla
 	public static void main(String[] args) throws Exception {
-
-	     boolean correcto = true;
-	     Reader input = new InputStreamReader(new FileInputStream(args[0]));
-	     FILE_NAME = args[0];
-		// Reader input = new InputStreamReader(new FileInputStream("auxiliar.txt"));
+	    // Reader input = new InputStreamReader(new FileInputStream(args[0]));
+	    // FILE_NAME = args[0];
+		 Reader input = new InputStreamReader(new FileInputStream("auxiliar.txt"));
 	     //1) Analisis Lexico y Sintactico
 	     AnalizadorLexicoTiny alex = new AnalizadorLexicoTiny(input);
 		 AnalizadorSintacticoTiny asint = new AnalizadorSintacticoTiny(alex);
 		 asint.setScanner(alex);
 		 List<I> programa = (List<I>) asint.parse().value;
 		 
-		 	//1.1) Mostramos el AST resultante del analisis sintactico 
-		 String tree = programa.toString().substring(1, programa.toString().length()-1);
-		 System.out.println(printTree("_PROGR_", splitFromParent(tree), "", true));
-		 
-		 //2) Analisis Semantico
-		 AnalizadorSemantico asem = new AnalizadorSemantico(programa);
-		 correcto = asem.analizaSemantica();
+		 if(correcto) {
+			 	//1.1) Mostramos el AST resultante del analisis sintactico 
+			 String tree = programa.toString().substring(1, programa.toString().length()-1);
+			 System.out.println(printTree("_PROGR_", splitFromParent(tree), "", true));
+			 
+			//2) Analisis Semantico	 
+			 AnalizadorSemantico asem = new AnalizadorSemantico(programa);
+			 correcto = asem.analizaSemantica(); 
+		 }
 
-
-		// if(correcto) { //Si no hemos tenido errores en el alex, asint y asem, procedemos a generar el codigo
+		  if(correcto) { //Si no hemos tenido errores en el alex, asint y asem, procedemos a generar el codigo
 			 GeneradorCodigo codeGenerator = new GeneradorCodigo(programa);
 			 codeGenerator.generaCodigo(); 
-
-		// }
+		  }
 	   }
 	
 }
