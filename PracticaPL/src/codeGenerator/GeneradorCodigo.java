@@ -260,7 +260,18 @@ public class GeneradorCodigo {
 				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.STO,-2));
 				break;
 			case CALLPROC:
+				//código george
+//				insertComentario("\n\\\\Esto es una llamada a procedimiento\n");
+//				InsCall insCall = (InsCall) ins;
+//				int l = ((InsProc) insCall.getRef()).getDirIni();
+//				int s = ((InsProc) insCall.getRef()).getTamParams();
+//				int n = ((InsProc) insCall.getRef()).getPa();
+//				int m = bloqueActGenera().getPa() + 1;
+//				insertIns("mst " + (m - n), 5);
 				
+				//después de esto hay que coger la lista de valores de la llamada
+				// y la lista de parámetros de la declaración de la función
+				InstCallProc llamadaFuncion = (InstCallProc) instruccion;
 				break;
 			case DECL:
 				InstDeclaracion instruccionDeclaracion = (InstDeclaracion) instruccion;
@@ -325,7 +336,38 @@ public class GeneradorCodigo {
 				
 				break;
 			case DECLFUN:
-				
+				InstDeclFun declaracionFuncion = (InstDeclFun) instruccion;
+				Iden identificadorFuncion= (Iden)declaracionFuncion.getIden();
+				if(declaracionFuncion.getTipo() == null ) { //entonces es un procedimiento
+					maxAmbitos++;
+					ambitoActual = maxAmbitos;
+					
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.SSP,0,Integer.toString(getBloqueNivelActual().getSsp())));
+					int posicionSEP = codigoGenerado.size();
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.SEP,0));
+					generaCodigoCuerpo(declaracionFuncion.getCuerpo());
+					int tamanoPilaFuncion = tamanoPilaEvaluacion(posicionSEP);
+					codigoGenerado.get(posicionSEP).setArgumento1(Integer.toString(tamanoPilaFuncion));
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.RETP,0));
+					ambitoActual = getBloqueNivelActual().getBloquePadre().getPosicionBloque();
+					
+				}else {
+					maxAmbitos++;
+					ambitoActual = maxAmbitos;
+					
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.SSP,0,Integer.toString(getBloqueNivelActual().getSsp())));
+					int posicionSEP = codigoGenerado.size();
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.SEP,0));
+					generaCodigoCuerpo(declaracionFuncion.getCuerpo());
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDA,1,"0","0"));//guardo la dirección del return (primera del bloque) en la pila
+					generaCodigoExpresion(declaracionFuncion.getReturn());//guardo el valor de la expresión del return
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.STO,-2)); //guardo el return
+					int tamanoPilaFuncion = tamanoPilaEvaluacion(posicionSEP);
+					codigoGenerado.get(posicionSEP).setArgumento1(Integer.toString(tamanoPilaFuncion));
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.RETF,0));
+					ambitoActual = getBloqueNivelActual().getBloquePadre().getPosicionBloque();
+					
+				}
 				break;
 			case IF:
 				InstIf instruccionIf = (InstIf) instruccion;
@@ -480,6 +522,14 @@ public class GeneradorCodigo {
 				case FUNCION:
 					LlamadaFuncion llamada = (LlamadaFuncion) expresion;
 					InstDeclFun declaracionFuncion =(InstDeclFun)llamada.getReferencia();
+					
+					//Falta este caso tambien
+					
+					
+					
+					
+					
+					
 					break;
 				case IDEN:
 					Iden identificador = (Iden) expresion;
@@ -722,6 +772,30 @@ public class GeneradorCodigo {
 			return new Pair(tamanoArray, new Pair(tamanoTipoBase, dimensiones));
 		}
 	}
-
+	private int tamanoPilaEvaluacion(int posicionInicial) {
+		int maxPila = 0;
+		int bloquesPasados = 0;
+		int tamanoPilaActual=0;
+		for(int i=posicionInicial; i<codigoGenerado.size();++i) {
+			InstruccionMaquina instruccion = codigoGenerado.get(i);
+			if(bloquesPasados ==0) {
+				if(instruccion.getTipoInstruccion() == InstruccionesMaquinaEnum.SSP) {
+					bloquesPasados++;
+				}else {
+					tamanoPilaActual+=instruccion.getCambioPila();
+				}
+			}else {
+				if(instruccion.getTipoInstruccion() == InstruccionesMaquinaEnum.RETF || instruccion.getTipoInstruccion() == InstruccionesMaquinaEnum.RETP) {
+					bloquesPasados--;
+				}
+			}
+			maxPila = Math.max(maxPila,tamanoPilaActual);
+			
+		}
+		
+		
+		
+		return maxPila;
+	}
 	
 }

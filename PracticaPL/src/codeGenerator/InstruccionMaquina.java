@@ -51,6 +51,12 @@ public class InstruccionMaquina {
 	public void setArgumento2(String argumento2) {
 		primerArgumento=argumento2;
 	}
+	public InstruccionesMaquinaEnum getTipoInstruccion() {
+		return tipoInstruccionMaquina;
+	}
+	public int getCambioPila() {
+		return cambioPila;
+	}
 	@Override
 	public String toString() {
 		String aux = tipoInstruccionMaquina.toString() + " ";
