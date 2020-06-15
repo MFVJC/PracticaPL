@@ -699,11 +699,12 @@ public class GeneradorCodigo {
 				Dot dot = (Dot) expresion;
 				E struct = dot.opnd1();
 				E atributo= dot.opnd2();
+				
+				//esto no funciona (no está guardado en la tabla)ç
+				Iden nombreStruct = (Iden)struct;
+				String nombreGeneralStruct = ((TipoStruct)nombreStruct.getTipo()).getNombreStruct();
+				int direccionRelativaCampo= getBloqueNivelActual().getCampoStruct(nombreGeneralStruct,((Iden)atributo).getNombre());
 				generaCodigoLeft(struct); //guarda la direccion del struct
-				
-				//esto no funciona (no está guardado en la tabla)
-				int direccionRelativaCampo= getBloqueNivelActual().getCampoStruct(((Iden)struct).getNombre(),((Iden)atributo).getNombre());
-				
 				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(direccionRelativaCampo))); //guardo la dirección relativa al campo
 				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.ADD,-1)); //las sumo
 				break;
