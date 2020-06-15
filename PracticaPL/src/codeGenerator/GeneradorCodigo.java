@@ -180,7 +180,6 @@ public class GeneradorCodigo {
 				bloqueActual.insertaDimensionesArray(idenDeclaracion, dimensionesArray);
 				break;		
 			default:
-				
 				break;
 			}
 			
@@ -526,124 +525,119 @@ public class GeneradorCodigo {
 			}
 		}
 		else {
-			switch(expresion.tipoExpresion()) {
-				case BASICFALSE:
-					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,"false"));
-					break;
-				case BASICTRUE:
-					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,"true"));
-					break;
-				case DOLLAR:
-					//hay que generar el código del array
-					//generaCodigoLeft(((Dollar) expresion).opnd1());
-					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
-					break;
-				case DOT:
-					//generar código para el struct de la izquierda
-					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
-					break;
-				case FUNCION:
-					LlamadaFuncion llamada = (LlamadaFuncion) expresion;
-					InstDeclFun declaracionFuncion =(InstDeclFun)llamada.getReferencia();
-					List<E> listaArgumentos = llamada.getArgumentos();
-					List<Pair<Tipo,E>> parametros = new ArrayList<>();
-					parametros = declaracionFuncion.getArgs();
-					//declaracionFuncion2.getArgs().forEach(x->parametros.add(x.getValue())); esto si quisiesemos solo los parametros
-					int diferenciaPA = declaracionFuncion.getProfundidadAnidamiento() - getBloqueNivelActual().getProfundidadAnidamiento()+1 ;
-					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.MST,5,Integer.toString(diferenciaPA)));
-					int i=0;
-					for(Pair<Tipo,E> parametro: parametros) {
-						//por referencia
-						Tipo tipoParametro = parametro.getKey();
-						if(tipoParametro.tipoEnumerado() == EnumeradoTipos.PUNTERO) {
-							generaCodigoLeft(listaArgumentos.get(i)); //se carga la dirección de memoria del argumento
-						}else if(tipoParametro.tipoEnumerado() == EnumeradoTipos.STRUCT || tipoParametro.tipoEnumerado() == EnumeradoTipos.ARRAY) {
-							generaCodigoLeft(listaArgumentos.get(i)); //guardas la direccion
-							int tamanoTipo =0;
-							if(tipoParametro instanceof TipoStruct) {
-								TipoStruct tipoStruct2 = (TipoStruct)tipoParametro;
-								tamanoTipo = getBloqueNivelActual().getTamanoTipo(tipoStruct2.getNombreStruct());
+				switch(expresion.tipoExpresion()) {
+					case BASICFALSE:
+						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,"false"));
+						break;
+					case BASICTRUE:
+						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,"true"));
+						break;
+					case DOLLAR:
+						//hay que generar el código del array
+						//generaCodigoLeft(((Dollar) expresion).opnd1());
+						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
+						break;
+					case DOT:
+						//generar código para el struct de la izquierda
+						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
+						break;
+					case FUNCION:
+						LlamadaFuncion llamada = (LlamadaFuncion) expresion;
+						InstDeclFun declaracionFuncion =(InstDeclFun)llamada.getReferencia();
+						List<E> listaArgumentos = llamada.getArgumentos();
+						List<Pair<Tipo,E>> parametros = new ArrayList<>();
+						parametros = declaracionFuncion.getArgs();
+						//declaracionFuncion2.getArgs().forEach(x->parametros.add(x.getValue())); esto si quisiesemos solo los parametros
+						int diferenciaPA = declaracionFuncion.getProfundidadAnidamiento() - getBloqueNivelActual().getProfundidadAnidamiento()+1 ;
+						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.MST,5,Integer.toString(diferenciaPA)));
+						int i=0;
+						for(Pair<Tipo,E> parametro: parametros) {
+							//por referencia
+							Tipo tipoParametro = parametro.getKey();
+							if(tipoParametro.tipoEnumerado() == EnumeradoTipos.PUNTERO) {
+								generaCodigoLeft(listaArgumentos.get(i)); //se carga la dirección de memoria del argumento
+							}else if(tipoParametro.tipoEnumerado() == EnumeradoTipos.STRUCT || tipoParametro.tipoEnumerado() == EnumeradoTipos.ARRAY) {
+								generaCodigoLeft(listaArgumentos.get(i)); //guardas la direccion
+								int tamanoTipo =0;
+								if(tipoParametro instanceof TipoStruct) {
+									TipoStruct tipoStruct2 = (TipoStruct)tipoParametro;
+									tamanoTipo = getBloqueNivelActual().getTamanoTipo(tipoStruct2.getNombreStruct());
+								}else {
+									// no se como hacerlo bien con el array
+									tamanoTipo = getBloqueNivelActual().getTamanoTipo(((Iden)parametro.getValue()).getNombre());
+									
+								}
+								codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.MOVS,tamanoTipo-1,Integer.toString(tamanoTipo)));
 							}else {
-								// no se como hacerlo bien con el array
-								tamanoTipo = getBloqueNivelActual().getTamanoTipo(((Iden)parametro.getValue()).getNombre());
-								
+								//es un parámetro simple
+								generaCodigoExpresion(listaArgumentos.get(i)); // no entiendo exactamente porque vale solo esto
 							}
-							codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.MOVS,tamanoTipo-1,Integer.toString(tamanoTipo)));
-						}else {
-							//es un parámetro simple
-							generaCodigoExpresion(listaArgumentos.get(i)); // no entiendo exactamente porque vale solo esto
+							i++;
 						}
-						i++;
-					}
-
-					Iden identificadorFuncion2 = (Iden)declaracionFuncion.getIden();
-					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.CUP,0,Integer.toString(declaracionFuncion.getTamanoArgumentos()),Integer.toString(getBloqueNivelActual().getDireccionIdentificador(identificadorFuncion2.getNombre()))));
-					
-					
-					
-					break;
-				case IDEN:
-					Iden identificador = (Iden) expresion;
-					if(identificador.getTipo().tipoEnumerado() == EnumeradoTipos.STRUCT) {
-						//entonces hay que generar código para cargar los atributos
-						InstStruct referenciaIdentificador = (InstStruct)identificador.getReferencia();
-						for(I instruccion: referenciaIdentificador.getDeclaraciones()) {
-							InstDeclaracion declaracionAtributo = (InstDeclaracion) instruccion;
-							Iden identificadorCampo = new Iden(identificador.getNombre() + "." + ((Iden)declaracionAtributo.getIden()).getNombre());
-							identificadorCampo.setTipo(declaracionAtributo.getTipo());
-							generaCodigoDireccionIdentificador(identificadorCampo);
+	
+						Iden identificadorFuncion2 = (Iden)declaracionFuncion.getIden();
+						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.CUP,0,Integer.toString(declaracionFuncion.getTamanoArgumentos()),Integer.toString(getBloqueNivelActual().getDireccionIdentificador(identificadorFuncion2.getNombre()))));
+						
+						
+						
+						break;
+					case IDEN:
+						Iden identificador = (Iden) expresion;
+						if(identificador.getTipo().tipoEnumerado() == EnumeradoTipos.STRUCT) {
+							//entonces hay que generar código para cargar los atributos
+							InstStruct referenciaIdentificador = (InstStruct)identificador.getReferencia();
+							for(I instruccion: referenciaIdentificador.getDeclaraciones()) {
+								InstDeclaracion declaracionAtributo = (InstDeclaracion) instruccion;
+								Iden identificadorCampo = new Iden(identificador.getNombre() + "." + ((Iden)declaracionAtributo.getIden()).getNombre());
+								identificadorCampo.setTipo(declaracionAtributo.getTipo());
+								generaCodigoDireccionIdentificador(identificadorCampo);
+								codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
+							}
+						}
+						else {
+							generaCodigoLeft(identificador); //genera la direccion de memoria del identificador
 							codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
 						}
-					}
-					else {
-						generaCodigoLeft(identificador); //genera la direccion de memoria del identificador
+						break;
+					case NEW:
+						New nuevo = (New) expresion;
+						int nuevoTamano = Integer.parseInt(((Num) nuevo.getTam()).num()); //Aqui tenemos el tamano del new entre corchetes
+						Tipo nuevoTipo = nuevo.getTipo();
+						//Nos queda multiplicarlo por el tamano base, que solo es distinto de uno si es de tipo struct
+						switch(nuevoTipo.tipoEnumerado()) {
+						case STRUCT:
+							String nuevoTipoNombre = ((TipoStruct) nuevoTipo).getNombreStruct();
+							nuevoTamano *= getBloqueNivelActual().getTamanoTipo(nuevoTipoNombre);
+							break;
+						default:
+							break;
+						}
+						
+						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1, Integer.toString(nuevoTamano)));
+						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.NEW,-2));
+						break;
+					case NOT:
+						Not not = (Not)expresion;
+						generaCodigoExpresion(not.opnd1());
+						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.NOT,0));
+						
+						break;
+					case NUM:
+						Num numero = (Num) expresion;
+						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,numero.num()));
+						break;
+					case SQUAREBRACKET:
+						generaCodigoLeft(expresion);
 						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
-					}
-					break;
-				case NEW:
-					New nuevo = (New) expresion;
-					int nuevoTamano = Integer.parseInt(((Num) nuevo.getTam()).num()); //Aqui tenemos el tamano del new entre corchetes
-					Tipo nuevoTipo = nuevo.getTipo();
-					//Nos queda multiplicarlo por el tamano base, que solo es distinto de uno si es de tipo struct
-					switch(nuevoTipo.tipoEnumerado()) {
-					case STRUCT:
-						String nuevoTipoNombre = ((TipoStruct) nuevoTipo).getNombreStruct();
-						nuevoTamano *= getBloqueNivelActual().getTamanoTipo(nuevoTipoNombre);
 						break;
 					default:
 						break;
-					}
 					
-					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1, Integer.toString(nuevoTamano)));
-					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.NEW,-2));
-					break;
-				case NOT:
-					Not not = (Not)expresion;
-					generaCodigoExpresion(not.opnd1());
-					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.NOT,0));
-					
-					break;
-				case NUM:
-					Num numero = (Num) expresion;
-					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,numero.num()));
-					break;
-				case SQUAREBRACKET:
-					generaCodigoLeft(expresion);
-					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
-					break;
-				default:
-					break;
-				
+				}	
 			}	
-		}	
 		}
 	}
-	
-	//Genera el codigo para un vector
-	private void generaCodigoVector() {
-		
-	}
-	
+
 	//Genera el codigo para obtener la dirección un identificador
 	private void generaCodigoDireccionIdentificador(E expresion) {
 		if(expresion.tipoExpresion() == TipoE.IDEN) {
