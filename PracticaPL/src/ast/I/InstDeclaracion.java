@@ -54,5 +54,8 @@ public class InstDeclaracion extends I {
 	public List<E> getValor() {
 		return valor;
 	}
+	public void setValor(List<E> valores) {
+		this.valor = valores;
+	}
 
 }

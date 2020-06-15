@@ -324,7 +324,7 @@ public class GeneradorCodigo {
 						break;
 					case STRUCT:
 						instruccionDeclaracion.setConstant(false); // entra en el else if luego aunque haya fallo en el semántico
-						
+						instruccionDeclaracion.setValor(null);
 						//falta asignarle los campos inicializados
 						
 						generaCodigoInstruccion(instruccionDeclaracion);
@@ -348,12 +348,54 @@ public class GeneradorCodigo {
 				}else if(instruccionDeclaracion.getTipo().tipoEnumerado() == EnumeradoTipos.STRUCT) {
 					//tengo que generar el código de dentro del struct
 					TipoStruct tipoStruct = (TipoStruct) instruccionDeclaracion.getTipo();
-						for(I instruccionDentroStruct : ((InstStruct)tipoStruct.getReferencia()).getDeclaraciones()) {
-								//tengo que generar el código para guardar los valores dentro de las regiones de memoria de esas variables
-							
+					String nombreTipoStruct = tipoStruct.getNombreStruct();
+					Iden nombreStruct = (Iden) instruccionDeclaracion.getIden();
+						for(I instruccionDentroStruct : ((InstStruct)tipoStruct.getReferencia()).getDeclaraciones()) {							
+							//tengo que generar el código para guardar los valores dentro de las regiones de memoria de esas variables
+							if(instruccionDentroStruct instanceof InstDeclaracion && ((InstDeclaracion)instruccionDentroStruct).getValor()!=null) {
+								InstDeclaracion declaracionVariableStruct = (InstDeclaracion)instruccionDentroStruct;
+								Iden nombreCampo= (Iden)declaracionVariableStruct.getIden();
+								int direccionStruct = getBloqueNivelActual().getDireccionIdentificador(nombreStruct.getNombre());
+								int direccionRelativaCampo = getBloqueNivelActual().getCampoStruct(nombreTipoStruct, nombreCampo.getNombre());
+								if(declaracionVariableStruct.getTipo().tipoEnumerado() == EnumeradoTipos.ARRAY) {
+									//inicializamos solo la primera dimensión o no en realizad?
+									List<E> valoresIniciales = declaracionVariableStruct.getValor();
+									TipoArray array = (TipoArray)declaracionVariableStruct.getTipo();
+									
+									if(array.getTipoBase().tipoEnumerado() == EnumeradoTipos.ARRAY || array.getTipoBase().tipoEnumerado() == EnumeradoTipos.STRUCT || array.getTipoBase().tipoEnumerado() == EnumeradoTipos.PUNTERO ) { //matrices dentro de struct no
+										
+										//arrays de punteros, structs y matrices nada
+										System.out.println("Operación no soportada");
+									}else {
+										int direccionCampo = direccionStruct + direccionRelativaCampo;
+										int tamanoTipo = 1;
+										for(E valor: valoresIniciales) {
+											//FALTA CHECKEAR RANGO
+											
+											codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(direccionCampo)));
+											
+											generaCodigoExpresion(valor);
+											//Esto guarda el valor de la expresión en la pila
+											codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.STO, -2));
+											//guardamos el valor de la variable
+											direccionCampo+=tamanoTipo;
+										
+										}
+									}
+								}else {
+									//tengo que guardar primero la dirección de memoria de la variable correspondiente al campo del struct
+									codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(direccionStruct)));
+									codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(direccionRelativaCampo)));
+									codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.ADD,-1));
+									generaCodigoExpresion(declaracionVariableStruct.getValor().get(0));
+									//guardo el valor en la cima junto con la dirección del campo
+									
+									codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.STO,-2));
+								}
+							}
+						}
 							
 						}
-				}
 				
 				break;
 			case DECLFUN:
