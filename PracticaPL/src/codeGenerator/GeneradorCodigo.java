@@ -64,11 +64,14 @@ public class GeneradorCodigo {
 				i++;
 			}
 
-
+			
+			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.SSP,0,Integer.toString(listaBloques.get(0).getSsp())));
 			//Generamos el codigo del programa
+			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.SEP,0));
 			generaCodigoCuerpo(this.programa);
-			//int tamPila = tamPilaEvaluacion(1);
-			//codigo.get(1).setName(codigo.get(1).getName() + tamPila);
+			int tamPila = tamanoPilaEvaluacion(1);
+			codigoGenerado.get(1).setArgumento1(Integer.toString(tamPila));
+			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.STP,0));
 			//insertIns("stp", 0);
 			
 			//Escribimos el codigo generado en el archivo de salida
@@ -76,7 +79,7 @@ public class GeneradorCodigo {
 			for(InstruccionMaquina instruccion : codigoGenerado) {
 				//Ellos generan tambien comentario en el codigo para poder leerlo facilmente
 				//Quizas es buena idea, y cambiarlo en la version final
-				writer.write("(" + i + ") " + instruccion.toString());
+				writer.write("{" + i + "} " + instruccion.toString());
 				i++;
 			}
 			//Cerramos el archivo de salida
@@ -330,6 +333,9 @@ public class GeneradorCodigo {
 						break;
 					case STRUCT:
 						instruccionDeclaracion.setConstant(false); // entra en el else if luego aunque haya fallo en el semántico
+						
+						//falta asignarle los campos inicializados
+						
 						generaCodigoInstruccion(instruccionDeclaracion);
 						//si no he guardado ya los valores tengo que asignarlos ya
 						break;
