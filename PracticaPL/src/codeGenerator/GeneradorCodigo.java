@@ -260,18 +260,42 @@ public class GeneradorCodigo {
 				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.STO,-2));
 				break;
 			case CALLPROC:
-				//código george
-//				insertComentario("\n\\\\Esto es una llamada a procedimiento\n");
-//				InsCall insCall = (InsCall) ins;
-//				int l = ((InsProc) insCall.getRef()).getDirIni();
-//				int s = ((InsProc) insCall.getRef()).getTamParams();
-//				int n = ((InsProc) insCall.getRef()).getPa();
-//				int m = bloqueActGenera().getPa() + 1;
-//				insertIns("mst " + (m - n), 5);
-				
-				//después de esto hay que coger la lista de valores de la llamada
-				// y la lista de parámetros de la declaración de la función
 				InstCallProc llamadaFuncion = (InstCallProc) instruccion;
+				List<E> listaArgumentos = llamadaFuncion.getArgumentos();
+				InstDeclFun declaracionFuncion2 = (InstDeclFun) llamadaFuncion.getReferencia();
+				List<Pair<Tipo,E>> parametros = new ArrayList<>();
+				parametros = declaracionFuncion2.getArgs();
+				//declaracionFuncion2.getArgs().forEach(x->parametros.add(x.getValue())); esto si quisiesemos solo los parametros
+				int diferenciaPA = declaracionFuncion2.getProfundidadAnidamiento() - getBloqueNivelActual().getProfundidadAnidamiento()+1 ;
+				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.MST,5,Integer.toString(diferenciaPA)));
+				int i=0;
+				for(Pair<Tipo,E> parametro: parametros) {
+					//por referencia
+					Tipo tipoParametro = parametro.getKey();
+					if(tipoParametro.tipoEnumerado() == EnumeradoTipos.PUNTERO) {
+						generaCodigoLeft(listaArgumentos.get(i)); //se carga la dirección de memoria del argumento
+					}else if(tipoParametro.tipoEnumerado() == EnumeradoTipos.STRUCT || tipoParametro.tipoEnumerado() == EnumeradoTipos.ARRAY) {
+						generaCodigoLeft(listaArgumentos.get(i)); //guardas la direccion
+						int tamanoTipo =0;
+						if(tipoParametro instanceof TipoStruct) {
+							TipoStruct tipoStruct2 = (TipoStruct)tipoParametro;
+							tamanoTipo = getBloqueNivelActual().getTamanoTipo(tipoStruct2.getNombreStruct());
+						}else {
+							// no se como hacerlo bien con el array
+							tamanoTipo = getBloqueNivelActual().getTamanoTipo(((Iden)parametro.getValue()).getNombre());
+							
+						}
+						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.MOVS,tamanoTipo-1,Integer.toString(tamanoTipo)));
+					}else {
+						//es un parámetro simple
+						generaCodigoExpresion(listaArgumentos.get(i)); // no entiendo exactamente porque vale solo esto
+					}
+					i++;
+				}
+
+				Iden identificadorFuncion2 = (Iden)declaracionFuncion2.getIden();
+				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.CUP,0,Integer.toString(declaracionFuncion2.getTamanoArgumentos()),Integer.toString(getBloqueNivelActual().getDireccionIdentificador(identificadorFuncion2.getNombre()))));
+				
 				break;
 			case DECL:
 				InstDeclaracion instruccionDeclaracion = (InstDeclaracion) instruccion;
@@ -522,11 +546,39 @@ public class GeneradorCodigo {
 				case FUNCION:
 					LlamadaFuncion llamada = (LlamadaFuncion) expresion;
 					InstDeclFun declaracionFuncion =(InstDeclFun)llamada.getReferencia();
-					
-					//Falta este caso tambien
-					
-					
-					
+					List<E> listaArgumentos = llamada.getArgumentos();
+					List<Pair<Tipo,E>> parametros = new ArrayList<>();
+					parametros = declaracionFuncion.getArgs();
+					//declaracionFuncion2.getArgs().forEach(x->parametros.add(x.getValue())); esto si quisiesemos solo los parametros
+					int diferenciaPA = declaracionFuncion.getProfundidadAnidamiento() - getBloqueNivelActual().getProfundidadAnidamiento()+1 ;
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.MST,5,Integer.toString(diferenciaPA)));
+					int i=0;
+					for(Pair<Tipo,E> parametro: parametros) {
+						//por referencia
+						Tipo tipoParametro = parametro.getKey();
+						if(tipoParametro.tipoEnumerado() == EnumeradoTipos.PUNTERO) {
+							generaCodigoLeft(listaArgumentos.get(i)); //se carga la dirección de memoria del argumento
+						}else if(tipoParametro.tipoEnumerado() == EnumeradoTipos.STRUCT || tipoParametro.tipoEnumerado() == EnumeradoTipos.ARRAY) {
+							generaCodigoLeft(listaArgumentos.get(i)); //guardas la direccion
+							int tamanoTipo =0;
+							if(tipoParametro instanceof TipoStruct) {
+								TipoStruct tipoStruct2 = (TipoStruct)tipoParametro;
+								tamanoTipo = getBloqueNivelActual().getTamanoTipo(tipoStruct2.getNombreStruct());
+							}else {
+								// no se como hacerlo bien con el array
+								tamanoTipo = getBloqueNivelActual().getTamanoTipo(((Iden)parametro.getValue()).getNombre());
+								
+							}
+							codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.MOVS,tamanoTipo-1,Integer.toString(tamanoTipo)));
+						}else {
+							//es un parámetro simple
+							generaCodigoExpresion(listaArgumentos.get(i)); // no entiendo exactamente porque vale solo esto
+						}
+						i++;
+					}
+
+					Iden identificadorFuncion2 = (Iden)declaracionFuncion.getIden();
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.CUP,0,Integer.toString(declaracionFuncion.getTamanoArgumentos()),Integer.toString(getBloqueNivelActual().getDireccionIdentificador(identificadorFuncion2.getNombre()))));
 					
 					
 					
