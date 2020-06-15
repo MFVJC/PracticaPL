@@ -1,0 +1,13 @@
+struct{
+	int declaracion1;
+	const boolean declaracion2 = true;
+	int declaracion3 = 1;
+}nombreDelStruct;
+nombreDelStruct persona;
+persona.declaracion1=7;
+
+boolean esPrimo(int a){
+	return true;
+}
+
+persona.declaracion3=10;

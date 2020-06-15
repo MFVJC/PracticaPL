@@ -74,6 +74,10 @@ public class Bloque {
 	//Funcion para acceder a la direccion de un identificador, si no se encuentra en el bloque actual, buscamos en su bloque padre
 	public int getDireccionIdentificador(String iden) {
 		if(direccionIdentificadores.containsKey(iden)) return direccionIdentificadores.get(iden);
+		else if(bloquePadre ==null) {
+			System.out.println("No está guardado el identificador " + iden);
+			return -1;
+		}
 		else return bloquePadre.getDireccionIdentificador(iden); // y si ninguno lo tinee
 	}
 	
@@ -132,6 +136,10 @@ public class Bloque {
 	//Funccion para obtener la direccion relativa de un campo de un tipo struct
 	public int getCampoStruct(String tipoStruct, String nombreCampo) {
 		if(camposStructs.containsKey(tipoStruct)) return camposStructs.get(tipoStruct).get(nombreCampo);
+		else if(bloquePadre ==null) {
+			System.out.println("El campo del struct " + tipoStruct + " no tiene guardada la dirección del atributo " + nombreCampo);
+			return -1;
+		}
 		else return bloquePadre.getCampoStruct(tipoStruct, nombreCampo);
 	}
 	

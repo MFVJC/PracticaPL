@@ -88,11 +88,11 @@ public class Main {
 		 correcto = asem.analizaSemantica();
 
 
-		 if(correcto) { //Si no hemos tenido errores en el alex, asint y asem, procedemos a generar el codigo
+		// if(correcto) { //Si no hemos tenido errores en el alex, asint y asem, procedemos a generar el codigo
 			 GeneradorCodigo codeGenerator = new GeneradorCodigo(programa);
 			 codeGenerator.generaCodigo(); 
 
-		 }
+		// }
 	   }
 	
 }

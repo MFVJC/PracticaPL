@@ -46,7 +46,7 @@ public class GeneradorCodigo {
 		this.programa = programa;
 		String fileName = Main.FILE_NAME;
 		int lastIndex = fileName.lastIndexOf("/");
-		String newFilename = fileName.substring(0, lastIndex+1) + "CodigoMaquina" + fileName.substring(lastIndex+1, fileName.length()-1);
+		String newFilename = fileName.substring(0, lastIndex+1) + "CodigoMaquina" + fileName.substring(lastIndex+1, fileName.length());
 		archivoSalida = new File(newFilename);
 	}
 	
@@ -700,7 +700,10 @@ public class GeneradorCodigo {
 				E struct = dot.opnd1();
 				E atributo= dot.opnd2();
 				generaCodigoLeft(struct); //guarda la direccion del struct
-				int direccionRelativaCampo= getBloqueNivelActual().getDireccionIdentificador(((Iden)atributo).getNombre());
+				
+				//esto no funciona (no está guardado en la tabla)
+				int direccionRelativaCampo= getBloqueNivelActual().getCampoStruct(((Iden)struct).getNombre(),((Iden)atributo).getNombre());
+				
 				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(direccionRelativaCampo))); //guardo la dirección relativa al campo
 				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.ADD,-1)); //las sumo
 				break;
