@@ -4,8 +4,6 @@ import ast.E.TipoE;
 
 public class Num extends E {
 	private String v;
-	private int fila;
-	private int columna;
 	public Num(String v,int fila,int columna) {
 			this.v = v;   
 		     this.fila = fila;

@@ -208,7 +208,7 @@ public class AnalizadorSemantico {
 							
 						}else if(refIdentificador instanceof InstStruct){
 							//System.out.println(identificador.getNombre());
-							TipoStruct tipoVariable = new TipoStruct(identificador.getNombre());
+							TipoStruct tipoVariable = new TipoStruct(identificador.getNombre(),identificador.getFila(),identificador.getColumna());
 							tabla.anadeTipoVariable(identificador.getNombre(), tipoVariable);
 							identificador.setTipo(tipoVariable);
 							//System.out.println("Nos sigue faltando el caso de ");

@@ -5,8 +5,6 @@ import ast.T.EnumeradoTipoGeneral;
 public abstract class EBin extends E {
    private E opnd1;
    private E opnd2;
-   private int fila;
-   private int columna;
    public EBin(E opnd1, E opnd2,int fila,int columna) {
      this.opnd1 = opnd1;
      this.opnd2 = opnd2;

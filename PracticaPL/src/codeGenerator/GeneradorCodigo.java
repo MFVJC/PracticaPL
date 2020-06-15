@@ -468,7 +468,7 @@ public class GeneradorCodigo {
 				for(Pair<E,List<I>> caso : instruccionSwitch.getCases()) {
 					//para cada caso tenemos que comprobar si coincide con la condición del switch
 					//hay que comprobar si  la condicion == caso.getKey()
-					generaCodigoExpresion(new Equal(condicion,caso.getKey()));
+					generaCodigoExpresion(new Equal(condicion,caso.getKey(),caso.getKey().getFila(),caso.getKey().getColumna()));
 					//maxAmbitos++;
 					//ambitoActual = maxAmbitos;
 					
@@ -630,7 +630,7 @@ public class GeneradorCodigo {
 							InstStruct referenciaIdentificador = (InstStruct)identificador.getReferencia();
 							for(I instruccion: referenciaIdentificador.getDeclaraciones()) {
 								InstDeclaracion declaracionAtributo = (InstDeclaracion) instruccion;
-								Iden identificadorCampo = new Iden(identificador.getNombre() + "." + ((Iden)declaracionAtributo.getIden()).getNombre());
+								Iden identificadorCampo = new Iden(identificador.getNombre() + "." + ((Iden)declaracionAtributo.getIden()).getNombre(),identificador.getFila(),identificador.getColumna());
 								identificadorCampo.setTipo(declaracionAtributo.getTipo());
 								generaCodigoDireccionIdentificador(identificadorCampo);
 								codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));

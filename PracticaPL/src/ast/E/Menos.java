@@ -4,8 +4,6 @@ import ast.E.TipoE;
 
 public class Menos extends E {
 	private E opnd1;
-	private int fila;
-	private int columna;
    public Menos(E opnd1,int fila,int columna) {
      this.opnd1 = opnd1; 
      this.fila = fila;

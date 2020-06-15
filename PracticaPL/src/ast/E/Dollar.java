@@ -2,8 +2,6 @@ package ast.E;
 
 public class Dollar extends E{
 	E operando1;
-	private int fila;
-	private int columna;
 	public Dollar(E operando1,int fila,int columna){
 		this.operando1 = operando1;
 	     this.fila = fila;

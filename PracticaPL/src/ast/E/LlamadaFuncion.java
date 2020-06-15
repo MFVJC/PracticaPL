@@ -12,8 +12,6 @@ public class LlamadaFuncion extends E {
 	private E nombreFuncion;
 	private List<E> argumentos;
 	private SentenciaAbstracta referenciaDeclaracion;
-	private int fila;
-	private int columna;
 	public LlamadaFuncion(E nombreFuncion, List<E> argumentos,int fila,int columna) {
 		   this.nombreFuncion = nombreFuncion;
 	       this.argumentos = argumentos;

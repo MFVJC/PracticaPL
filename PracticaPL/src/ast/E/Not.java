@@ -4,8 +4,6 @@ import ast.E.TipoE;
 
 public class Not extends E {
 	private E operando1;
-	private int fila;
-	private int columna;
    public Not(E opnd1,int fila,int columna) {
      this.operando1 = opnd1;  
      this.fila = fila;
