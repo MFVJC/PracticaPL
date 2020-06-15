@@ -72,7 +72,7 @@ public class Main {
 	public static void main(String[] args) throws Exception {
 	     Reader input = new InputStreamReader(new FileInputStream(args[0]));
 	     FILE_NAME = args[0];
-		 //Reader input = new InputStreamReader(new FileInputStream("auxiliar.txt"));
+		 
 	     //1) Analisis Lexico y Sintactico
 	     AnalizadorLexicoTiny alex = new AnalizadorLexicoTiny(input);
 		 AnalizadorSintacticoTiny asint = new AnalizadorSintacticoTiny(alex);
