@@ -724,23 +724,29 @@ public class GeneradorCodigo {
 
 			case SQUAREBRACKET:
 				SquareBracket accesoArray = (SquareBracket) expresion;
-				List<Integer> indices = new ArrayList<>();
+//				List<Integer> indices = new ArrayList<>();
 				
 				E op1 = accesoArray.opnd1();
 				//eso no funciona brother
-				int indice = Integer.parseInt(((Num) accesoArray.opnd2()).num()); //Doy por hecho que lo que va dentro de los corchetes es un num (COMPROBACION DE TIPOS)
-				indices.add(indice);
-				
-				while(op1.tipoExpresion() == TipoE.SQUAREBRACKET) {
-					indice = Integer.parseInt(((Num) op1.opnd2()).num());
-					indices.add(indice);
-					op1 = ((SquareBracket) op1).opnd1();
-				}
-				
-				//Cuando se salga del bucle, el op1 sera un iden
-				String nombreArray = ((Iden) op1).getNombre();
-				int direccionElemento = getBloqueNivelActual().getDireccionElementoArray(nombreArray, indices);
-				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1, Integer.toString(direccionElemento)));
+//				int indice = Integer.parseInt(((Num) accesoArray.opnd2()).num()); //Doy por hecho que lo que va dentro de los corchetes es un num (COMPROBACION DE TIPOS)
+//				indices.add(indice);
+//				
+//				while(op1.tipoExpresion() == TipoE.SQUAREBRACKET) {
+//					E operando2 = op1.opnd2();
+//					if(operando2 instanceof Num) {
+//						indice = Integer.parseInt(((Num) op1.opnd2()).num());
+//						indices.add(indice);
+//						op1 = ((SquareBracket) op1).opnd1();
+//					}else if (operando2 instanceof Iden) {
+//						Iden identificadorVar = (Iden)operando2;
+//						
+//						//aplicamos indirección para tenerlo 
+//						
+//					}
+//				}
+				generaCodigoLeft(op1);
+				generaCodigoExpresion(accesoArray.opnd2());
+				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.ADD,1));
 				
 				break;
 			case DOT:
