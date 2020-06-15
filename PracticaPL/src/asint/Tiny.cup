@@ -256,6 +256,9 @@ SINGLE_DEFAULT ::= DEFAULT error LC
 INST_ASIG ::= E0:id IGUAL:igual E0:valor PCOMA
 {:RESULT = as.instAsignacion(id, valor, igual.getFila(), igual.getColumna());:};
 
+INST_ASIG ::= error PCOMA
+{:System.err.println("Error en la asignacion\n");:};
+
 	//4.6) Instruccion declaracion
 	
 		//4.6.1) Declaracion sin inicializar
