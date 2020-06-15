@@ -198,11 +198,13 @@ public class GeneradorCodigo {
 			break;
 			
 		case DECLFUN:
-			//Abrimos ambito
-			crearNuevoBloque(true);
-			
 			InstDeclFun instruccionDeclFun = (InstDeclFun) instruccion;
 			instruccionDeclFun.setProfundidadAnidamiento(bloqueActual.getProfundidadAnidamiento());
+			String nombreFuncion = ((Iden) instruccionDeclFun.getIden()).getNombre();		
+			bloqueActual.insertaIdentificador(nombreFuncion, 1);
+			
+			//Abrimos ambito
+			crearNuevoBloque(true);
 			
 			//Asignamos direccion a cada parametro
 			for(Pair<Tipo, E> argumento : instruccionDeclFun.getArgs()) {
