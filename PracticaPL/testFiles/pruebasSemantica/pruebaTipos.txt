@@ -1,5 +1,5 @@
 int x = 4;
-int y = -5;
+int y = 5;
 
 boolean a = true;
 boolean b = false;
@@ -18,7 +18,7 @@ struct{
 
 nombreDelStruct persona;
 
-persona.declaracion2 = false;
-persona.declaracion1 = false;
+persona.declaracion2 = false; #Fallo, el campo declaracion2 es constante
+persona.declaracion1 = false; #Fallo de tipo, asignando boolean a tipo int
 
-nombreDelStruct.declaracion1 = false;
+nombreDelStruct.declaracion1 = false; #Deberia dar fallo al accecer con el tipo no con el identificador

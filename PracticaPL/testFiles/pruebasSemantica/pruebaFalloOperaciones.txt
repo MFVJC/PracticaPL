@@ -1,0 +1,24 @@
+int x = 3;
+int y = 5;
+boolean a = true;
+boolean b = false;
+
+#Las siguientes declaraciones son todas erroneas, pues asignamos a tipo booleano un tipo entero
+#y a tipo entero un tipo booleano
+boolean e1 = x / y;
+boolean e2 = x * y;
+boolean e3 = x **y;
+boolean e4 = x+y;
+boolean e5 = x-y;
+boolean e6 = x % y;
+
+int e7 = x<y;
+int e8 = x>y;
+int e9 = x <=y;
+int e10 = x >= y;
+int e11 = x ==y;
+
+int e12 = a & b;
+int e13 = !a;
+int e14 = a == b;
+int e15 = a | b;
