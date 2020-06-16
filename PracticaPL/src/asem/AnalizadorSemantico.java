@@ -554,6 +554,7 @@ public class AnalizadorSemantico {
 					if(tipoOperando1.tipoEnumerado() == EnumeradoTipos.ARRAY && tipoOperando2.tipoEnumerado() == EnumeradoTipos.INT) {
 						return (((TipoArray) tipoOperando1).getTipoBase());
 					} else if(operando1.tipoExpresion() == TipoE.DOLLAR && tipoOperando2.tipoEnumerado() == EnumeradoTipos.INT) {
+						//Si lo de la izquierda es un puntero, devolvemos su tipo base (el que ya nos da el dollar)
 						return tipoOperando1;
 					}
 					GestionErroresTiny.errorSemantico("Error de tipos. Se esta accediendo a un array erroneamente. Operandos: " + operando1.toString() + " y " + operando2.toString(),sentencia.getFila(),sentencia.getColumna());
