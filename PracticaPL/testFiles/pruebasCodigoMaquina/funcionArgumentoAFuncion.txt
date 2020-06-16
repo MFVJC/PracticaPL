@@ -1,68 +1,14 @@
 struct{
 	int declaracion1;
-	const boolean declaracion2 = true;
-	const int declaracion3[1] = 1; #No reconoce este error (faltan {})
+	boolean declaracion2 = true;
+	int declaracion3 = 1;
 }nombreDelStruct;
 nombreDelStruct persona;
-#persona.declaracion1=7;
+persona.declaracion1=7;
 
+#Esto peta no se porque
 boolean esPrimo(int a){
-	return true;
+	return (a ==0);
 }
-
-int numeroPrimos(){
-	int varLocal = 0;
-	int i = 0;
-	while (i < 10){
-		if (varLocal == 0){
-			varLocal = varLocal+ 1;
-		}
-		i = i + 1;
-	}
-	return varLocal;
-}
-int controlador (int decision){
-	int vect[10] = {2, 7, 13, 4, 6, 23, 7, 8, 20, 50};
-	switch(decision){
-		case 1{
-		vect[1] = 6;
-		}
-		case 2{
-		vect[2] = 14;
-		}
-		case 3{
-		vect[3] = 5;
-		}
-		default {
-			#El valor decision no deberia valer algo que no sea 1 , 2 o 3 .
-		}
-	}
-	int resultado = 3;
-	return 0;
-}
-int x = 2;
-controlador(x);
-
-proc funcion1(boolean x){
-	x=false;
-}
-boolean resuelveCaso(int y){
-	boolean z = true;
-	return z;
-}
-int declaracionFuncion(int x){
-	int y = 4;
-	if(x > 5){
-		x=5;
-	}
-	return x + y;
-}
-boolean declaracionFuncion2(boolean x){
-	#x = 5;
-	return x;
-}
-
-#int declaracionFuncion2(){
-#	int w=0;
-#	return w;
-#}
+int n =3;
+boolean a = esPrimo(n); 
