@@ -267,10 +267,10 @@ public class GeneradorCodigo {
 				parametros = declaracionFuncion2.getArgs();
 				//declaracionFuncion2.getArgs().forEach(x->parametros.add(x.getValue())); esto si quisiesemos solo los parametros
 				int diferenciaPA = declaracionFuncion2.getProfundidadAnidamiento() - getBloqueNivelActual().getProfundidadAnidamiento()+1 ;
-				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.MST,5,Integer.toString(diferenciaPA)));
+				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.MST,5,Integer.toString(diferenciaPA)));//mst va mal la difrencia PA creo
 				int i=0;
 				for(Pair<Tipo,E> parametro: parametros) {
-					//por referencia
+					//Solo necesito l
 					Tipo tipoParametro = parametro.getKey();
 					if(tipoParametro.tipoEnumerado() == EnumeradoTipos.PUNTERO) {
 						generaCodigoLeft(listaArgumentos.get(i)); //se carga la dirección de memoria del argumento
@@ -287,7 +287,7 @@ public class GeneradorCodigo {
 							tamanoTipo = getBloqueNivelActual().getTamanoTipo(((Iden)parametro.getValue()).getNombre());
 							
 						}
-						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(direccion)));
+						//codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(direccion)));
 						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.MOVS,tamanoTipo-1,Integer.toString(tamanoTipo)));
 					}else {
 						//es un parámetro simple
@@ -393,7 +393,13 @@ public class GeneradorCodigo {
 				if(declaracionFuncion.getTipo() == null ) { //entonces es un procedimiento
 					maxAmbitos++;
 					ambitoActual = maxAmbitos;
-					
+					for(Pair<Tipo,E> parametro: declaracionFuncion.getArgs()) {
+						if(parametro.getKey().tipoEnumerado() == EnumeradoTipos.STRUCT || parametro.getKey().tipoEnumerado() == EnumeradoTipos.ARRAY) {
+							declaracionFuncion.aumentaTamanoArgumentos(getBloqueNivelActual().getTamanoTipo(((Iden)parametro.getValue()).getNombre()));;
+						}else {
+							declaracionFuncion.aumentaTamanoArgumentos(1);
+						}
+					}
 					int posicionUJP =codigoGenerado.size();
 					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.UJP,0));
 					declaracionFuncion.setLineaCodigoInicial(posicionUJP+1);
@@ -587,9 +593,9 @@ public class GeneradorCodigo {
 							//por referencia
 							Tipo tipoParametro = parametro.getKey();
 							if(tipoParametro.tipoEnumerado() == EnumeradoTipos.PUNTERO) {
-								generaCodigoLeft(listaArgumentos.get(i)); //se carga la dirección de memoria del argumento
+								generaCodigoLeft(listaArgumentos.get(i)); //se carga la dirección de memoria del argumento (puntero)
 							}else if(tipoParametro.tipoEnumerado() == EnumeradoTipos.STRUCT || tipoParametro.tipoEnumerado() == EnumeradoTipos.ARRAY) {
-								generaCodigoLeft(listaArgumentos.get(i)); //guardas la direccion
+								generaCodigoExpresion(listaArgumentos.get(i)); //guardas la direccion
 								int tamanoTipo =0;
 								if(tipoParametro instanceof TipoStruct) {
 									TipoStruct tipoStruct2 = (TipoStruct)tipoParametro;
@@ -660,8 +666,6 @@ public class GeneradorCodigo {
 						break;
 					case SQUAREBRACKET:
 						generaCodigoLeft(expresion);
-						generaCodigoExpresion(expresion.opnd2());
-						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.ADD,-1));
 						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND,0));
 						break;
 					default:

@@ -87,7 +87,9 @@ public class InstDeclFun extends I {
 	public void setTamanoArgumentos(int tamanoArgumentos) {
 		this.tamanoArgumentos = tamanoArgumentos;
 	}
-
+	public void aumentaTamanoArgumentos(int incremento) {
+		tamanoArgumentos+=incremento;
+	}
 	public int getLineaCodigoInicial() {
 		return lineaCodigoInicial;
 	}
