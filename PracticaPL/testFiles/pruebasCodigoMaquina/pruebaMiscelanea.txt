@@ -27,4 +27,4 @@ proc controlador (int decision){
 	resultado = vect[0];
 }
 
-controlador(1);
+controlador(v[2]);

@@ -312,10 +312,10 @@ public class GeneradorCodigo {
 						}else{
 						
 							int tamanoTipo = getBloqueNivelActual().getTamanoTipo(identificadorVariable.getNombre());
-							int direccion = getBloqueNivelActual().getDireccionIdentificador(identificadorVariable.getNombre());
+							int direccion = getBloqueNivelActual().getDireccionIdentificadorAbsoluta(identificadorVariable.getNombre());
 							List<E> valoresIniciales = instruccionDeclaracion.getValor();
 							for(E valor: valoresIniciales) {
-								codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDA,1,Integer.toString(0),Integer.toString(direccion)));
+								codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(direccion)));
 								generaCodigoExpresion(valor);
 								codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.STO, -2));
 								direccion+=tamanoTipo;
@@ -352,7 +352,7 @@ public class GeneradorCodigo {
 							if(instruccionDentroStruct instanceof InstDeclaracion && ((InstDeclaracion)instruccionDentroStruct).getValor()!=null) {
 								InstDeclaracion declaracionVariableStruct = (InstDeclaracion)instruccionDentroStruct;
 								Iden nombreCampo= (Iden)declaracionVariableStruct.getIdentificador();
-								int direccionStruct = getBloqueNivelActual().getDireccionIdentificador(nombreStruct.getNombre());
+								int direccionStruct = getBloqueNivelActual().getDireccionIdentificadorAbsoluta(nombreStruct.getNombre());
 								int direccionRelativaCampo = getBloqueNivelActual().getCampoStruct(nombreTipoStruct, nombreCampo.getNombre());
 								if(declaracionVariableStruct.getTipo().tipoEnumerado() == EnumeradoTipos.ARRAY) {
 									List<E> valoresIniciales = declaracionVariableStruct.getValor();
@@ -375,7 +375,7 @@ public class GeneradorCodigo {
 										}
 									}
 								}else {
-									codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDA,1,Integer.toString(0),Integer.toString(direccionStruct)));
+									codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(direccionStruct)));
 									codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(direccionRelativaCampo)));
 									codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.ADD,-1));
 									generaCodigoExpresion(declaracionVariableStruct.getValor().get(0));
@@ -680,7 +680,8 @@ public class GeneradorCodigo {
 	private void generaCodigoDireccionIdentificador(E expresion) {
 		if(expresion.tipoExpresion() == TipoE.IDEN) {
 			Iden identificador = (Iden) expresion;
-			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDA,1,"0 " + getBloqueNivelActual().getDireccionIdentificador(identificador.getNombre())));
+			int direccionAbsoluta = getBloqueNivelActual().getDireccionIdentificadorAbsoluta(identificador.getNombre());
+			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(direccionAbsoluta)));
 		}
 	}
 	
@@ -694,7 +695,7 @@ public class GeneradorCodigo {
 				Iden iden = (Iden) expresion;
 				SentenciaAbstracta refIdentificador = iden.getReferencia();
 					InstDeclaracion declaracionVariable = (InstDeclaracion) refIdentificador;
-					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDA,1,Integer.toString(0),Integer.toString(getBloqueNivelActual().getDireccionIdentificador(iden.getNombre()))));
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(getBloqueNivelActual().getDireccionIdentificadorAbsoluta(iden.getNombre()))));
 					
 				break;
 
