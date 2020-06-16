@@ -86,10 +86,10 @@ public class Main {
 			 String tree = programa.toString().substring(1, programa.toString().length()-1);
 			 System.out.println(printTree("_PROGR_", splitFromParent(tree), "", true));
 			 
-			//2) Analisis Semantico	 
+			//2) Analisis Semantico
 			 System.out.println("Se inicia el análisis semántico.");
 			 AnalizadorSemantico asem = new AnalizadorSemantico(programa);
-			 asem.analizaSemantica();  
+			 asem.analizaSemantica();
 	
 			  if(GestionErroresTiny.numeroErroresSemanticos == 0) { //Si no hemos tenido errores en el alex, asint y asem, procedemos a generar el codigo
 				 System.out.println("Analisis semantico realizado con exito. \n\nSe inicia la generacion de codigo.\n");

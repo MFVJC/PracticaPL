@@ -1,9 +1,12 @@
-const int N = 3;
+int a[3];
+a[1] = 9;
 
-int funcion(int v[N]){
-v[1] = 2;
-return 0;
+int funcion(int b[3]){
+a[1] = b[1];
+return 7;
 }
 
-int a[N];
-int b = funcion(a);
+int c[3];
+c[1] = 4;
+
+int d = funcion(c);

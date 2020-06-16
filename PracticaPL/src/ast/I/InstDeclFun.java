@@ -27,6 +27,7 @@ public class InstDeclFun extends I {
 		this.valorReturn = ret;
 	     this.fila = fila;
 	     this.columna = columna;
+	     this.tamanoArgumentos = args.size();
 	}
  
  public TipoI tipoInstruccion() {return TipoI.DECLFUN;}

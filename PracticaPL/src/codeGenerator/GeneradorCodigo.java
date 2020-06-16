@@ -199,9 +199,7 @@ public class GeneradorCodigo {
 		case DECLFUN:
 			InstDeclFun instruccionDeclFun = (InstDeclFun) instruccion;
 			instruccionDeclFun.setProfundidadAnidamiento(bloqueActual.getProfundidadAnidamiento());
-			String nombreFuncion = ((Iden) instruccionDeclFun.getIdentificador()).getNombre();		
-			bloqueActual.insertaIdentificador(nombreFuncion, 1);
-			
+
 			//Abrimos ambito
 			crearNuevoBloque(true);
 			
@@ -263,9 +261,9 @@ public class GeneradorCodigo {
 				InstDeclFun declaracionFuncion2 = (InstDeclFun) llamadaFuncion.getReferencia();
 				List<Pair<Tipo,E>> parametros = new ArrayList<>();
 				parametros = declaracionFuncion2.getArgs();
-				//declaracionFuncion2.getArgs().forEach(x->parametros.add(x.getValue())); esto si quisiesemos solo los parametros
-				int diferenciaPA = declaracionFuncion2.getProfundidadAnidamiento() - getBloqueNivelActual().getProfundidadAnidamiento() ;
-				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.MST,5,Integer.toString(diferenciaPA)));//mst va mal la difrencia PA creo
+				//JORGE
+				int diferenciaPA = declaracionFuncion2.getProfundidadAnidamiento() - getBloqueNivelActual().getProfundidadAnidamiento() - 1 ;
+				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.MST,5,Integer.toString(diferenciaPA)));
 				int i=0;
 				for(Pair<Tipo,E> parametro: parametros) {
 					//Solo necesito l
@@ -281,8 +279,7 @@ public class GeneradorCodigo {
 							direccion =getBloqueNivelActual().getDireccionIdentificador(tipoStruct2.getNombreStruct());
 							tamanoTipo = getBloqueNivelActual().getTamanoTipo(tipoStruct2.getNombreStruct());
 						}else {
-							// no se como hacerlo bien con el array
-							tamanoTipo = getBloqueNivelActual().getTamanoTipo(tipoParametro.toString());
+							tamanoTipo = getBloqueNivelActual().getTamanoTipo(((Iden) parametro.getValue()).getNombre());
 							List<Integer> dimensionesArray = getBloqueNivelActual().getDimensionesArray(((Iden)parametro.getValue()).getNombre());
 							int aux = 1;
 							for(int dim : dimensionesArray) aux *= dim;
@@ -313,10 +310,10 @@ public class GeneradorCodigo {
 						}else{
 						
 							int tamanoTipo = getBloqueNivelActual().getTamanoTipo(identificadorVariable.getNombre());
-							int direccion = getBloqueNivelActual().getDireccionIdentificadorAbsoluta(identificadorVariable.getNombre());
+							int direccion = getBloqueNivelActual().getDireccionIdentificador(identificadorVariable.getNombre());
 							List<E> valoresIniciales = instruccionDeclaracion.getValor();
 							for(E valor: valoresIniciales) {
-								codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(direccion)));
+								codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDA,1,"0", Integer.toString(direccion)));
 								generaCodigoExpresion(valor);
 								codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.STO, -2));
 								direccion+=tamanoTipo;
@@ -353,7 +350,7 @@ public class GeneradorCodigo {
 							if(instruccionDentroStruct instanceof InstDeclaracion && ((InstDeclaracion)instruccionDentroStruct).getValor()!=null) {
 								InstDeclaracion declaracionVariableStruct = (InstDeclaracion)instruccionDentroStruct;
 								Iden nombreCampo= (Iden)declaracionVariableStruct.getIdentificador();
-								int direccionStruct = getBloqueNivelActual().getDireccionIdentificadorAbsoluta(nombreStruct.getNombre());
+								int direccionStruct = getBloqueNivelActual().getDireccionIdentificador(nombreStruct.getNombre());
 								int direccionRelativaCampo = getBloqueNivelActual().getCampoStruct(nombreTipoStruct, nombreCampo.getNombre());
 								if(declaracionVariableStruct.getTipo().tipoEnumerado() == EnumeradoTipos.ARRAY) {
 									List<E> valoresIniciales = declaracionVariableStruct.getValor();
@@ -366,8 +363,8 @@ public class GeneradorCodigo {
 										int direccionCampo = direccionStruct + direccionRelativaCampo;
 										int tamanoTipo = 1;
 										for(E valor: valoresIniciales) {
-											
-											codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(direccionCampo)));
+											//comprobar
+											codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDA,1, "0", Integer.toString(direccionCampo)));
 											
 											generaCodigoExpresion(valor);
 											codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.STO, -2));
@@ -376,7 +373,7 @@ public class GeneradorCodigo {
 										}
 									}
 								}else {
-									codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(direccionStruct)));
+									codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDA,1, "0", Integer.toString(direccionStruct)));
 									codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(direccionRelativaCampo)));
 									codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.ADD,-1));
 									generaCodigoExpresion(declaracionVariableStruct.getValor().get(0));
@@ -394,6 +391,7 @@ public class GeneradorCodigo {
 				if(declaracionFuncion.getTipo() == null ) { //entonces es un procedimiento
 					maxAmbitos++;
 					ambitoActual = maxAmbitos;
+					declaracionFuncion.setProfundidadAnidamiento(getBloqueNivelActual().getProfundidadAnidamiento());
 					for(Pair<Tipo,E> parametro: declaracionFuncion.getArgs()) {
 						if(parametro.getKey().tipoEnumerado() == EnumeradoTipos.STRUCT || parametro.getKey().tipoEnumerado() == EnumeradoTipos.ARRAY) {
 							declaracionFuncion.aumentaTamanoArgumentos(getBloqueNivelActual().getTamanoTipo(((Iden)parametro.getValue()).getNombre()));//Esto está mal(hay que multiplicar por su dimensión en el caso de arrays)
@@ -417,6 +415,7 @@ public class GeneradorCodigo {
 				}else {
 					maxAmbitos++;
 					ambitoActual = maxAmbitos;
+					declaracionFuncion.setProfundidadAnidamiento(getBloqueNivelActual().getProfundidadAnidamiento());
 					int posicionUJP = codigoGenerado.size();
 					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.UJP,0));
 					declaracionFuncion.setLineaCodigoInicial(posicionUJP+1);
@@ -587,8 +586,10 @@ public class GeneradorCodigo {
 						List<E> listaArgumentos = llamada.getArgumentos();
 						List<Pair<Tipo,E>> parametros = new ArrayList<>();
 						parametros = declaracionFuncion.getArgs();
-						int diferenciaPA = declaracionFuncion.getProfundidadAnidamiento() - getBloqueNivelActual().getProfundidadAnidamiento() ;
+						
+						int diferenciaPA =  getBloqueNivelActual().getProfundidadAnidamiento() - declaracionFuncion.getProfundidadAnidamiento() + 1 ;
 						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.MST,5,Integer.toString(diferenciaPA)));
+						
 						int i=0;
 						for(Pair<Tipo,E> parametro: parametros) {
 							//por referencia
@@ -600,16 +601,11 @@ public class GeneradorCodigo {
 								int tamanoTipo =0;
 								//Esto creo que no está del todo bien
 								if(tipoParametro instanceof TipoStruct) {
-									TipoStruct tipoStruct2 = (TipoStruct)tipoParametro;
+									TipoStruct tipoStruct2 = (TipoStruct) ((Iden) listaArgumentos.get(i)).getTipo();
 									tamanoTipo = getBloqueNivelActual().getTamanoTipo(tipoStruct2.getNombreStruct());
 								}else {
-									// no se como hacerlo bien con el array
-									System.out.println(((Iden)parametro.getValue()).getNombre());
-									tamanoTipo = getBloqueNivelActual().getTamanoTipo(((Iden)parametro.getValue()).getNombre()); //Esyo está mal
-									//tamanoTipo = Integer.parseInt(((Num)((TipoArray)tipoParametro).getDimension()).num());
-		
-									tamanoTipo = getBloqueNivelActual().getTamanoTipo(tipoParametro.toString());
-									List<Integer> dimensionesArray = getBloqueNivelActual().getDimensionesArray(((Iden)parametro.getValue()).getNombre());
+									tamanoTipo = getBloqueNivelActual().getTamanoTipo(((Iden) listaArgumentos.get(i)).getNombre());
+									List<Integer> dimensionesArray = getBloqueNivelActual().getDimensionesArray(((Iden) listaArgumentos.get(i)).getNombre());
 									int aux = 1;
 									for(int dim : dimensionesArray) aux *= dim;
 									tamanoTipo *= aux;
@@ -617,16 +613,12 @@ public class GeneradorCodigo {
 								codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.MOVS,tamanoTipo-1,Integer.toString(tamanoTipo)));
 							}else {
 								//es un parámetro simple
-								generaCodigoExpresion(listaArgumentos.get(i)); // no entiendo exactamente porque vale solo esto
+								generaCodigoExpresion(listaArgumentos.get(i)); // no entiendo exactamente porque vale solo est
 							}
 							i++;
 						}
-	
 						Iden identificadorFuncion2 = (Iden)declaracionFuncion.getIdentificador();
 						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.CUP,0,Integer.toString(declaracionFuncion.getTamanoArgumentos()),Integer.toString(declaracionFuncion.getLineaCodigoInicial())));
-						
-						
-						
 						break;
 					case IDEN:
 						Iden identificador = (Iden) expresion;
@@ -688,8 +680,14 @@ public class GeneradorCodigo {
 	private void generaCodigoDireccionIdentificador(E expresion) {
 		if(expresion.tipoExpresion() == TipoE.IDEN) {
 			Iden identificador = (Iden) expresion;
-			int direccionAbsoluta = getBloqueNivelActual().getDireccionIdentificadorAbsoluta(identificador.getNombre());
-			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(direccionAbsoluta)));
+			
+			//Diferencia profundidad anidamiento del identificador
+			int diferenciaPA = 0;
+			if(getBloqueNivelActual().estaIdentificador(identificador.getNombre())) diferenciaPA = 0;
+			else diferenciaPA = 1;
+			
+			int direccion = getBloqueNivelActual().getDireccionIdentificador(identificador.getNombre());
+			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDA,1, Integer.toString(diferenciaPA), Integer.toString(direccion)));
 		}
 	}
 	
@@ -700,11 +698,16 @@ public class GeneradorCodigo {
 	private void generaCodigoLeft(E expresion) throws Exception {
 		switch(expresion.tipoExpresion()) {
 			case IDEN:
-				Iden iden = (Iden) expresion;
-				SentenciaAbstracta refIdentificador = iden.getReferencia();
+				Iden identificador = (Iden) expresion;
+				SentenciaAbstracta refIdentificador = identificador.getReferencia();
 					InstDeclaracion declaracionVariable = (InstDeclaracion) refIdentificador;
-					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(getBloqueNivelActual().getDireccionIdentificadorAbsoluta(iden.getNombre()))));
 					
+					//Diferencia profundidad anidamiento del identificador
+					int diferenciaPA = 0;
+					if(getBloqueNivelActual().estaIdentificador(identificador.getNombre())) diferenciaPA = 0;
+					else diferenciaPA = 1;
+					
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDA,1, Integer.toString(diferenciaPA), Integer.toString(getBloqueNivelActual().getDireccionIdentificador(identificador.getNombre()))));		
 				break;
 
 			case SQUAREBRACKET:

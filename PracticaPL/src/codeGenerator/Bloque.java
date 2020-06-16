@@ -27,10 +27,6 @@ public class Bloque {
 	//Bloque del que proviene el bloque actual
 	private Bloque bloquePadre;
 	
-	//Direccion base del bloque, es decir, en la que empieza el primer dato del bloque (usada para cuando se crea marco de activacion)
-	//OJO! solo usada para cuando marcoActivacion = true
-	private int direccionBaseBloque;
-	
 	//Proxima direccion de la memoria en la que guardar la siguiente variable
 	private int proximaDireccion;
 	
@@ -55,18 +51,15 @@ public class Bloque {
 				this.proximaDireccion = 5;
 				this.profundidadAnidamiento = bloquePadre.getProfundidadAnidamiento() + 1;
 				this.ssp = 5;
-				this.direccionBaseBloque = bloquePadre.getProximaDireccion();
 			} else { //Si no -> ambito local
 				this.proximaDireccion = bloquePadre.getProximaDireccion();
 				this.profundidadAnidamiento = bloquePadre.getProfundidadAnidamiento();
 				this.ssp = 0;
-				this.direccionBaseBloque = bloquePadre.getDireccionBaseBloque();
 			}
 		} else { //Cuando somos el primer bloque -> comenzamos en la primera posicion de la memoria
 			this.proximaDireccion = 0;
 			this.profundidadAnidamiento = 0;
 			this.ssp = 0;
-			this.direccionBaseBloque = 0;
 		}
 	}
 	
@@ -86,16 +79,6 @@ public class Bloque {
 			return -1;
 		}
 		else return bloquePadre.getDireccionIdentificador(iden); // y si ninguno lo tinee
-	}
-	
-	//Funcion para acceder a la direccion Absoluta de un identificador.
-	public int getDireccionIdentificadorAbsoluta(String iden) {
-		if(direccionIdentificadores.containsKey(iden)) return this.direccionBaseBloque + direccionIdentificadores.get(iden);
-		else if(bloquePadre ==null) {
-			System.out.println("No está guardado el identificador " + iden);
-			return -1;
-		}
-		else return bloquePadre.getDireccionIdentificadorAbsoluta(iden); // y si ninguno lo tinee
 	}
 	
 	//Funcion para insertar un identificador y su direccion en el bloque
@@ -183,10 +166,6 @@ public class Bloque {
 	
 	
 	//Getters y Setters
-
-	public int getDireccionBaseBloque() {
-		return direccionBaseBloque;
-	}
 	
 	public int getTamanoBloque() {
 		return tamanoBloque;
@@ -245,7 +224,6 @@ public class Bloque {
 		if(bloquePadre != null) aux += "Bloque Padre: " + bloquePadre.getPosicionBloque() + "\n";
 		aux += "Proxima Direccion: " + proximaDireccion + "\n";
 		aux += "Profundidad Anidamiento: " + profundidadAnidamiento + "\n";
-		aux += "Direccion Base del bloque: " + direccionBaseBloque + "\n";
 		aux += "Marco Activacion: " + marcoActivacion + "\n";
 		
 		return aux;
