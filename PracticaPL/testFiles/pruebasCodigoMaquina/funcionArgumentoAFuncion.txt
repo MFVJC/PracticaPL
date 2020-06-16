@@ -1,14 +1,15 @@
-struct{
-	int declaracion1;
-	boolean declaracion2 = true;
-	int declaracion3 = 1;
-}nombreDelStruct;
-nombreDelStruct persona;
-persona.declaracion1=7;
-
-#Esto peta no se porque
-boolean esPrimo(int a){
-	return (a ==0);
+int numeroPrimos(){
+	int varLocal = 0;
+	int i = 0;
+	while (i < 10){
+		if (varLocal == 0){
+			varLocal = varLocal+ 1;
+		}
+		i = i + 1;
+	}
+	return varLocal; #Siempre devuelve un 1
 }
-int n =3;
-boolean a = esPrimo(n); 
+int duplica(int x){
+	return 2*x;
+}
+int valor11=duplica(numeroPrimos()); #en valor11 se guarda un 2(posicion 0)
