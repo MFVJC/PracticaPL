@@ -254,7 +254,9 @@ public class GeneradorCodigo {
 				//voy a ver el caso de vectores en otra funcion
 				generaCodigoLeft(instruccionAsignacion.getIdentificador());
 				generaCodigoExpresion(instruccionAsignacion.getValor());
-				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.STO,-2));
+				if(instruccionAsignacion.getValor().tipoExpresion() != TipoE.NEW) { //Si es un new, no hay que hacer sto.
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.STO,-2));	
+				}
 				break;
 		
 			case CALLPROC:
