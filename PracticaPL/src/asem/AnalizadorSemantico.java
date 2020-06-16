@@ -551,9 +551,10 @@ public class AnalizadorSemantico {
 					GestionErroresTiny.errorSemantico("Error de tipos. Los tipos para la resta no son enteros. Operandos: " + operando1.toString() + " y " + operando2.toString(),sentencia.getFila(),sentencia.getColumna());
 					break;
 				case SQUAREBRACKET:
-					if((tipoOperando1.tipoEnumerado() == EnumeradoTipos.ARRAY || tipoOperando1.tipoEnumerado() == EnumeradoTipos.PUNTERO) && tipoOperando2.tipoEnumerado() == EnumeradoTipos.INT) {
-						if (tipoOperando1 instanceof TipoArray)return (((TipoArray) tipoOperando1).getTipoBase());
-						else return ((TipoPuntero)tipoOperando1).getTipoApuntado();
+					if(tipoOperando1.tipoEnumerado() == EnumeradoTipos.ARRAY && tipoOperando2.tipoEnumerado() == EnumeradoTipos.INT) {
+						return (((TipoArray) tipoOperando1).getTipoBase());
+					} else if(operando1.tipoExpresion() == TipoE.DOLLAR && tipoOperando2.tipoEnumerado() == EnumeradoTipos.INT) {
+						return tipoOperando1;
 					}
 					GestionErroresTiny.errorSemantico("Error de tipos. Se esta accediendo a un array erroneamente. Operandos: " + operando1.toString() + " y " + operando2.toString(),sentencia.getFila(),sentencia.getColumna());
 					break;
