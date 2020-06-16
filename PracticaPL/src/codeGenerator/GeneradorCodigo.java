@@ -266,7 +266,7 @@ public class GeneradorCodigo {
 				List<Pair<Tipo,E>> parametros = new ArrayList<>();
 				parametros = declaracionFuncion2.getArgs();
 				//declaracionFuncion2.getArgs().forEach(x->parametros.add(x.getValue())); esto si quisiesemos solo los parametros
-				int diferenciaPA = declaracionFuncion2.getProfundidadAnidamiento() - getBloqueNivelActual().getProfundidadAnidamiento()+1 ;
+				int diferenciaPA = declaracionFuncion2.getProfundidadAnidamiento() - getBloqueNivelActual().getProfundidadAnidamiento() ;
 				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.MST,5,Integer.toString(diferenciaPA)));//mst va mal la difrencia PA creo
 				int i=0;
 				for(Pair<Tipo,E> parametro: parametros) {
@@ -315,7 +315,7 @@ public class GeneradorCodigo {
 							int direccion = getBloqueNivelActual().getDireccionIdentificador(identificadorVariable.getNombre());
 							List<E> valoresIniciales = instruccionDeclaracion.getValor();
 							for(E valor: valoresIniciales) {
-								codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(direccion)));
+								codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDA,1,Integer.toString(0),Integer.toString(direccion)));
 								generaCodigoExpresion(valor);
 								codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.STO, -2));
 								direccion+=tamanoTipo;
@@ -375,7 +375,7 @@ public class GeneradorCodigo {
 										}
 									}
 								}else {
-									codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(direccionStruct)));
+									codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDA,1,Integer.toString(0),Integer.toString(direccionStruct)));
 									codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(direccionRelativaCampo)));
 									codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.ADD,-1));
 									generaCodigoExpresion(declaracionVariableStruct.getValor().get(0));
@@ -586,7 +586,7 @@ public class GeneradorCodigo {
 						List<E> listaArgumentos = llamada.getArgumentos();
 						List<Pair<Tipo,E>> parametros = new ArrayList<>();
 						parametros = declaracionFuncion.getArgs();
-						int diferenciaPA = declaracionFuncion.getProfundidadAnidamiento() - getBloqueNivelActual().getProfundidadAnidamiento()+1 ;
+						int diferenciaPA = declaracionFuncion.getProfundidadAnidamiento() - getBloqueNivelActual().getProfundidadAnidamiento() ;
 						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.MST,5,Integer.toString(diferenciaPA)));
 						int i=0;
 						for(Pair<Tipo,E> parametro: parametros) {
@@ -694,7 +694,7 @@ public class GeneradorCodigo {
 				Iden iden = (Iden) expresion;
 				SentenciaAbstracta refIdentificador = iden.getReferencia();
 					InstDeclaracion declaracionVariable = (InstDeclaracion) refIdentificador;
-					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(getBloqueNivelActual().getDireccionIdentificador(iden.getNombre()))));
+					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDA,1,Integer.toString(0),Integer.toString(getBloqueNivelActual().getDireccionIdentificador(iden.getNombre()))));
 					
 				break;
 

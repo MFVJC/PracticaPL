@@ -6,7 +6,7 @@ struct{
 nombreDelStruct persona;
 persona.declaracion1=7;
 persona.declaracion3=10;
-
+int v[5] = {1,2,3,4,5};
 int resultado =1;
 proc controlador (int decision){
 	int vect[4] = {103, 7, 13, 4};
@@ -26,3 +26,5 @@ proc controlador (int decision){
 	}
 	resultado = vect[0];
 }
+
+controlador(1);
