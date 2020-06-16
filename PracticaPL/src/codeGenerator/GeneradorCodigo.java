@@ -393,7 +393,7 @@ public class GeneradorCodigo {
 					ambitoActual = maxAmbitos;
 					for(Pair<Tipo,E> parametro: declaracionFuncion.getArgs()) {
 						if(parametro.getKey().tipoEnumerado() == EnumeradoTipos.STRUCT || parametro.getKey().tipoEnumerado() == EnumeradoTipos.ARRAY) {
-							declaracionFuncion.aumentaTamanoArgumentos(getBloqueNivelActual().getTamanoTipo(((Iden)parametro.getValue()).getNombre()));;
+							declaracionFuncion.aumentaTamanoArgumentos(getBloqueNivelActual().getTamanoTipo(((Iden)parametro.getValue()).getNombre()));//Esto está mal(hay que multiplicar por su dimensión en el caso de arrays)
 						}else {
 							declaracionFuncion.aumentaTamanoArgumentos(1);
 						}
@@ -595,13 +595,16 @@ public class GeneradorCodigo {
 							}else if(tipoParametro.tipoEnumerado() == EnumeradoTipos.STRUCT || tipoParametro.tipoEnumerado() == EnumeradoTipos.ARRAY) {
 								generaCodigoExpresion(listaArgumentos.get(i)); //guardas la direccion
 								int tamanoTipo =0;
+								//Esto creo que no está del todo bien
 								if(tipoParametro instanceof TipoStruct) {
 									TipoStruct tipoStruct2 = (TipoStruct)tipoParametro;
 									tamanoTipo = getBloqueNivelActual().getTamanoTipo(tipoStruct2.getNombreStruct());
 								}else {
 									// no se como hacerlo bien con el array
 									System.out.println(((Iden)parametro.getValue()).getNombre());
-									tamanoTipo = getBloqueNivelActual().getTamanoTipo(((Iden)parametro.getValue()).getNombre());
+									tamanoTipo = getBloqueNivelActual().getTamanoTipo(((Iden)parametro.getValue()).getNombre()); //Esyo está mal
+									//tamanoTipo = Integer.parseInt(((Num)((TipoArray)tipoParametro).getDimension()).num());
+									
 									
 								}
 								codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.MOVS,tamanoTipo-1,Integer.toString(tamanoTipo)));
@@ -622,7 +625,7 @@ public class GeneradorCodigo {
 						Iden identificador = (Iden) expresion;
 						if(identificador.getTipo().tipoEnumerado() == EnumeradoTipos.STRUCT) {
 							//entonces hay que generar código para cargar los atributos
-							InstStruct referenciaIdentificador = (InstStruct)identificador.getReferencia();
+							InstStruct referenciaIdentificador = (InstStruct)identificador.getReferencia(); //esto peta 
 							for(I instruccion: referenciaIdentificador.getDeclaraciones()) {
 								InstDeclaracion declaracionAtributo = (InstDeclaracion) instruccion;
 								Iden identificadorCampo = new Iden(identificador.getNombre() + "." + ((Iden)declaracionAtributo.getIdentificador()).getNombre(),identificador.getFila(),identificador.getColumna());
@@ -812,7 +815,6 @@ public class GeneradorCodigo {
 			int tamanoArray = 1; //El tamano total sera el multiplicatorio de sus dimensiones por el tipo base
 			int tamanoTipoBase = 1;
 			TipoArray t = (TipoArray) declaracionArray.getTipo();
-			
 			int dimension = obtenerDimensionArray(t.getDimension());
 			dimensiones.add(dimension);
 			tamanoArray *= dimension;

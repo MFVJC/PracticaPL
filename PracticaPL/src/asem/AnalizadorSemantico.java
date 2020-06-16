@@ -605,21 +605,29 @@ public class AnalizadorSemantico {
 						GestionErroresTiny.errorSemantico("El nombre de la función ha de ser un identificador", sentencia.getFila(), sentencia.getColumna());
 					}
 					for(E argumento: argumentos) {
-						tiposLlamada.add(tiposExpresion(argumento));
+						Tipo ti = tiposExpresion(argumento);
+						if(ti != null)
+							tiposLlamada.add(ti);
 					}
 					InstDeclFun declaracionFuncion = (InstDeclFun) llamada.getReferencia();
 					int i = 0;
 					boolean coincidenTipos = true;
-					for(Pair<Tipo,E> atributo : declaracionFuncion.getArgs()) {
-						if(atributo.getKey().tipoEnumerado() != tiposLlamada.get(i).tipoEnumerado()){
-							coincidenTipos = false;
-							GestionErroresTiny.errorSemantico("Error de tipos. El tipo del parámetro " + i + " no coincide con el del respectivo argumento " + ((Iden)atributo.getValue()).getNombre(),sentencia.getFila(),sentencia.getColumna());
+					if(tiposLlamada.size() == declaracionFuncion.getArgs().size()) {
+						for(Pair<Tipo,E> atributo : declaracionFuncion.getArgs()) {
+							if(atributo.getKey().tipoEnumerado() != tiposLlamada.get(i).tipoEnumerado()){
+								coincidenTipos = false;
+								GestionErroresTiny.errorSemantico("Error de tipos. El tipo del parámetro " + i + " no coincide con el del respectivo argumento " + ((Iden)atributo.getValue()).getNombre(),sentencia.getFila(),sentencia.getColumna());
+							}
+							i++;
+							
 						}
-						i++;
+						if(coincidenTipos) {
+							return llamada.getTipoReturn();
+						}
+					}else {
+						GestionErroresTiny.errorSemantico("Hay diferente número de atributos que de parámetros", sentencia.getFila(),sentencia.getColumna());
 					}
-					if(coincidenTipos) {
-						return llamada.getTipoReturn();
-					}
+					
 					break;
 				case IDEN:
 					Iden identificador = (Iden) expresion;
