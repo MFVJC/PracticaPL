@@ -282,8 +282,11 @@ public class GeneradorCodigo {
 							tamanoTipo = getBloqueNivelActual().getTamanoTipo(tipoStruct2.getNombreStruct());
 						}else {
 							// no se como hacerlo bien con el array
-							tamanoTipo = getBloqueNivelActual().getTamanoTipo(((Iden)parametro.getValue()).getNombre());
-							
+							tamanoTipo = getBloqueNivelActual().getTamanoTipo(tipoParametro.toString());
+							List<Integer> dimensionesArray = getBloqueNivelActual().getDimensionesArray(((Iden)parametro.getValue()).getNombre());
+							int aux = 1;
+							for(int dim : dimensionesArray) aux *= dim;
+							tamanoTipo *= aux;
 						}
 						//codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(direccion)));
 						codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.MOVS,tamanoTipo-1,Integer.toString(tamanoTipo)));
@@ -604,8 +607,12 @@ public class GeneradorCodigo {
 									System.out.println(((Iden)parametro.getValue()).getNombre());
 									tamanoTipo = getBloqueNivelActual().getTamanoTipo(((Iden)parametro.getValue()).getNombre()); //Esyo está mal
 									//tamanoTipo = Integer.parseInt(((Num)((TipoArray)tipoParametro).getDimension()).num());
-									
-									
+		
+									tamanoTipo = getBloqueNivelActual().getTamanoTipo(tipoParametro.toString());
+									List<Integer> dimensionesArray = getBloqueNivelActual().getDimensionesArray(((Iden)parametro.getValue()).getNombre());
+									int aux = 1;
+									for(int dim : dimensionesArray) aux *= dim;
+									tamanoTipo *= aux;
 								}
 								codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.MOVS,tamanoTipo-1,Integer.toString(tamanoTipo)));
 							}else {

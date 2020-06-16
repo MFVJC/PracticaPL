@@ -1,0 +1,9 @@
+const int N = 3;
+
+int funcion(int v[N]){
+v[1] = 2;
+return 0;
+}
+
+int a[N];
+int b = funcion(a);
