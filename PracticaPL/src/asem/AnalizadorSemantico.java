@@ -21,7 +21,6 @@ public class AnalizadorSemantico {
 	
 	public boolean analizaSemantica() {
 		//Vinculamos todas las instrucciones del programa
-		System.out.println("Se inicia el proceso de análisis semántico del código.");
 		tabla.abreBloque();
 		for(I instruccion : programa) vincula(instruccion);
 		tabla.cierraBloque();

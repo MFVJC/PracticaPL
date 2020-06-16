@@ -74,27 +74,31 @@ public class Main {
 	     FILE_NAME = args[0];
 		 
 	     //1) Analisis Lexico y Sintactico
+	     System.out.println("Se inicia el analisis lexico/sintactico.");
 	     AnalizadorLexicoTiny alex = new AnalizadorLexicoTiny(input);
 		 AnalizadorSintacticoTiny asint = new AnalizadorSintacticoTiny(alex);
 		 asint.setScanner(alex);
 		 List<I> programa = (List<I>) asint.parse().value;
 		 
-		 if(GestionErroresTiny.numeroErroresSintacticos ==0) {
+		 if(GestionErroresTiny.numeroErroresSintacticos == 0) {
 			 	//1.1) Mostramos el AST resultante del analisis sintactico 
+			 System.out.println("Analisis lexico/sintactico realizado con exito. \nSe imprime a continuacion el arbol sintactico resultante: \n");
 			 String tree = programa.toString().substring(1, programa.toString().length()-1);
 			 System.out.println(printTree("_PROGR_", splitFromParent(tree), "", true));
 			 
 			//2) Analisis Semantico	 
+			 System.out.println("Se inicia el análisis semántico.");
 			 AnalizadorSemantico asem = new AnalizadorSemantico(programa);
-			 asem.analizaSemantica(); 
-		 
+			 asem.analizaSemantica();  
 	
-			  if(GestionErroresTiny.numeroErroresSemanticos==0) { //Si no hemos tenido errores en el alex, asint y asem, procedemos a generar el codigo
-				 //3) Generacion de Codigo
+			  if(GestionErroresTiny.numeroErroresSemanticos == 0) { //Si no hemos tenido errores en el alex, asint y asem, procedemos a generar el codigo
+				 System.out.println("Analisis semantico realizado con exito. \n\nSe inicia la generacion de codigo.\n");
+				  //3) Generacion de Codigo
 				 GeneradorCodigo codeGenerator = new GeneradorCodigo(programa);
 				 codeGenerator.generaCodigo(); 
-			  }
-		 }
+				 System.out.println("Codigo generado con exito.");
+			  } else System.out.println("Compilacion Detenida: error(es) detectados durante el analisis semantico.");
+		 } else System.out.println("Compilacion Detenida: error(es) detectados durante el analisis sintactico.");
 		  
 	}
 	

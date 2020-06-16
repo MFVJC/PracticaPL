@@ -8,7 +8,7 @@ public class GestionErroresTiny {
 	
 	public static void errorLexico(int fila,int columna, String lexema) {
 		System.err.println("ERROR lexico. Fila "+ fila + " columna " + columna + ": Caracter inesperado: " + lexema); 
-
+		System.out.println("Se aborta la ejecucion por la presencia de un caracter no reconocido.");
 		System.exit(1);
 	}  
    public void errorSintactico(UnidadLexica unidadLexica) { //pasar fila y columna

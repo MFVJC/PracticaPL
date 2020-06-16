@@ -85,10 +85,8 @@ public class GeneradorCodigo {
 			}
 			//Cerramos el archivo de salida
 			writer.close();
-			System.out.println("Codigo generado sin errores");
-			
 		} catch (IOException e) {
-			System.out.println("Error al generar el archivo de salida");
+			System.out.println("Error al generar el archivo de salida.");
 			e.printStackTrace();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
