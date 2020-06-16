@@ -10,7 +10,7 @@ boolean esPrimo(int a){
 	return true;
 }
 
-int numeroPrimos(int v[10]){
+int numeroPrimos(){
 	int varLocal = 0;
 	int i = 0;
 	while (i < 10){
@@ -21,7 +21,7 @@ int numeroPrimos(int v[10]){
 	}
 	return varLocal;
 }
-proc controlador (int decision){
+int controlador (int decision){
 	int vect[10] = {2, 7, 13, 4, 6, 23, 7, 8, 20, 50};
 	switch(decision){
 		case 1{
@@ -38,8 +38,10 @@ proc controlador (int decision){
 		}
 	}
 	int resultado = 3;
+	return 0;
 }
-
+int x = 2;
+controlador(x);
 
 proc funcion1(boolean x){
 	x=false;

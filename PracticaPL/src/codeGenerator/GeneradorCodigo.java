@@ -470,19 +470,22 @@ public class GeneradorCodigo {
 				maxAmbitos++;
 				ambitoActual = maxAmbitos;
 				for(Pair<E,List<I>> caso : instruccionSwitch.getCases()) {
+					int momentoSaltoDefault = -1;
+
 					if(caso.getKey()!=null) {
 					generaCodigoExpresion(new Equal(condicion,caso.getKey(),caso.getKey().getFila(),caso.getKey().getColumna()));
 					
-					int momentoSaltoDefault = codigoGenerado.size();
-					listaPosicionesSalto.add(momentoSaltoDefault);
+					//listaPosicionesSalto.add(momentoSaltoDefault);
+					momentoSaltoDefault = codigoGenerado.size();
 					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.FJP, -1));
 					}
+					
 					generaCodigoCuerpo(caso.getValue());
 					
 					int momentoSaltoFinal = codigoGenerado.size();
 					listaPosicionesSalto.add(momentoSaltoFinal);
 					codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.UJP, 0));
-
+					if(momentoSaltoDefault != -1) codigoGenerado.get(momentoSaltoDefault).setArgumento1(Integer.toString(codigoGenerado.size()));;
 				}
 				String finalSwitch = Integer.toString(codigoGenerado.size());
 				for(int posicion: listaPosicionesSalto) {
