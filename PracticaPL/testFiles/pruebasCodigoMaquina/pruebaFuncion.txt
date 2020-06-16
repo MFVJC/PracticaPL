@@ -1,0 +1,8 @@
+int a = 1;
+
+int funcion(int b){
+a = 5; #Modificamos la variable global desde la funcion
+return b;
+}
+int d = 7;
+int c = funcion(d); #Llamamos a la funcion

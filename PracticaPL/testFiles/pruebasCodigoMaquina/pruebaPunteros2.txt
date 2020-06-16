@@ -1,0 +1,9 @@
+int $x = new int[];
+$x = 7;
+
+int funcion(int $y){
+int b = $y + 1; #El valor del b debe ser 8
+return 3;
+}
+
+int a = funcion(x);
