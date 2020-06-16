@@ -245,7 +245,7 @@ public class Bloque {
 		if(bloquePadre != null) aux += "Bloque Padre: " + bloquePadre.getPosicionBloque() + "\n";
 		aux += "Proxima Direccion: " + proximaDireccion + "\n";
 		aux += "Profundidad Anidamiento: " + profundidadAnidamiento + "\n";
-		
+		aux += "Direccion Base del bloque: " + direccionBaseBloque + "\n";
 		aux += "Marco Activacion: " + marcoActivacion + "\n";
 		
 		return aux;
