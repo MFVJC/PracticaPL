@@ -1,3 +1,15 @@
 int$ v = new int[3];
 
 $v[0] = 3;
+$v[1] = 5;
+$v[2] = 7;
+
+struct{
+int a;
+int b;
+int c;
+}tPersona;
+
+tPersona$ x = new tPersona[];
+$x.a = 1;
+$x.c = 43;
