@@ -681,10 +681,11 @@ public class GeneradorCodigo {
 		if(expresion.tipoExpresion() == TipoE.IDEN) {
 			Iden identificador = (Iden) expresion;
 			
-			//Diferencia profundidad anidamiento del identificador
 			int diferenciaPA = 0;
-			if(getBloqueNivelActual().estaIdentificador(identificador.getNombre())) diferenciaPA = 0;
-			else diferenciaPA = 1;
+			//Diferencia profundidad anidamiento del identificador
+
+				if(getBloqueNivelActual().estaIdentificador(identificador.getNombre())) diferenciaPA = 0;
+				else diferenciaPA = 1;
 			
 			int direccion = getBloqueNivelActual().getDireccionIdentificador(identificador.getNombre());
 			codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDA,1, Integer.toString(diferenciaPA), Integer.toString(direccion)));
@@ -702,8 +703,8 @@ public class GeneradorCodigo {
 				SentenciaAbstracta refIdentificador = identificador.getReferencia();
 					InstDeclaracion declaracionVariable = (InstDeclaracion) refIdentificador;
 					
-					//Diferencia profundidad anidamiento del identificador
 					int diferenciaPA = 0;
+					//Diferencia profundidad anidamiento del identificador
 					if(getBloqueNivelActual().estaIdentificador(identificador.getNombre())) diferenciaPA = 0;
 					else diferenciaPA = 1;
 					
