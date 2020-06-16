@@ -1,0 +1,12 @@
+boolean $a = new int[]; #Fallo por tipos distintos
+int $b = new boolean[3]; #Fallo por tipos distintos
+
+int $c = new int[];
+$c = false; #Fallo por tipos distintos
+
+int $d = new int[false]; #Fallo por dimension erronea
+
+int $e;
+e = 3; #Error, asignando puntero a int!
+
+int f = new int[]; #Error: estamos reservando memoria dinamica sobre un tipo que no es puntero

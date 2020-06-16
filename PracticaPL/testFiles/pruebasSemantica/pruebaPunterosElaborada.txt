@@ -1,0 +1,8 @@
+#Probamos punteros mas elaborados: tipos structs y array
+
+struct{
+int edad;
+boolean hombre;
+}tPersona;
+
+tPersona $p = new tPersona[];
