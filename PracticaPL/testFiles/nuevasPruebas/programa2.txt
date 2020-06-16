@@ -1,0 +1,8 @@
+int vectorFibonacci[13] = {1,1,0,0,0,0,0,0,0,0,0,0,0};
+int i= 2;
+while(i<13){
+	
+	vectorFibonacci[i]= vectorFibonacci[i-1]+vectorFibonacci[i-2];
+	i= i+1;
+
+}

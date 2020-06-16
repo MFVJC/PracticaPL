@@ -6,8 +6,9 @@ int i=0;
 while(a){
 	v[i] = 33;
 	i=i+1;
+	if(decision<5){
+		a=true;
+	}
+	decision= decision- 1;
 }
 
-if(decision<5){
-	a=true;
-}

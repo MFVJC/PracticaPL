@@ -1,0 +1,33 @@
+int vector[11]={1,2,3,4,5,6,7,8,9,10,11}; #Hay 5 elementos pares
+int numeroImpares=0;
+int numeroPares =0;
+
+#Calcula el número de elementos pares e impares del vector
+int j=0;
+while(j<11){
+	int divison1 = vector[j] /2;
+	int division2 = (vector[j] +1) /2;
+	if(divison1 == division2){
+		numeroPares = numeroPares + 1;
+	}else{
+		numeroImpares = numeroImpares +1;
+	}
+	j= j + 1;
+}
+
+int decision = numeroImpares- numeroPares; #Debería valer 1
+switch(decision){
+		case 1{
+		vector[1] = 6;
+		}
+		case 2{
+		vector[2] = 14;
+		}
+		case 3{
+		vector[3] = 5;
+		}
+		default {
+		vector[0]= 300;
+			#El valor decision no deberia valer algo que no sea 1 , 2 o 3 .
+		}
+	}
