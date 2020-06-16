@@ -264,8 +264,7 @@ public class AnalizadorSemantico {
 					Tipo tipoOriginal = tiposExpresion(instruccionAsignacion.getIdentificador());
 					Tipo tipoAsignar = tiposExpresion(instruccionAsignacion.getValor());
 					if(tipoOriginal.tipoEnumerado() == tipoAsignar.tipoEnumerado()) {
-						return true;
-						
+						return true;	
 					}else {
 						GestionErroresTiny.errorSemantico("Error de tipos en la asignación. Los tipos no coinciden. Intentando asignar a " + instruccionAsignacion.getIdentificador().toString() + " el valor " + instruccionAsignacion.getValor().toString()+ ".Tipos: " + tipoOriginal + " " + tipoAsignar,sentencia.getFila(),sentencia.getColumna());
 
@@ -312,14 +311,31 @@ public class AnalizadorSemantico {
 										break;
 									}
 								}
-						}else {
+						}else if(tipoDeclaracion.tipoEnumerado() == EnumeradoTipos.PUNTERO){
+							E valor = instruccionDeclaracion.getValor().get(0);
+							Tipo auxDeclaracion = tipoDeclaracion;
+							Tipo auxValorInicial = tiposExpresion(valor);
+							while(auxDeclaracion.tipoEnumerado() == EnumeradoTipos.PUNTERO && auxValorInicial.tipoEnumerado() == EnumeradoTipos.PUNTERO) {
+								if(auxDeclaracion.tipoEnumerado() != auxValorInicial.tipoEnumerado()) {
+									correct = false;
+									GestionErroresTiny.errorSemantico("Error tipos. El tipo de la declaración no concuerda con su valor inicial. Asignando a " + instruccionDeclaracion.getIdentificador().toString() + " el valor " + valor.toString() + ". Con tipos " + auxDeclaracion + " y " + auxValorInicial, sentencia.getFila(),sentencia.getColumna());
+								}
+								auxDeclaracion = ((TipoPuntero) auxDeclaracion).getTipoApuntado();
+								auxValorInicial = ((TipoPuntero) auxValorInicial).getTipoApuntado();	
+							}
+							//Aqui ya tendremos los tipos bases -> ultima comprobacion, si son distintos: error
+							if(auxDeclaracion.tipoEnumerado() != auxValorInicial.tipoEnumerado()) {
+								correct = false;
+								GestionErroresTiny.errorSemantico("Error tipos. El tipo de la declaración no concuerda con su valor inicial. Asignando a " + instruccionDeclaracion.getIdentificador().toString() + " el valor " + valor.toString() + ". Con tipos " + auxDeclaracion + " y " + auxValorInicial, sentencia.getFila(),sentencia.getColumna());
+							}				
+						} else {
 							E valor = instruccionDeclaracion.getValor().get(0);
 							Tipo aux = tiposExpresion(valor);
 							if(aux.tipoEnumerado() != tipoDeclaracion.tipoEnumerado()) {
 								correct = false;
 								GestionErroresTiny.errorSemantico("Error tipos. El tipo de la declaración no concuerda con su valor inicial. Asignando a " + instruccionDeclaracion.getIdentificador().toString() + " el valor " + valor.toString() + ". Con tipos " + tipoDeclaracion + " y " + aux,sentencia.getFila(),sentencia.getColumna());
 							}
-					}
+						}
 					}
 					return correct;
 				}else {
@@ -559,15 +575,17 @@ public class AnalizadorSemantico {
 				E expresion = (E) sentencia;
 				switch(expresion.tipoExpresion()) {
 				case DOLLAR:
-					Dollar asteriscoExp = (Dollar) expresion;
-					Tipo tipoPuntero = tiposExpresion(asteriscoExp.opnd1());
+					Dollar dollarExp = (Dollar) expresion;
+					Tipo tipoPuntero = tiposExpresion(dollarExp.opnd1());
 					if(tipoPuntero.tipoEnumerado() == EnumeradoTipos.PUNTERO) {
-						return new TipoPuntero(((TipoPuntero)tipoPuntero).getTipoApuntado(),sentencia.getFila(),sentencia.getColumna());
+						Tipo tipoApuntado = ((TipoPuntero) tipoPuntero).getTipoApuntado();
+						return tipoApuntado;
 					}
+					GestionErroresTiny.errorSemantico("Error de tipos. Intentando accede con el operador $ a un identificador que no es un puntero.", sentencia.getFila(), sentencia.getColumna());
 					break;
 				case NEW:
 					New newExp = (New)expresion;
-					if(tiposExpresion(newExp.getTam()).tipoEnumerado() == EnumeradoTipos.INT && newExp.getTipo().tipoEnumerado() != EnumeradoTipos.STRUCT  ) {
+					if(tiposExpresion(newExp.getTam()).tipoEnumerado() == EnumeradoTipos.INT) {
 						return new TipoPuntero(newExp.getTipo(),sentencia.getFila(),sentencia.getColumna());
 					}
 					break;

@@ -16,6 +16,7 @@ import ast.T.EnumeradoTipoGeneral;
 import ast.T.EnumeradoTipos;
 import ast.T.Tipo;
 import ast.T.TipoArray;
+import ast.T.TipoPuntero;
 import ast.T.TipoStruct;
 import javafx.util.Pair;
 import ast.E.*;
@@ -703,13 +704,21 @@ public class GeneradorCodigo {
 				break;
 			case DOT:
 				Dot dot = (Dot) expresion;
-				E struct = dot.opnd1();
-				E atributo= dot.opnd2();
+				E struct = dot.opnd1(); 
+				E campo = dot.opnd2();
+				Iden nombreStruct = null;
+				String nombreGeneralStruct = "";
 				
-				Iden nombreStruct = (Iden)struct;
-				String nombreGeneralStruct = ((TipoStruct)nombreStruct.getTipo()).getNombreStruct();
-				int direccionRelativaCampo= getBloqueNivelActual().getCampoStruct(nombreGeneralStruct,((Iden)atributo).getNombre());
+				if(struct.tipoExpresion() == TipoE.IDEN) {
+					nombreStruct = (Iden) struct;
+					nombreGeneralStruct = ((TipoStruct)nombreStruct.getTipo()).getNombreStruct();
+				} else if(struct.tipoExpresion() == TipoE.DOLLAR){ //Puede que sea dollar -> cogemos el identificador del dollar
+					nombreStruct = ((Iden) ((Dollar) struct).opnd1());
+					nombreGeneralStruct = ((TipoStruct) ((TipoPuntero) nombreStruct.getTipo()).getTipoApuntado()).getNombreStruct();
+				}				
+				
 				generaCodigoLeft(struct); //guarda la direccion del struct
+				int direccionRelativaCampo= getBloqueNivelActual().getCampoStruct(nombreGeneralStruct,((Iden)campo).getNombre());
 				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.LDC,1,Integer.toString(direccionRelativaCampo))); //guardo la dirección relativa al campo
 				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.ADD,-1)); //las sumo
 				break;
@@ -717,7 +726,7 @@ public class GeneradorCodigo {
 				Dollar dollar = (Dollar) expresion;
 				E operando1Dollar = dollar.opnd1();
 				generaCodigoLeft(operando1Dollar);
-
+				codigoGenerado.add(new InstruccionMaquina(InstruccionesMaquinaEnum.IND, 0));
 				
 				break;
 			default:
