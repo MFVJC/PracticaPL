@@ -812,14 +812,14 @@ public class GeneradorCodigo {
 			int tamanoArray = 1; //El tamano total sera el multiplicatorio de sus dimensiones por el tipo base
 			int tamanoTipoBase = 1;
 			TipoArray t = (TipoArray) declaracionArray.getTipo();
-
-			int dimension = Integer.parseInt(((Num) t.getDimension()).num());
+			
+			int dimension = obtenerDimensionArray(t.getDimension());
 			dimensiones.add(dimension);
 			tamanoArray *= dimension;
 			while(t.getTipoBase().tipoEnumerado() == EnumeradoTipos.ARRAY) { //Mientras sigan habiendo dimensiones
 				t = (TipoArray) t.getTipoBase();
 				
-				dimension = Integer.parseInt(((Num) t.getDimension()).num());
+				dimension = obtenerDimensionArray(t.getDimension());
 				dimensiones.add(dimension);
 				tamanoArray *= dimension;
 			}
@@ -837,6 +837,40 @@ public class GeneradorCodigo {
 			}
 			return new Pair(tamanoArray, new Pair(tamanoTipoBase, dimensiones));
 		}
+	}
+	
+	private int obtenerDimensionArray(E expresion) {
+		int dimension = 0;
+		switch(expresion.tipoExpresion()) {
+		case IDEN: //Case base 1
+			Iden iden = (Iden) expresion;
+			InstDeclaracion referencia = (InstDeclaracion) iden.getReferencia();
+			if(referencia.isConstant()) return obtenerDimensionArray(referencia.getValor().get(0));
+			else {
+				System.err.println("Error de ejecucion: La dimension del array debe ser un valor constante.");
+				return 0; 
+			}
+		case NUM: //Caso base 2
+			return Integer.parseInt(((Num) expresion).num());
+		//Casos recursivos
+		case SUMA:
+			E suma = ((Suma) expresion);
+			return obtenerDimensionArray(suma.opnd1()) + obtenerDimensionArray(suma.opnd2());
+		case RESTA:
+			E resta = ((Resta) expresion);
+			return obtenerDimensionArray(resta.opnd1()) - obtenerDimensionArray(resta.opnd2());
+		case MUL:
+			E mul = ((Mul) expresion);
+			return obtenerDimensionArray(mul.opnd1()) * obtenerDimensionArray(mul.opnd2());
+		case DIV:
+			E div = ((Div) expresion);
+			return obtenerDimensionArray(div.opnd1()) / obtenerDimensionArray(div.opnd2());
+		default:
+			System.err.println("Error de ejecucion: Operacion no soportada para la dimension de un array");
+			break;
+		}
+		
+		return dimension;
 	}
 	
 	private int tamanoPilaEvaluacion(int posicionInicial) {

@@ -184,6 +184,7 @@ public class AnalizadorSemantico {
 							if(refIdentificador instanceof InstDeclaracion) {
 								tabla.anadeTipoVariable(identificador.getNombre(), ((InstDeclaracion)refIdentificador).getTipo());
 								identificador.setTipo(((InstDeclaracion)refIdentificador).getTipo());
+								identificador.setReferencia(refIdentificador);
 							}else if(refIdentificador instanceof InstDeclFun) { //instancia de InstDeclFun
 								InstDeclFun declaracionFuncion = (InstDeclFun) refIdentificador;
 								for(Pair<Tipo,E> argumento: declaracionFuncion.getArgs()) {
@@ -643,7 +644,7 @@ public class AnalizadorSemantico {
 	}
 	public int tamanoArray(TipoArray array,SentenciaAbstracta sentencia) {
 		Tipo tipo = array;
-		int tamanoTotal =1 ;
+		int tamanoTotal = 1;
 		while(tipo  instanceof TipoArray ) {
 			if(((TipoArray)tipo).getDimension().tipoExpresion() != TipoE.NUM) {
 				GestionErroresTiny.errorSemantico("Error tipos. En la declaración de un vector, su dimensión debe ser un número",sentencia.getFila(),sentencia.getColumna());
